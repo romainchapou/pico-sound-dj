@@ -3,7 +3,7 @@
 function _init()
   -- set key repeat
   poke(0x5f5c, 8)
-  poke(0x5f5d, 2)
+  poke(0x5f5d, 1)
 
   note_names = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
 
@@ -179,7 +179,12 @@ function _draw()
     sel_x += 13 + 5*(sub_selection-1)
   end
 
-  rectfill(sel_x, sel_y-1, sel_x + sel_width, sel_y+5, 8)
+  rectfill(sel_x, sel_y-1, sel_x + sel_width, sel_y+5, 9)
+
+  print("♪",  4, 10, 6)
+  print("i", 15, 10, 6)
+  print("v", 20, 10, 6)
+  print("e", 25, 10, 6)
 
   for i=1,16 do
     local x, y = 2, start_y + i*6
