@@ -93,7 +93,7 @@ function update_menu()
       cur_note.effect = mid(0, cur_note.effect + get_delta_value(1), 7)
     end
 
-    if get_delta_value(1) ~= 0 or btnp(5) then
+    if get_delta_value(1) ~= 0 or btnp_once(5) then
       play_tmp_note(cur_note)
     end
 
@@ -101,7 +101,7 @@ function update_menu()
   end
 
   if btn(4) then
-    if btnp(5) and cur_note.volume ~= 0 then
+    if btnp_once(5) and cur_note.volume ~= 0 then
       last_volume = cur_note.volume
       -- delete the note
       cur_note.volume = 0
@@ -128,7 +128,7 @@ function update_menu()
 
   selection %= 32
 
-  if btnp(4) then
+  if btnp_once(4) then
     cur_note.volume = cur_note.volume == 0 and 5 or 0
   end
 end
@@ -162,6 +162,7 @@ end
 
 function _update60()
   update_menu()
+  key_handler:update()
 end
 
 function _draw()

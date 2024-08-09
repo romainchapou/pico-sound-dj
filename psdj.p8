@@ -2,6 +2,10 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
+#include class.lua
+
+#include key_handler.lua
+
 #include main.lua
 
 __gfx__
