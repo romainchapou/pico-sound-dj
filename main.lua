@@ -2,7 +2,7 @@
 
 function _init()
   -- set key repeat
-  poke(0x5f5c, 8)
+  poke(0x5f5c, 4)
   poke(0x5f5d, 1)
 
   note_names = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
@@ -19,6 +19,10 @@ function _init()
     add(notes, make_note_widget())
   end
 
+  last_edited_note = make_note_widget()
+  last_edited_note.volume.value = 5
+  last_edited_note.pitch.value = 24
+
   menuitem(1, "play", function()
     store_in_mem()
     sfx(0)
@@ -28,6 +32,11 @@ function _init()
     store_in_mem()
     cstore(0x3200, 0x3200, 64)
   end)
+
+  -- debug:add("last", function()
+  --   return note_names[last_edited_note.pitch.value % 12 + 1] ..
+  --          tostr(last_edited_note.pitch.value \ 12)
+  -- end)
 end
 
 function get_delta_value(high, low)
@@ -44,9 +53,7 @@ function get_delta_value(high, low)
 end
 
 function update_menu()
-  local cur_note = notes[selection+1]
-
-  cur_note:update(sub_selection)
+  notes[selection+1]:update(sub_selection)
 
   if not btn(4) and not btn(5) then
     if btnp(0) then sub_selection -= 1 end
@@ -58,7 +65,7 @@ function update_menu()
     if btnp(3) then selection += 1 end
   end
 
-  selection %= 32
+  selection = mid(0, selection, 31)
 end
 
 function store_in_mem()
@@ -85,9 +92,9 @@ function _draw()
 
   for i=0,1 do
     print("♪", start_x + i*40 +  2, 10, 6)
-    print("i", start_x + i*40 + 15, 10, 6)
-    print("v", start_x + i*40 + 21, 10, 6)
-    print("e", start_x + i*40 + 27, 10, 6)
+    print("i", start_x + i*40 + 16, 10, 6)
+    print("v", start_x + i*40 + 22, 10, 6)
+    print("e", start_x + i*40 + 28, 10, 6)
   end
 
   for i=1,16 do

@@ -38,18 +38,16 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
 end
 
 function make_note_widget()
-  local GLOBAL = _ENV
-
   local pitch_draw_func = function(_ENV, x, y, is_selected)
     if is_selected then
       rectfill(x-2, y-1, x+12, y+5, 9)
     end
 
-    print(GLOBAL.note_names[value % 12 + 1], x, y, 0)
+    print(note_names[value % 12 + 1], x, y, 0)
     print(value \ 12, x+8, y, 0)
   end
 
-  return {
+  return class:new {
     pitch    = make_input_widget(0, 0, 63, 12, pitch_draw_func),
     waveform = make_input_widget(0, 0, 7),  -- aka instrument
     volume   = make_input_widget(0, 0, 7),
@@ -61,25 +59,65 @@ function make_note_widget()
 
     play_tmp_note = function(_ENV)
       store_in_mem(_ENV, 0x3200 + 68) -- store to first note of sfx 1
-      GLOBAL.sfx(1, -1, 0, 1)
+      sfx(1, -1, 0, 1)
     end,
 
+    copy_values = function(_ENV, other_note)
+      for i,e in ipairs(get_sub_widgets(_ENV)) do
+        e.value = other_note:get_sub_widgets()[i].value
+      end
+    end,
+
+    -- we assume that this is the selected note
     update = function(_ENV, sub_selection)
-      local sub_widget = get_sub_widgets(_ENV)[sub_selection+1]
-      local old_value = sub_widget.value
+      if btn(4) then
+        if btnp_once(5) then
+          -- cut the selection by copying its value to last_edited_note
+          GLOBAL.last_edited_note = make_note_widget()
+          GLOBAL.last_edited_note:copy_values(_ENV)
 
-      sub_widget:update()
+          volume.value = 0
+        end
 
-      if sub_widget.value ~= old_value or GLOBAL.btnp_once(5) then
-        play_tmp_note(_ENV)
+        return
+      end
+
+      if volume.value == 0 then
+        if btnp(5) then
+          copy_values(_ENV, GLOBAL.last_edited_note)
+
+          if volume.value == 0 then
+            volume.value = 5
+          end
+
+          play_tmp_note(_ENV)
+        end
+      else
+        local sub_widget = get_sub_widgets(_ENV)[sub_selection+1]
+        local old_value = sub_widget.value
+
+        sub_widget:update()
+
+        if sub_widget.value ~= old_value or btnp_once(5) then
+          play_tmp_note(_ENV)
+          GLOBAL.last_edited_note = _ENV
+        end
       end
     end,
 
     draw = function(_ENV, x, y, is_note_selected, sub_selection)
-      pitch:draw(x, y, is_note_selected and sub_selection == 0)
-      waveform:draw(x+15, y, is_note_selected and sub_selection == 1)
-      volume:draw(x+21, y, is_note_selected and sub_selection == 2)
-      effect:draw(x+27, y, is_note_selected and sub_selection == 3)
+      if volume.value > 0 then
+        pitch:draw(x, y, is_note_selected and sub_selection == 0)
+        waveform:draw(x+16, y, is_note_selected and sub_selection == 1)
+        volume:draw(x+22, y, is_note_selected and sub_selection == 2)
+        effect:draw(x+28, y, is_note_selected and sub_selection == 3)
+      else
+        if is_note_selected then
+          rectfill(x-1, y-1, x+31, y+5, 9)
+        end
+        print("________", x, y-2, 0)
+      end
+
     end,
 
     store_in_mem = function(_ENV, addr)
