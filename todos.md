@@ -1,5 +1,10 @@
 - penser à un system de notification/message global
 
+# Test MM+
+
+- [ ] voir si le rebind des touches fonctionne pour avoir les input de player 2 sur select
+
+
 # Vue Pattern
 
 - trouver une manière de set le speed de plusieurs sfx à la fois

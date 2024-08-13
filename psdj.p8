@@ -4,6 +4,8 @@ __lua__
 
 #include class.lua
 
+#include debug.lua
+
 #include input_widget.lua
 
 #include key_handler.lua
