@@ -1,6 +1,9 @@
 function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   if draw == nil then
     draw = function(_ENV, x, y, is_selected)
+      -- @Cleanup: this is used in every widget, so we could refactor by
+      -- splitting the draw function in two and just providing a size for the
+      -- rectangle to highlight
       if is_selected then
         rectfill(x-2, y-1, x+4, y+5, 9)
       end
@@ -47,11 +50,19 @@ function make_note_widget()
     print(value \ 12, x+8, y, 0)
   end
 
+  local effect_draw_func = function(_ENV, x, y, is_selected)
+      if is_selected then
+        rectfill(x-2, y-1, x+4, y+5, 9)
+      end
+
+      print(value == 0 and "." or value, x, y - (value == 0 and 2 or 0), 0)
+  end
+
   return class:new {
     pitch    = make_input_widget(0, 0, 63, 12, pitch_draw_func),
     waveform = make_input_widget(0, 0, 7),  -- aka instrument
     volume   = make_input_widget(0, 0, 7),
-    effect   = make_input_widget(0, 0, 7),
+    effect   = make_input_widget(0, 0, 7, nil, effect_draw_func),
 
     get_sub_widgets = function(_ENV)
       return {pitch, waveform, volume, effect}
@@ -84,6 +95,12 @@ function make_note_widget()
 
       if volume.value == 0 then
         if btnp(5) then
+          -- TODO not great, better if we didn't have a difference between a
+          -- null note and a non null, so we could still travel by columns
+          --
+          -- reset the sub_selection
+          GLOBAL.sub_selection = 0
+
           copy_values(_ENV, GLOBAL.last_edited_note)
 
           if volume.value == 0 then
@@ -113,9 +130,12 @@ function make_note_widget()
         effect:draw(x+28, y, is_note_selected and sub_selection == 3)
       else
         if is_note_selected then
-          rectfill(x-1, y-1, x+31, y+5, 9)
+          rectfill(x-2, y-1, x+32, y+5, 9)
         end
-        print("________", x, y-2, 0)
+        print("...", x,  y-2, 0)
+        print(".", x+16, y-2, 0)
+        print(".", x+22, y-2, 0)
+        print(".", x+28, y-2, 0)
       end
 
     end,

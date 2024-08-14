@@ -7,6 +7,8 @@ function _init()
 
   note_names = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
 
+  hex_values = "0123456789abcdef"
+
   last_pitch = 24
   last_volume = 5
 
@@ -33,10 +35,8 @@ function _init()
     cstore(0x3200, 0x3200, 64)
   end)
 
-  -- debug:add("last", function()
-  --   return note_names[last_edited_note.pitch.value % 12 + 1] ..
-  --          tostr(last_edited_note.pitch.value \ 12)
-  -- end)
+  T = 0 -- test variable
+  -- debug:add("last", function() return T end)
 end
 
 function get_delta_value(high, low)
@@ -81,27 +81,46 @@ function store_in_mem()
 end
 
 function _update60()
+  if btnp(0) then T -= 1 end
+  if btnp(1) then T += 1 end
+
   update_menu()
   key_handler:update()
 end
 
 function _draw()
-  local start_x, start_y = 2, 12
+  local start_x, start_y, col_x_diff = 8, 12, 46
 
   cls(7)
 
   for i=0,1 do
-    print("♪", start_x + i*40 +  2, 10, 6)
-    print("i", start_x + i*40 + 16, 10, 6)
-    print("v", start_x + i*40 + 22, 10, 6)
-    print("e", start_x + i*40 + 28, 10, 6)
+    print("♪", start_x + i*col_x_diff +  2, 10, 6)
+    print("i", start_x + i*col_x_diff + 16, 10, 6)
+    print("v", start_x + i*col_x_diff + 22, 10, 6)
+    print("e", start_x + i*col_x_diff + 28, 10, 6)
+
+    fillp(0b10100101.1)
+    line(start_x + 15 + i*col_x_diff -2, start_y + 5,
+         start_x + 15 + i*col_x_diff -2, start_y + 101, 6)
+    fillp()
   end
+
+  rectfill(start_x-8, start_y+6, start_x-4, start_y+28, 9)
+  rectfill(start_x-8, start_y+54, start_x-4, start_y+76, 9)
+
+  rectfill(start_x-8+col_x_diff, start_y+6,  start_x-4+col_x_diff, start_y+28, 9)
+  rectfill(start_x-8+col_x_diff, start_y+54, start_x-4+col_x_diff, start_y+76, 9)
 
   for i=1,16 do
     local x, y = start_x, start_y + i*6
 
+    print(hex_values[i], x-7, y, (i-1)\4 % 2 == 0 and 7 or 6)
+
     notes[i]:draw(x, y, i-1 == selection, sub_selection)
-    x += 40
+    x += col_x_diff
+
+    print(hex_values[i], x-7, y, (i-1)\4 % 2 == 0 and 7 or 6)
+
     notes[i+16]:draw(x, y, i+15 == selection, sub_selection)
   end
 
