@@ -37,6 +37,7 @@ function _init()
 
   T = 0 -- test variable
   -- debug:add("last", function() return T end)
+  -- debug:add("sub_sel", function() return sub_selection end)
 end
 
 function get_delta_value(high, low)
@@ -89,40 +90,49 @@ function _update60()
 end
 
 function _draw()
-  local start_x, start_y, col_x_diff = 8, 12, 46
-
   cls(7)
 
-  for i=0,1 do
-    print("♪", start_x + i*col_x_diff +  2, 10, 6)
-    print("i", start_x + i*col_x_diff + 16, 10, 6)
-    print("v", start_x + i*col_x_diff + 22, 10, 6)
-    print("e", start_x + i*col_x_diff + 28, 10, 6)
+  local start_x, start_y, col_x_diff = 10, 12, 48
 
-    fillp(0b10100101.1)
-    line(start_x + 15 + i*col_x_diff -2, start_y + 5,
-         start_x + 15 + i*col_x_diff -2, start_y + 101, 6)
+  for i=0,1 do
+    rectfill(start_x + i*col_x_diff - 10, 9, start_x + i*col_x_diff - 6, 15, 6)
+
+    print(i,   start_x + i*col_x_diff -  9, 10, 7)
+    print("♪", start_x + i*col_x_diff +  2, 10, 6)
+    print("i", start_x + i*col_x_diff + 18, 10, 6)
+    print("v", start_x + i*col_x_diff + 24, 10, 6)
+    print("e", start_x + i*col_x_diff + 30, 10, 6)
+
+    fillp(0b01011010.1)
+    line(start_x + 16 + i*col_x_diff -2, start_y + 5,
+         start_x + 16 + i*col_x_diff -2, start_y + 101, 6)
     fillp()
   end
 
-  rectfill(start_x-8, start_y+6, start_x-4, start_y+28, 9)
-  rectfill(start_x-8, start_y+54, start_x-4, start_y+76, 9)
+  rectfill(start_x-10, start_y+6, start_x-6, start_y+28, 9)
+  rectfill(start_x-10, start_y+54, start_x-6, start_y+76, 9)
 
-  rectfill(start_x-8+col_x_diff, start_y+6,  start_x-4+col_x_diff, start_y+28, 9)
-  rectfill(start_x-8+col_x_diff, start_y+54, start_x-4+col_x_diff, start_y+76, 9)
+  rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
+  rectfill(start_x-10+col_x_diff, start_y+54, start_x-6+col_x_diff, start_y+76, 9)
 
   for i=1,16 do
     local x, y = start_x, start_y + i*6
 
-    print(hex_values[i], x-7, y, (i-1)\4 % 2 == 0 and 7 or 6)
+    print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
     notes[i]:draw(x, y, i-1 == selection, sub_selection)
     x += col_x_diff
 
-    print(hex_values[i], x-7, y, (i-1)\4 % 2 == 0 and 7 or 6)
+    print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
     notes[i+16]:draw(x, y, i+15 == selection, sub_selection)
   end
+
+  print("noiz:0", 98, 10, 6)
+  print("buzz:0", 98, 16, 6)
+  print("detu:0", 98, 22, 6)
+  print("rvrb:0", 98, 28, 6)
+  print("damp:0", 98, 34, 6)
 
   print(selection, 0, 0, 0)
   print(sub_selection, 10, 0, 0)
