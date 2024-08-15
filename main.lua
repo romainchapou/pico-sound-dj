@@ -80,6 +80,17 @@ function update_note_panel()
     if btnp(0) then note_sub_selection -= 1 end
     if btnp(1) then note_sub_selection += 1 end
 
+    -- move from one note column to the other
+    if note_sub_selection < 0 and note_selection >= 16 then
+      note_sub_selection = 3
+      note_selection -= 16
+    elseif note_sub_selection > 3 and note_selection < 16 then
+      note_sub_selection = 0
+      note_selection += 16
+    elseif note_sub_selection > 3 and note_selection >= 16 then
+      panel_selection = 1
+    end
+
     note_sub_selection = mid(0, note_sub_selection, 3)
 
     if btnp(2) then note_selection -= 1 end
@@ -93,6 +104,8 @@ function update_settings_panel()
   sfx_settings[settings_selection+1]:update()
 
   if not btn(4) and not btn(5) then
+    if btnp(0) then panel_selection = 0 end
+
     if btnp(2) then settings_selection -= 1 end
     if btnp(3) then settings_selection += 1 end
 
@@ -176,7 +189,7 @@ function _draw()
   -- draw the settings
   sfx_speed:draw(99,    18, panel_selection == 1 and settings_selection == 0)
 
-  print("loop", 99, 30, 6)
+  print("-loop-", 99, 30, 6)
 
   sfx_loop_in:draw(103, 36, panel_selection == 1 and settings_selection == 1)
   sfx_loop_out:draw(99, 42, panel_selection == 1 and settings_selection == 2)
