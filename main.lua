@@ -32,8 +32,8 @@ function _init()
 
   sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
 
-  sfx_loop_in   = make_named_input_widget("in",  0, 0, 31, 4)
-  sfx_loop_out  = make_named_input_widget("out", 0, 0, 31, 4)
+  sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 4)
+  sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 4)
 
   sfx_noise  = make_named_input_widget("noiz", 0, 0, 1)
   sfx_buzz   = make_named_input_widget("buzz", 0, 0, 1)
@@ -52,7 +52,7 @@ function _init()
 
   menuitem(2, "save", function()
     store_in_mem()
-    cstore(0x3200, 0x3200, 64)
+    cstore(0x3200, 0x3200, 68)
   end)
 
   T = 0 -- test variable
@@ -113,6 +113,7 @@ function update_settings_panel()
   end
 end
 
+-- @Incomplete: extend to any sfx number
 function store_in_mem()
   local sfxid = 0
 
@@ -123,12 +124,31 @@ function store_in_mem()
     notes[i]:store_in_mem(sfxaddr)
     sfxaddr += 2
   end
+
+  -- following byte, editor mode and filter switches
+  local byte = 0
+  byte += 1 -- TODO beware that we may not want to override the editor mode
+  byte += shl(sfx_noise.value, 1)
+  byte += shl(sfx_buzz.value, 2)
+  byte += sfx_detune.value * 8
+  byte += sfx_reverb.value * 24
+  byte += sfx_dampen.value * 72
+  poke(sfxaddr, byte)
+
+  sfxaddr += 1
+  poke(sfxaddr, sfx_speed.value)
+
+  sfxaddr += 1
+  poke(sfxaddr, sfx_loop_in.value)
+
+  sfxaddr += 1
+  poke(sfxaddr, sfx_loop_out.value)
 end
 
 function _update60()
   -- debug
-  if btnp(0) then T -= 1 end
-  if btnp(1) then T += 1 end
+  if btnp(0, 1) then T -= 1 end
+  if btnp(1, 1) then T += 1 end
 
   if btn(4) then
     if btnp(0) then panel_selection -= 1 end
