@@ -14,8 +14,13 @@ function _init()
 
   notes = {}
 
-  selection = 0
-  sub_selection = 0
+  -- 0 for the note panel, 1 for the settings panel
+  panel_selection = 0
+
+  settings_selection = 0
+
+  note_selection = 0
+  note_sub_selection = 0
 
   for i=1,32 do
     add(notes, make_note_widget())
@@ -24,6 +29,21 @@ function _init()
   last_edited_note = make_note_widget()
   last_edited_note.volume.value = 5
   last_edited_note.pitch.value = 24
+
+  sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
+
+  sfx_loop_in   = make_named_input_widget("in",  0, 0, 31, 4)
+  sfx_loop_out  = make_named_input_widget("out", 0, 0, 31, 4)
+
+  sfx_noise  = make_named_input_widget("noiz", 0, 0, 1)
+  sfx_buzz   = make_named_input_widget("buzz", 0, 0, 1)
+  sfx_detune = make_named_input_widget("detu", 0, 0, 2)
+  sfx_reverb = make_named_input_widget("revb", 0, 0, 2)
+  sfx_dampen = make_named_input_widget("damp", 0, 0, 2)
+
+  sfx_settings = {
+    sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise, sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
+  }
 
   menuitem(1, "play", function()
     store_in_mem()
@@ -37,7 +57,7 @@ function _init()
 
   T = 0 -- test variable
   -- debug:add("last", function() return T end)
-  -- debug:add("sub_sel", function() return sub_selection end)
+  -- debug:add("sub_sel", function() return note_sub_selection end)
 end
 
 function get_delta_value(high, low)
@@ -53,20 +73,31 @@ function get_delta_value(high, low)
   return delta
 end
 
-function update_menu()
-  notes[selection+1]:update(sub_selection)
+function update_note_panel()
+  notes[note_selection+1]:update(note_sub_selection)
 
   if not btn(4) and not btn(5) then
-    if btnp(0) then sub_selection -= 1 end
-    if btnp(1) then sub_selection += 1 end
+    if btnp(0) then note_sub_selection -= 1 end
+    if btnp(1) then note_sub_selection += 1 end
 
-    sub_selection = mid(0, sub_selection, 3)
+    note_sub_selection = mid(0, note_sub_selection, 3)
 
-    if btnp(2) then selection -= 1 end
-    if btnp(3) then selection += 1 end
+    if btnp(2) then note_selection -= 1 end
+    if btnp(3) then note_selection += 1 end
   end
 
-  selection = mid(0, selection, 31)
+  note_selection = mid(0, note_selection, 31)
+end
+
+function update_settings_panel()
+  sfx_settings[settings_selection+1]:update()
+
+  if not btn(4) and not btn(5) then
+    if btnp(2) then settings_selection -= 1 end
+    if btnp(3) then settings_selection += 1 end
+
+    settings_selection = mid(0, settings_selection, #sfx_settings-1)
+  end
 end
 
 function store_in_mem()
@@ -82,10 +113,23 @@ function store_in_mem()
 end
 
 function _update60()
+  -- debug
   if btnp(0) then T -= 1 end
   if btnp(1) then T += 1 end
 
-  update_menu()
+  if btn(4) then
+    if btnp(0) then panel_selection -= 1 end
+    if btnp(1) then panel_selection += 1 end
+
+    panel_selection = mid(0, panel_selection, 1)
+  end
+
+  if panel_selection == 0 then
+    update_note_panel()
+  elseif panel_selection == 1 then
+    update_settings_panel()
+  end
+
   key_handler:update()
 end
 
@@ -115,27 +159,31 @@ function _draw()
   rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
   rectfill(start_x-10+col_x_diff, start_y+54, start_x-6+col_x_diff, start_y+76, 9)
 
+  -- draw the notes
   for i=1,16 do
     local x, y = start_x, start_y + i*6
 
     print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-    notes[i]:draw(x, y, i-1 == selection, sub_selection)
+    notes[i]:draw(x, y, panel_selection == 0 and i-1 == note_selection, note_sub_selection)
     x += col_x_diff
 
     print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-    notes[i+16]:draw(x, y, i+15 == selection, sub_selection)
+    notes[i+16]:draw(x, y, panel_selection == 0 and i+15 == note_selection, note_sub_selection)
   end
 
-  print("noiz:0", 98, 10, 6)
-  print("buzz:0", 98, 16, 6)
-  print("detu:0", 98, 22, 6)
-  print("rvrb:0", 98, 28, 6)
-  print("damp:0", 98, 34, 6)
+  -- draw the settings
+  sfx_speed:draw(99,    18, panel_selection == 1 and settings_selection == 0)
 
-  print(selection, 0, 0, 0)
-  print(sub_selection, 10, 0, 0)
+  print("loop", 99, 30, 6)
+
+  sfx_loop_in:draw(103, 36, panel_selection == 1 and settings_selection == 1)
+  sfx_loop_out:draw(99, 42, panel_selection == 1 and settings_selection == 2)
+
+  for i=4,#sfx_settings do
+    sfx_settings[i]:draw(99, 30 + i*6, panel_selection == 1 and i-1 == settings_selection)
+  end
 
   debug:draw()
 end

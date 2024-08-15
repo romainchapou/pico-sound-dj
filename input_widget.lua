@@ -40,6 +40,25 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   }
 end
 
+function make_named_input_widget(name, base_val, min_val, max_val, delta, draw, update)
+  if draw == nil then
+    draw = function(_ENV, x, y, is_selected)
+      if name ~= nil then
+        if is_selected then
+          rectfill(#name*4+5 + x-2, y-1, #name*4+1 + x+4 + #tostr(value)*4, y+5, 9)
+        end
+
+        print(name .. ":", x, y, is_selected and 0 or 6)
+        print(value, x + #name*4+4+1, y, 0)
+      end
+    end
+  end
+
+  local input_widget = make_input_widget(base_val, min_val, max_val, delta, draw, update)
+
+  return input_widget
+end
+
 function make_note_widget()
   local pitch_draw_func = function(_ENV, x, y, is_selected, is_activated)
     if is_selected then
