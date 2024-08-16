@@ -45,6 +45,9 @@ sfx_editor = class:new {
       if btnp(0) then panel_selection -= 1 end
       if btnp(1) then panel_selection += 1 end
 
+      if btnp(2) then change_sfx(_ENV, sfx_id-1) end
+      if btnp(3) then change_sfx(_ENV, sfx_id+1) end
+
       panel_selection = mid(0, panel_selection, 1)
     end
 
@@ -56,6 +59,8 @@ sfx_editor = class:new {
   end,
 
   draw = function(_ENV)
+    print("sfx " .. tostr(sfx_id), 1, 1, 6)
+
     local start_x, start_y, col_x_diff = 10, 12, 48
 
     for i=0,1 do
@@ -148,6 +153,14 @@ sfx_editor = class:new {
     end
   end,
 
+  change_sfx = function(_ENV, new_sfx_id)
+    new_sfx_id = mid(0, new_sfx_id, 63)
+
+    if new_sfx_id == sfx_id then return end
+
+    store_sfx_in_memory(_ENV)
+    init(_ENV, new_sfx_id)
+  end,
 
   -- IO / memory synchronisation
 

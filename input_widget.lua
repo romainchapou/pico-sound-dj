@@ -96,8 +96,8 @@ function make_note_widget()
       -- TODO also store sfx settings for the proper playback
       -- TODO also maybe store the previous note for the correct playback of the slide effect
       -- TODO store not in sfx 1 but in the free memory and point to it for the playback to avoid overlaps
-      store_in_mem(_ENV, 0x3200 + 68) -- store to first note of sfx 1
-      sfx(1, -1, 0, 1)
+      store_in_mem(_ENV, 0x3200 + 68*63) -- store to first note of sfx 63
+      sfx(63, -1, 0, 1)
     end,
 
     copy_values = function(_ENV, other_note)

@@ -10,13 +10,13 @@ function _init()
 
   menuitem(1, "play", function()
     sfx_editor:store_sfx_in_memory()
-    sfx(0)
+    sfx(sfx_editor.sfx_id)
   end)
 
   menuitem(2, "save", function()
     sfx_editor:store_sfx_in_memory()
     -- TODO adapt
-    cstore(0x3200, 0x3200, 68)
+    cstore(0x3200, 0x3200, 64*68)
   end)
 
   T = 0 -- test variable
