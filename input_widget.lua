@@ -78,7 +78,8 @@ function make_note_widget()
         rectfill(x-2, y-1, x+4, y+5, 9)
       end
 
-      print(value == 0 and "." or value, x, y - (value == 0 and 2 or 0), 0)
+      local do_print = value == 0 or not is_activated
+      print(do_print and "." or value, x, y - (do_print and 2 or 0), 0)
   end
 
   return class:new {
@@ -92,6 +93,9 @@ function make_note_widget()
     end,
 
     play_tmp_note = function(_ENV)
+      -- TODO also store sfx settings for the proper playback
+      -- TODO also maybe store the previous note for the correct playback of the slide effect
+      -- TODO store not in sfx 1 but in the free memory and point to it for the playback to avoid overlaps
       store_in_mem(_ENV, 0x3200 + 68) -- store to first note of sfx 1
       sfx(1, -1, 0, 1)
     end,
@@ -156,8 +160,20 @@ function make_note_widget()
       v += shl(waveform.value, 6)
       v += shl(volume.value, 9)
       v += shl(effect.value, 12)
+      -- TODO purposefully letting the custom instrument byte be 0
 
       poke2(addr, v)
+    end,
+
+    load_from_mem = function(_ENV, addr)
+      local data = peek2(addr)
+
+      pitch.value    =     data & 0b0000000000111111
+      waveform.value = shr(data & 0b0000000111000000, 6)
+      volume.value   = shr(data & 0b0000111000000000, 9)
+      effect.value   = shr(data & 0b0111000000000000, 12)
+
+      -- TODO custom instrument byte
     end,
   }
 end

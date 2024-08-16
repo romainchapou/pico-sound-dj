@@ -46,18 +46,21 @@ function _init()
   }
 
   menuitem(1, "play", function()
-    store_in_mem()
+    store_sfx_in_memory(0)
     sfx(0)
   end)
 
   menuitem(2, "save", function()
-    store_in_mem()
+    store_sfx_in_memory(0)
+    -- TODO adapt
     cstore(0x3200, 0x3200, 68)
   end)
 
   T = 0 -- test variable
   -- debug:add("last", function() return T end)
   -- debug:add("sub_sel", function() return note_sub_selection end)
+
+  load_sfx_from_memory(0)
 end
 
 function get_delta_value(high, low)
@@ -111,38 +114,6 @@ function update_settings_panel()
 
     settings_selection = mid(0, settings_selection, #sfx_settings-1)
   end
-end
-
--- @Incomplete: extend to any sfx number
-function store_in_mem()
-  local sfxid = 0
-
-  -- compute address of sfx
-  local sfxaddr = 0x3200
-
-  for i=1,32 do
-    notes[i]:store_in_mem(sfxaddr)
-    sfxaddr += 2
-  end
-
-  -- following byte, editor mode and filter switches
-  local byte = 0
-  byte += 1 -- TODO beware that we may not want to override the editor mode
-  byte += shl(sfx_noise.value, 1)
-  byte += shl(sfx_buzz.value, 2)
-  byte += sfx_detune.value * 8
-  byte += sfx_reverb.value * 24
-  byte += sfx_dampen.value * 72
-  poke(sfxaddr, byte)
-
-  sfxaddr += 1
-  poke(sfxaddr, sfx_speed.value)
-
-  sfxaddr += 1
-  poke(sfxaddr, sfx_loop_in.value)
-
-  sfxaddr += 1
-  poke(sfxaddr, sfx_loop_out.value)
 end
 
 function _update60()
