@@ -5,53 +5,16 @@ function _init()
   poke(0x5f5c, 4)
   poke(0x5f5d, 1)
 
-  note_names = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
-
-  hex_values = "0123456789abcdef"
-
-  last_pitch = 24
-  last_volume = 5
-
-  notes = {}
-
-  -- 0 for the note panel, 1 for the settings panel
-  panel_selection = 0
-
-  settings_selection = 0
-
-  note_selection = 0
-  note_sub_selection = 0
-
-  for i=1,32 do
-    add(notes, make_note_widget())
-  end
-
-  last_edited_note = make_note_widget()
-  last_edited_note.volume.value = 5
-  last_edited_note.pitch.value = 24
-
-  sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
-
-  sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 4)
-  sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 4)
-
-  sfx_noise  = make_named_input_widget("noiz", 0, 0, 1)
-  sfx_buzz   = make_named_input_widget("buzz", 0, 0, 1)
-  sfx_detune = make_named_input_widget("detu", 0, 0, 2)
-  sfx_reverb = make_named_input_widget("revb", 0, 0, 2)
-  sfx_dampen = make_named_input_widget("damp", 0, 0, 2)
-
-  sfx_settings = {
-    sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise, sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
-  }
+  NOTE_NAMES = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
+  HEX_VALUES = "0123456789abcdef"
 
   menuitem(1, "play", function()
-    store_sfx_in_memory(0)
+    sfx_editor:store_sfx_in_memory()
     sfx(0)
   end)
 
   menuitem(2, "save", function()
-    store_sfx_in_memory(0)
+    sfx_editor:store_sfx_in_memory()
     -- TODO adapt
     cstore(0x3200, 0x3200, 68)
   end)
@@ -60,60 +23,7 @@ function _init()
   -- debug:add("last", function() return T end)
   -- debug:add("sub_sel", function() return note_sub_selection end)
 
-  load_sfx_from_memory(0)
-end
-
-function get_delta_value(high, low)
-  local delta = 0
-
-  if low == nil then low = 1 end
-
-  if btnp(0) then delta = -low end
-  if btnp(1) then delta = low end
-  if btnp(2) then delta = high end
-  if btnp(3) then delta = -high end
-
-  return delta
-end
-
-function update_note_panel()
-  notes[note_selection+1]:update(note_sub_selection)
-
-  if not btn(4) and not btn(5) then
-    if btnp(0) then note_sub_selection -= 1 end
-    if btnp(1) then note_sub_selection += 1 end
-
-    -- move from one note column to the other
-    if note_sub_selection < 0 and note_selection >= 16 then
-      note_sub_selection = 3
-      note_selection -= 16
-    elseif note_sub_selection > 3 and note_selection < 16 then
-      note_sub_selection = 0
-      note_selection += 16
-    elseif note_sub_selection > 3 and note_selection >= 16 then
-      panel_selection = 1
-    end
-
-    note_sub_selection = mid(0, note_sub_selection, 3)
-
-    if btnp(2) then note_selection -= 1 end
-    if btnp(3) then note_selection += 1 end
-  end
-
-  note_selection = mid(0, note_selection, 31)
-end
-
-function update_settings_panel()
-  sfx_settings[settings_selection+1]:update()
-
-  if not btn(4) and not btn(5) then
-    if btnp(0) then panel_selection = 0 end
-
-    if btnp(2) then settings_selection -= 1 end
-    if btnp(3) then settings_selection += 1 end
-
-    settings_selection = mid(0, settings_selection, #sfx_settings-1)
-  end
+  sfx_editor:init(0)
 end
 
 function _update60()
@@ -121,18 +31,7 @@ function _update60()
   if btnp(0, 1) then T -= 1 end
   if btnp(1, 1) then T += 1 end
 
-  if btn(4) then
-    if btnp(0) then panel_selection -= 1 end
-    if btnp(1) then panel_selection += 1 end
-
-    panel_selection = mid(0, panel_selection, 1)
-  end
-
-  if panel_selection == 0 then
-    update_note_panel()
-  elseif panel_selection == 1 then
-    update_settings_panel()
-  end
+  sfx_editor:update()
 
   key_handler:update()
 end
@@ -140,54 +39,7 @@ end
 function _draw()
   cls(7)
 
-  local start_x, start_y, col_x_diff = 10, 12, 48
-
-  for i=0,1 do
-    rectfill(start_x + i*col_x_diff - 10, 9, start_x + i*col_x_diff - 6, 15, 6)
-
-    print(i,   start_x + i*col_x_diff -  9, 10, 7)
-    print("♪", start_x + i*col_x_diff +  2, 10, 6)
-    print("i", start_x + i*col_x_diff + 18, 10, 6)
-    print("v", start_x + i*col_x_diff + 24, 10, 6)
-    print("e", start_x + i*col_x_diff + 30, 10, 6)
-
-    fillp(0b01011010.1)
-    line(start_x + 16 + i*col_x_diff -2, start_y + 5,
-         start_x + 16 + i*col_x_diff -2, start_y + 101, 6)
-    fillp()
-  end
-
-  rectfill(start_x-10, start_y+6, start_x-6, start_y+28, 9)
-  rectfill(start_x-10, start_y+54, start_x-6, start_y+76, 9)
-
-  rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
-  rectfill(start_x-10+col_x_diff, start_y+54, start_x-6+col_x_diff, start_y+76, 9)
-
-  -- draw the notes
-  for i=1,16 do
-    local x, y = start_x, start_y + i*6
-
-    print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
-
-    notes[i]:draw(x, y, panel_selection == 0 and i-1 == note_selection, note_sub_selection)
-    x += col_x_diff
-
-    print(hex_values[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
-
-    notes[i+16]:draw(x, y, panel_selection == 0 and i+15 == note_selection, note_sub_selection)
-  end
-
-  -- draw the settings
-  sfx_speed:draw(99,    18, panel_selection == 1 and settings_selection == 0)
-
-  print("-loop-", 99, 30, 6)
-
-  sfx_loop_in:draw(103, 36, panel_selection == 1 and settings_selection == 1)
-  sfx_loop_out:draw(99, 42, panel_selection == 1 and settings_selection == 2)
-
-  for i=4,#sfx_settings do
-    sfx_settings[i]:draw(99, 30 + i*6, panel_selection == 1 and i-1 == settings_selection)
-  end
+  sfx_editor:draw()
 
   debug:draw()
 end

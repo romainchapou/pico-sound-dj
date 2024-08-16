@@ -66,7 +66,7 @@ function make_note_widget()
     end
 
     if is_activated then
-      print(note_names[value % 12 + 1], x, y, 0)
+      print(NOTE_NAMES[value % 12 + 1], x, y, 0)
       print(value \ 12, x+8, y, 0)
     else
       print("...", x, y-2, 0)
@@ -111,8 +111,8 @@ function make_note_widget()
       if btn(4) then
         if btnp_once(5) then
           -- cut the selection by copying its value to last_edited_note
-          GLOBAL.last_edited_note = make_note_widget()
-          GLOBAL.last_edited_note:copy_values(_ENV)
+          sfx_editor.last_edited_note = make_note_widget()
+          sfx_editor.last_edited_note:copy_values(_ENV)
 
           volume.value = 0
         end
@@ -125,7 +125,7 @@ function make_note_widget()
           -- single X press copies the last edited note if on an empty
           -- note in the pitch colum
           if btnp(5) then
-            copy_values(_ENV, GLOBAL.last_edited_note)
+            copy_values(_ENV, sfx_editor.last_edited_note)
 
             if volume.value == 0 then
               volume.value = 5
@@ -143,7 +143,7 @@ function make_note_widget()
 
       if sub_widget.value ~= old_value or btnp_once(5) then
         play_tmp_note(_ENV)
-        GLOBAL.last_edited_note = _ENV
+        sfx_editor.last_edited_note = _ENV
       end
     end,
 

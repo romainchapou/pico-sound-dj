@@ -8,6 +8,8 @@ __lua__
 
 #include input_widget.lua
 
+#include sfx_editor.lua
+
 #include key_handler.lua
 
 #include main.lua
