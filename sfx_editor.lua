@@ -64,13 +64,13 @@ sfx_editor = class:new {
     local start_x, start_y, col_x_diff = 10, 12, 48
 
     for i=0,1 do
-      rectfill(start_x + i*col_x_diff - 10, 9, start_x + i*col_x_diff - 6, 15, 6)
+      rectfill(start_x + i*col_x_diff - 10, start_y - 3, start_x + i*col_x_diff - 6, start_y + 3, 6)
 
-      print(i,   start_x + i*col_x_diff -  9, 10, 7)
-      print("♪", start_x + i*col_x_diff +  2, 10, 6)
-      print("i", start_x + i*col_x_diff + 18, 10, 6)
-      print("v", start_x + i*col_x_diff + 24, 10, 6)
-      print("e", start_x + i*col_x_diff + 30, 10, 6) -- TODO maybe "f"
+      print(i,   start_x -  9 + i*col_x_diff, start_y - 2, 7)
+      print("♪", start_x +  2 + i*col_x_diff, start_y - 2, 6)
+      print("i", start_x + 18 + i*col_x_diff, start_y - 2, 6)
+      print("v", start_x + 24 + i*col_x_diff, start_y - 2, 6)
+      print("e", start_x + 30 + i*col_x_diff, start_y - 2, 6) -- TODO maybe "f"
 
       fillp(0b01011010.1)
       line(start_x + 16 + i*col_x_diff -2, start_y + 5,
@@ -78,7 +78,7 @@ sfx_editor = class:new {
       fillp()
     end
 
-    rectfill(start_x-10, start_y+6, start_x-6, start_y+28, 9)
+    rectfill(start_x-10, start_y+6,  start_x-6, start_y+28, 9)
     rectfill(start_x-10, start_y+54, start_x-6, start_y+76, 9)
 
     rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
@@ -98,16 +98,24 @@ sfx_editor = class:new {
       notes[i+16]:draw(x, y, panel_selection == 0 and i+15 == note_selection, note_sub_selection)
     end
 
+    -- draw the playhead
+    if stat(46) == sfx_id and stat(50) >= 0 then
+      palt(0, false)
+      palt(14, true)
+      spr(1, start_x - 4 + stat(50)\16 * col_x_diff, start_y + 6 + stat(50)%16 * 6)
+      palt()
+    end
+
     -- draw the settings
-    sfx_speed:draw(99,    18, panel_selection == 1 and settings_selection == 0)
+    sfx_speed:draw(start_x + 89, start_y + 6, panel_selection == 1 and settings_selection == 0)
 
-    print("-loop-", 99, 30, 6)
+    print("-loop-", start_x + 89, start_y + 18, 6)
 
-    sfx_loop_in:draw(103, 36, panel_selection == 1 and settings_selection == 1)
-    sfx_loop_out:draw(99, 42, panel_selection == 1 and settings_selection == 2)
+    sfx_loop_in:draw(start_x + 93, start_y + 24, panel_selection == 1 and settings_selection == 1)
+    sfx_loop_out:draw(start_x + 89, start_y + 30, panel_selection == 1 and settings_selection == 2)
 
     for i=4,#sfx_settings do
-      sfx_settings[i]:draw(99, 30 + i*6, panel_selection == 1 and i-1 == settings_selection)
+      sfx_settings[i]:draw(start_x + 89, start_y + 18 + i*6, panel_selection == 1 and i-1 == settings_selection)
     end
   end,
 
