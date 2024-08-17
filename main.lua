@@ -7,6 +7,7 @@ function _init()
 
   NOTE_NAMES = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
   HEX_VALUES = "0123456789abcdef"
+  CHANNEL_X_OFFSET = 16
 
   menuitem(1, "play", function()
     sfx_editor:play_sfx()
@@ -40,6 +41,8 @@ function _update60()
     if btnp(0) then pane_selection -= 1 end
     if btnp(1) then pane_selection += 1 end
 
+    sfx_editor:store_sfx_in_memory()
+    -- sfx editor to the pattern editor
     pane_selection = mid(1, pane_selection, 2)
 
     current_pane = panes[pane_selection]

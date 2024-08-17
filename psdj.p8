@@ -9,9 +9,9 @@ __lua__
 
 #include input_widget.lua
 #include note_widget.lua
+#include pattern_widget.lua
 
 #include pattern_editor.lua
-
 #include sfx_editor.lua
 
 #include key_handler.lua
