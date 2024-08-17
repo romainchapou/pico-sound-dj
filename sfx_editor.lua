@@ -41,6 +41,15 @@ sfx_editor = class:new {
   end,
 
   update = function(_ENV)
+    if btnp(5, 1) then
+      if stat(46) < 0 then
+        play_sfx(_ENV)
+      else
+        -- already playing, stop the playback
+        sfx(0, -2)
+      end
+    end
+
     if btn(4) then
       if btnp(0) then panel_selection -= 1 end
       if btnp(1) then panel_selection += 1 end
@@ -109,6 +118,7 @@ sfx_editor = class:new {
     -- draw the settings
     sfx_speed:draw(start_x + 89, start_y + 6, panel_selection == 1 and settings_selection == 0)
 
+    -- TODO : could be better to visualize in hex
     print("-loop-", start_x + 89, start_y + 18, 6)
 
     sfx_loop_in:draw(start_x + 93, start_y + 24, panel_selection == 1 and settings_selection == 1)
@@ -149,7 +159,14 @@ sfx_editor = class:new {
   end,
 
   update_settings_panel = function(_ENV)
-    sfx_settings[settings_selection+1]:update()
+    local cur_setting_widget = sfx_settings[settings_selection+1]
+    local old_setting_value = cur_setting_widget.value
+
+    cur_setting_widget:update()
+
+    if cur_setting_widget.value ~= old_setting_value then
+      store_sfx_in_memory(_ENV)
+    end
 
     if not btn(4) and not btn(5) then
       if btnp(0) then panel_selection = 0 end
@@ -159,6 +176,11 @@ sfx_editor = class:new {
 
       settings_selection = mid(0, settings_selection, #sfx_settings-1)
     end
+  end,
+
+  play_sfx = function(_ENV)
+    store_sfx_in_memory(_ENV)
+    sfx(sfx_editor.sfx_id, 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)
@@ -172,6 +194,20 @@ sfx_editor = class:new {
 
   -- IO / memory synchronisation
 
+  store_sfx_settings = function(_ENV, addr)
+    -- editor mode and filter switches
+    local byte = 0
+    byte += 1 -- TODO beware that we may not want to override the editor mode
+    byte += shl(sfx_noise.value, 1)
+    byte += shl(sfx_buzz.value, 2)
+    byte += sfx_detune.value * 8
+    byte += sfx_reverb.value * 24
+    byte += sfx_dampen.value * 72
+    poke(addr, byte)
+
+    poke(addr+1, sfx_speed.value)
+  end,
+
   store_sfx_in_memory = function(_ENV)
     -- compute address of sfx
     local sfxaddr = 0x3200 + 68*sfx_id
@@ -181,24 +217,10 @@ sfx_editor = class:new {
       sfxaddr += 2
     end
 
-    -- following byte, editor mode and filter switches
-    local byte = 0
-    byte += 1 -- TODO beware that we may not want to override the editor mode
-    byte += shl(sfx_noise.value, 1)
-    byte += shl(sfx_buzz.value, 2)
-    byte += sfx_detune.value * 8
-    byte += sfx_reverb.value * 24
-    byte += sfx_dampen.value * 72
-    poke(sfxaddr, byte)
+    store_sfx_settings(_ENV, sfxaddr)
 
-    sfxaddr += 1
-    poke(sfxaddr, sfx_speed.value)
-
-    sfxaddr += 1
-    poke(sfxaddr, sfx_loop_in.value)
-
-    sfxaddr += 1
-    poke(sfxaddr, sfx_loop_out.value)
+    poke(sfxaddr+2, sfx_loop_in.value)
+    poke(sfxaddr+3, sfx_loop_out.value)
   end,
 
   load_sfx_from_memory = function(_ENV)

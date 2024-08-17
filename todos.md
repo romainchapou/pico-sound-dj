@@ -12,6 +12,7 @@
 
 # Playback
 
+- play from current position / selection
 - bonne gestion de preview de la note sans écrire dans la mémoire d'un sfx (remap pointeur)
 - loop d'une section donnée ?
 

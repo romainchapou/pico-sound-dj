@@ -9,8 +9,7 @@ function _init()
   HEX_VALUES = "0123456789abcdef"
 
   menuitem(1, "play", function()
-    sfx_editor:store_sfx_in_memory()
-    sfx(sfx_editor.sfx_id)
+    sfx_editor:play_sfx()
   end)
 
   menuitem(2, "save", function()
@@ -20,9 +19,14 @@ function _init()
   end)
 
   T = 0 -- test variable
-  -- debug:add("last", function() return T end)
-  -- debug:add("sub_sel", function() return note_sub_selection end)
 
+  current_pane = pattern_editor
+
+  -- TODO temporary pane structure
+  pane_selection = 1
+  panes = { pattern_editor, sfx_editor }
+
+  pattern_editor:init()
   sfx_editor:init(0)
 end
 
@@ -31,7 +35,19 @@ function _update60()
   if btnp(0, 1) then T -= 1 end
   if btnp(1, 1) then T += 1 end
 
-  sfx_editor:update()
+  -- TODO temporary solution
+  if btn(4, 1) then
+    if btnp(0) then pane_selection -= 1 end
+    if btnp(1) then pane_selection += 1 end
+
+    pane_selection = mid(1, pane_selection, 2)
+
+    current_pane = panes[pane_selection]
+
+    return
+  end
+
+  current_pane:update()
 
   key_handler:update()
 end
@@ -39,7 +55,7 @@ end
 function _draw()
   cls(7)
 
-  sfx_editor:draw()
+  current_pane:draw()
 
   debug:draw()
 end
