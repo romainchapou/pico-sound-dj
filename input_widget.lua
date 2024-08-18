@@ -60,3 +60,32 @@ function make_named_input_widget(name, base_val, min_val, max_val, delta, draw, 
   return input_widget
 end
 
+-- on/off button widget
+function make_button_widget(btn_spr)
+  return class:new {
+    state = false,
+
+    update = function(_ENV)
+      if btnp_once(5) then
+        state = not state
+      end
+    end,
+
+    draw = function(_ENV, x, y, is_selected)
+      if is_selected then
+        rectfill(x-2, y-1, x+6, y+5, 9)
+      end
+
+      if state then
+        palt(14, true)
+        palt(0, false)
+
+        spr(btn_spr, x, y)
+
+        palt()
+      else
+        pset(x+2, y+2, 0)
+      end
+    end
+  }
+end

@@ -30,7 +30,7 @@ pattern_editor = class:new {
       if btnp(2) then line_selection -= 1 end
       if btnp(3) then line_selection += 1 end
 
-      column_selection = mid(0, column_selection, 3)
+      column_selection = mid(0, column_selection, 6)
       line_selection = mid(0, line_selection, 63)
 
       if first_visible_pattern + 15 < line_selection then
@@ -51,6 +51,17 @@ pattern_editor = class:new {
     for i=0,3 do
       print("ch" .. tostr(i), start_x - 2 + i*CHANNEL_X_OFFSET, start_y - 8, 6)
     end
+
+    palt(14, true)
+    palt(0, false)
+    pal(0, 6)
+
+    for i=0,2 do
+      -- pattern settings buttons
+      spr(2+i, 79 + i*8, start_y - 8)
+    end
+
+    pal()
 
     for i=0,15 do
       print(two_digit_number_str(i + first_visible_pattern), start_x - 13, start_y + i*6, 6)
