@@ -1,4 +1,4 @@
-function make_pattern_widget()
+function make_pattern_widget(pattern_id)
   local channel_draw = function(_ENV, x, y, is_selected, is_activated)
     if is_selected then
       rectfill(x-2, y-1, x+8, y+5, 9)
@@ -18,15 +18,16 @@ function make_pattern_widget()
   end
 
   return class:new {
+    pattern_id = pattern_id,
     channels = pattern_channels,
     is_channel_activated = {false, false, false, false},
 
     begin_loop = make_button_widget(2),
-    endloop = make_button_widget(3),
+    end_loop = make_button_widget(3),
     stop_at_end = make_button_widget(4),
 
     get_settings_widgets = function(_ENV)
-      return {begin_loop, endloop, stop_at_end}
+      return {begin_loop, end_loop, stop_at_end}
     end,
 
     update = function(_ENV, sub_selection)
@@ -59,5 +60,38 @@ function make_pattern_widget()
                                                        is_pattern_seleted and sub_selection == i)
       end
     end,
+
+    store_pattern_in_mem = function(_ENV)
+      local addr = 0x3100 + pattern_id * 4
+
+      poke(addr, channels[1].value
+                 + 64 * bool_to_num(not is_channel_activated[1])
+                 + 128*bool_to_num(begin_loop.state))
+
+      poke(addr + 1, channels[2].value
+                     + 64 * bool_to_num(not is_channel_activated[2])
+                     + 128*bool_to_num(end_loop.state))
+
+      poke(addr + 2, channels[3].value
+                     + 64 * bool_to_num(not is_channel_activated[3])
+                     + 128*bool_to_num(stop_at_end.state))
+
+      poke(addr + 3, channels[3].value
+                     + 64 * bool_to_num(not is_channel_activated[4]))
+    end,
+
+    load_pattern_from_mem = function(_ENV)
+      local addr = 0x3100 + pattern_id * 4
+
+      for i=0,3 do
+        local byte = peek(addr + i)
+        channels[i+1].value = byte & 0b00111111
+        is_channel_activated[i+1] = (byte & 0b01000000) == 0
+      end
+
+      begin_loop.state = (peek(addr) & 0b10000000) > 0
+      end_loop.state = (peek(addr+1) & 0b10000000) > 0
+      stop_at_end.state = (peek(addr+2) & 0b10000000) > 0
+    end
   }
 end

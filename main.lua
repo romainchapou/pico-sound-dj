@@ -11,8 +11,18 @@ function _init()
 
   menuitem(1, "save", function()
     sfx_editor:store_sfx_in_memory()
-    -- TODO adapt
-    cstore(0x3200, 0x3200, 64*68)
+
+    for p in all(pattern_editor.patterns) do
+      p:store_pattern_in_mem()
+    end
+
+    cstore(0x3100, 0x3100, 4*64 + 64*68)
+  end)
+
+  menuitem(2, "clear sfx", function()
+    for n in all(sfx_editor.notes) do
+      n.volume.value = 0
+    end
   end)
 
   T = 0 -- test variable

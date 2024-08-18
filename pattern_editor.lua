@@ -8,11 +8,25 @@ pattern_editor = class:new {
     patterns = {}
 
     for i=1,64 do
-      add(patterns, make_pattern_widget())
+      add(patterns, make_pattern_widget(i-1))
+      patterns[i]:load_pattern_from_mem()
     end
   end,
 
   update = function(_ENV)
+    -- play/pause
+    if btnp(5, 1) then
+      if stat(57) then
+        music(-1)
+      else
+        for p in all(patterns) do
+          p:store_pattern_in_mem()
+        end
+
+        music(line_selection)
+      end
+    end
+
     -- pane movement
     if btn(4, 1) then
       if btnp(1) and patterns[line_selection+1].is_channel_activated[column_selection+1] then
@@ -69,6 +83,15 @@ pattern_editor = class:new {
       patterns[i+1+first_visible_pattern]:draw(start_x, start_y + i*6,
                                                line_selection == i+first_visible_pattern,
                                                column_selection)
+    end
+
+    local cur_playing_pattern = stat(54)
+
+    if cur_playing_pattern >= first_visible_pattern and cur_playing_pattern < first_visible_pattern+16 then
+      palt(0, false)
+      palt(14, true)
+      spr(1, start_x - 4, start_y + (cur_playing_pattern - first_visible_pattern)%16 * 6)
+      palt()
     end
   end,
 }
