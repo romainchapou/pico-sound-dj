@@ -13,6 +13,16 @@ pattern_editor = class:new {
   end,
 
   update = function(_ENV)
+    -- pane movement
+    if btn(4, 1) then
+      if btnp(1) and patterns[line_selection+1].is_channel_activated[column_selection+1] then
+        GLOBAL.current_pane = sfx_editor
+        sfx_editor:init(patterns[line_selection+1].channels[column_selection+1].value)
+      end
+
+      return
+    end
+
     if not btn(4) and not btn(5) then
       if btnp(0) then column_selection -= 1 end
       if btnp(1) then column_selection += 1 end

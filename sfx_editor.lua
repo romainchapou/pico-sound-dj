@@ -41,12 +41,23 @@ sfx_editor = class:new {
   end,
 
   update = function(_ENV)
+    -- pane movement
+    if btn(4, 1) then
+      if btnp(0) then
+        store_sfx_in_memory(_ENV)
+        GLOBAL.current_pane = pattern_editor
+      end
+
+      return -- TODO start of selection mode should be handled here
+    end
+
+    -- play/pause on this sfx
     if btnp(5, 1) then
-      if stat(46) < 0 then
+      if stat(46) ~= sfx_id then
         play_sfx(_ENV)
       else
         -- already playing, stop the playback
-        sfx(0, -2)
+        sfx(sfx_id, -2)
       end
     end
 

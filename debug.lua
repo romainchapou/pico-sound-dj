@@ -26,7 +26,11 @@ debug = class:new {
         to_print = elt
       end
 
-      to_print = txt .. ":" .. tostring(to_print)
+      if to_print == nil then
+        to_print = txt
+      else
+        to_print = txt .. ":" .. tostring(to_print)
+      end
 
       for dx=-1,1 do
         for dy=-1,1 do

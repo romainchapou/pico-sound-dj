@@ -38,7 +38,7 @@ function make_note_widget()
       local sfx_addr = 0x3200 + 68*63
       store_in_mem(_ENV, sfx_addr) -- store to first note of sfx 63
       sfx_editor:store_sfx_settings(sfx_addr + 64)
-      sfx(63, -1, 0, 1)
+      sfx(63, 3, 0, 1)
     end,
 
     copy_values = function(_ENV, other_note)

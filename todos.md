@@ -1,4 +1,5 @@
 - penser à un system de notification/message global
+- peut être bloquer la descente/montée d'une octave si pas atteignable plutôt que de clamp sur le min/max
 
 # Test MM+
 
