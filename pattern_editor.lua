@@ -60,7 +60,7 @@ pattern_editor = class:new {
   draw = function(_ENV)
     print("pattern editor", 1, 1, 6)
 
-    local start_x, start_y = 16, 18
+    local start_x, start_y = 14, 18
 
     for i=0,3 do
       print("ch" .. tostr(i), start_x - 2 + i*CHANNEL_X_OFFSET, start_y - 8, 6)
@@ -72,17 +72,26 @@ pattern_editor = class:new {
 
     for i=0,2 do
       -- pattern settings buttons
-      spr(2+i, 79 + i*8, start_y - 8)
+      spr(2+i, start_x + 63 + i*8, start_y - 8)
     end
 
     pal()
 
     for i=0,15 do
-      print(two_digit_number_str(i + first_visible_pattern), start_x - 13, start_y + i*6, 6)
+      local pat_id = i + first_visible_pattern
+      local is_highlight_line = pat_id \ 4 % 2 == 0
 
-      patterns[i+1+first_visible_pattern]:draw(start_x, start_y + i*6,
-                                               line_selection == i+first_visible_pattern,
-                                               column_selection)
+      if is_highlight_line then
+        rectfill(start_x-14, start_y +i*6,
+                 start_x - 6, start_y + i*6 + 4 + bool_to_num(pat_id % 4 ~= 3), 9)
+      end
+
+      print(two_digit_number_str(pat_id),
+            start_x - 13, start_y + i*6, is_highlight_line and 7 or 6)
+
+      patterns[pat_id+1]:draw(start_x, start_y + i*6,
+                              line_selection == i+first_visible_pattern,
+                              column_selection)
     end
 
     local cur_playing_pattern = stat(54)

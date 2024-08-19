@@ -79,7 +79,7 @@ sfx_editor = class:new {
   end,
 
   draw = function(_ENV)
-    print("sfx " .. tostr(sfx_id), 1, 1, 6)
+    print("sfx " .. two_digit_number_str(sfx_id), 1, 1, 6)
 
     local start_x, start_y, col_x_diff = 10, 12, 48
 
