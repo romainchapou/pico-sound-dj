@@ -1,9 +1,8 @@
 key_handler = class:new {
-  supported_btns = {4, 5},
   last_frame_btn = {},
 
   update = function(_ENV)
-    for v in all(supported_btns) do
+    for v=0,5 do
       last_frame_btn[v] = btn(v)
     end
   end

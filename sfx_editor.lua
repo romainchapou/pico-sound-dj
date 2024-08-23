@@ -1,11 +1,18 @@
+function make_last_edited_note()
+  local note = make_note_widget()
+  note.volume.value = 5
+  note.pitch.value = 24
+
+  return note
+end
+
 sfx_editor = class:new {
   sfx_id = 0,
+  copied_notes = {},
+  last_edited_note = make_last_edited_note(),
 
   init = function(_ENV, sfx_id)
     _ENV.sfx_id = sfx_id
-
-    copied_notes = {}
-    notes = {}
 
     -- 0 for the note panel, 1 for the settings panel
     panel_selection = 0
@@ -21,16 +28,7 @@ sfx_editor = class:new {
     note_selection_upper = 1
     note_selection_lower = 1
 
-    note_selection = 0
     note_sub_selection = 0
-
-    for i=1,32 do
-      add(notes, make_note_widget())
-    end
-
-    last_edited_note = make_note_widget()
-    last_edited_note.volume.value = 5
-    last_edited_note.pitch.value = 24
 
     sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
 
@@ -47,6 +45,7 @@ sfx_editor = class:new {
       sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise, sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
     }
 
+    notes = {}
     load_sfx_from_memory(_ENV)
   end,
 
@@ -72,10 +71,10 @@ sfx_editor = class:new {
       if btnp(0) then panel_selection -= 1 end
       if btnp(1) then panel_selection += 1 end
 
-      if btnp(2) then change_sfx(_ENV, sfx_id-1) end
-      if btnp(3) then change_sfx(_ENV, sfx_id+1) end
-
       panel_selection = mid(0, panel_selection, 1)
+
+      if btnp_once(2) then change_sfx(_ENV, sfx_id-1) end
+      if btnp_once(3) then change_sfx(_ENV, sfx_id+1) end
     end
 
     if panel_selection == 0 then
@@ -333,6 +332,7 @@ sfx_editor = class:new {
     local sfxaddr = 0x3200 + 68*sfx_id
 
     for i=1,32 do
+      add(notes, make_note_widget())
       notes[i]:load_from_mem(sfxaddr)
       sfxaddr += 2
     end
@@ -345,21 +345,8 @@ sfx_editor = class:new {
     sfx_reverb.value = byte\24 % 3
     sfx_dampen.value = byte\72 % 3
 
-    byte += 1 -- TODO beware that we may not want to override the editor mode
-    byte += shl(sfx_noise.value, 1)
-    byte += shl(sfx_buzz.value, 2)
-    byte += sfx_detune.value * 8
-    byte += sfx_reverb.value * 24
-    byte += sfx_dampen.value * 72
-    poke(sfxaddr, byte)
-
-    sfxaddr += 1
-    poke(sfxaddr, sfx_speed.value)
-
-    sfxaddr += 1
-    poke(sfxaddr, sfx_loop_in.value)
-
-    sfxaddr += 1
-    poke(sfxaddr, sfx_loop_out.value)
+    sfx_speed.value = peek(sfxaddr+1)
+    sfx_loop_in.value = peek(sfxaddr+2)
+    sfx_loop_out.value = peek(sfxaddr+3)
   end,
 }
