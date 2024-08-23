@@ -35,3 +35,10 @@
 - prévoir futur
     - mode wave
     - instrument custom
+
+# More TODOS
+
+- [ ] system de message / notification en bas
+- [ ] mini map du pane actuel
+- [ ] meilleur gestion du hold_b+a pour delete pour éviter de recréer la note si on relache b en premier
+- [ ] pattern editor multi selection

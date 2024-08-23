@@ -32,9 +32,16 @@ function make_note_widget()
     end,
 
     play_tmp_note = function(_ENV)
-      -- TODO also store sfx settings for the proper playback
-      -- TODO also maybe store the previous note for the correct playback of the slide effect
-      -- TODO store not in sfx 1 but in the free memory and point to it for the playback to avoid overlaps
+      -- TODO also maybe store the previous note for the correct playback of
+      -- the slide effect
+      -- TODO store not in sfx 63 but in the free memory and point to it for
+      -- the playback to avoid overlaps -> not sure that this is possible
+
+      -- no note preview when multi selection on
+      if sfx_editor.multi_selection then
+        return
+      end
+
       local sfx_addr = 0x3200 + 68*63
       store_in_mem(_ENV, sfx_addr) -- store to first note of sfx 63
       sfx_editor:store_sfx_settings(sfx_addr + 64)
@@ -47,24 +54,24 @@ function make_note_widget()
       end
     end,
 
-    -- we assume that this is the selected note
+    -- we assume that this note is selected
     update = function(_ENV, sub_selection)
-      if btn(4) then
-        if btnp_once(5) then
-          -- cut the selection by copying its value to last_edited_note
-          sfx_editor.last_edited_note = make_note_widget()
-          sfx_editor.last_edited_note:copy_values(_ENV)
+      if not sfx_editor.multi_selection then
+        if btn(4) then
+          if btnp_once(5) then
+            -- cut the selection by copying its value to last_edited_note
+            sfx_editor.last_edited_note = make_note_widget()
+            sfx_editor.last_edited_note:copy_values(_ENV)
 
-          volume.value = 0
+            volume.value = 0
+          end
+
+          return
         end
 
-        return
-      end
-
-      if volume.value == 0 then
-        if sub_selection == 0 then
-          -- single X press pastes the last edited note if on an empty
-          -- note in the pitch colum
+        -- single X press pastes the last edited note if on
+        -- an empty note in the pitch colum
+        if volume.value == 0 and sub_selection == 0 then
           if btnp(5) then
             copy_values(_ENV, sfx_editor.last_edited_note)
 
@@ -98,10 +105,12 @@ function make_note_widget()
     end,
 
     draw = function(_ENV, x, y, is_note_selected, sub_selection)
-      pitch:draw(x, y, is_note_selected and sub_selection == 0, volume.value > 0)
-      waveform:draw(x+18, y, is_note_selected and sub_selection == 1, volume.value > 0)
-      volume:draw(x+24, y, is_note_selected and sub_selection == 2, volume.value > 0)
-      effect:draw(x+30, y, is_note_selected and sub_selection == 3, volume.value > 0)
+      local is_note_activated = volume.value > 0
+
+      pitch:draw(x, y, is_note_selected and sub_selection == 0, is_note_activated)
+      waveform:draw(x+18, y, is_note_selected and sub_selection == 1, is_note_activated)
+      volume:draw(x+24, y, is_note_selected and sub_selection == 2, is_note_activated)
+      effect:draw(x+30, y, is_note_selected and sub_selection == 3, is_note_activated)
     end,
 
     store_in_mem = function(_ENV, addr)
@@ -126,4 +135,10 @@ function make_note_widget()
       -- TODO custom instrument byte
     end,
   }
+end
+
+function copy_note(input_note)
+  local new_note = make_note_widget()
+  new_note:copy_values(input_note)
+  return new_note
 end

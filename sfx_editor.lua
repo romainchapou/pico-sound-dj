@@ -4,12 +4,22 @@ sfx_editor = class:new {
   init = function(_ENV, sfx_id)
     _ENV.sfx_id = sfx_id
 
+    copied_notes = {}
     notes = {}
 
     -- 0 for the note panel, 1 for the settings panel
     panel_selection = 0
 
     settings_selection = 0
+
+    multi_selection = false
+    -- TODO rename without the superflous "note_"
+    -- TODO could do with only 'selection_cursor', 'selection_upper' and 'selection_lower'
+    note_selection_begin = 1
+    note_selection_end = 1
+
+    note_selection_upper = 1
+    note_selection_lower = 1
 
     note_selection = 0
     note_sub_selection = 0
@@ -24,8 +34,8 @@ sfx_editor = class:new {
 
     sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
 
-    sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 4)
-    sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 4)
+    sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 8)
+    sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 8)
 
     sfx_noise  = make_named_input_widget("noiz", 0, 0, 1)
     sfx_buzz   = make_named_input_widget("buzz", 0, 0, 1)
@@ -42,13 +52,10 @@ sfx_editor = class:new {
 
   update = function(_ENV)
     -- pane movement
-    if btn(4, 1) then
-      if btnp(0) then
-        store_sfx_in_memory(_ENV)
-        GLOBAL.current_pane = pattern_editor
-      end
-
-      return -- TODO start of selection mode should be handled here
+    if btn(4, 1) and btnp(0) then
+      store_sfx_in_memory(_ENV)
+      GLOBAL.current_pane = pattern_editor
+      return
     end
 
     -- play/pause on this sfx
@@ -61,7 +68,7 @@ sfx_editor = class:new {
       end
     end
 
-    if btn(4) then
+    if not btn(4, 1) and btn(4) then
       if btnp(0) then panel_selection -= 1 end
       if btnp(1) then panel_selection += 1 end
 
@@ -110,12 +117,12 @@ sfx_editor = class:new {
 
       print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-      notes[i]:draw(x, y, panel_selection == 0 and i-1 == note_selection, note_sub_selection)
+      notes[i]:draw(x, y, is_note_highlighted(_ENV, i), note_sub_selection)
       x += col_x_diff
 
       print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-      notes[i+16]:draw(x, y, panel_selection == 0 and i+15 == note_selection, note_sub_selection)
+      notes[i+16]:draw(x, y, is_note_highlighted(_ENV, i+16), note_sub_selection)
     end
 
     -- draw the playhead
@@ -142,34 +149,98 @@ sfx_editor = class:new {
 
   -- update functions
 
+  is_note_highlighted = function(_ENV, note_id)
+    return panel_selection == 0 and
+        note_id >= note_selection_lower and
+        note_id <= note_selection_upper
+  end,
+
   update_note_panel = function(_ENV)
-    notes[note_selection+1]:update(note_sub_selection)
+    local upd_uppper_lower = function()
+      note_selection_upper = max(note_selection_begin, note_selection_end)
+      note_selection_lower = min(note_selection_begin, note_selection_end)
+    end
+
+    -- sel modifier
+    if btn(4, 1) then
+      if btnp_once(4) then
+        if not multi_selection then
+          multi_selection = true
+        else
+          if note_selection_begin ~= 1 or note_selection_end ~= 32 then
+            -- second press of sel+b selects everything
+            note_selection_begin = 1
+            note_selection_end = 32
+          else
+            copy_selected_notes(_ENV)
+            note_selection_end = note_selection_begin
+          end
+
+          upd_uppper_lower()
+        end
+      end
+
+      if btnp(5) then
+        if multi_selection then
+          cut_selected_notes(_ENV)
+          note_selection_end = note_selection_begin
+
+          upd_uppper_lower()
+        else
+          paste_selected_notes(_ENV)
+        end
+      end
+
+      return
+    end
+
+    if multi_selection and btnp_once(4) then
+      copy_selected_notes(_ENV)
+    end
 
     if not btn(4) and not btn(5) then
       if btnp(0) then note_sub_selection -= 1 end
       if btnp(1) then note_sub_selection += 1 end
 
-      -- move from one note column to the other
-      if note_sub_selection < 0 and note_selection >= 16 then
-        note_sub_selection = 3
-        note_selection -= 16
-      elseif note_sub_selection > 3 and note_selection < 16 then
-        note_sub_selection = 0
-        note_selection += 16
-      elseif note_sub_selection > 3 and note_selection >= 16 then
-        panel_selection = 1
+      if btnp(2) then note_selection_begin -= 1 end
+      if btnp(3) then note_selection_begin += 1 end
+
+      -- TODO see if we can handle the multi_selection case better
+      if not multi_selection then
+        -- move from one note column to the other
+        if note_sub_selection < 0 and note_selection_begin >= 16 then
+          note_sub_selection = 3
+          note_selection_begin -= 16
+        elseif note_sub_selection > 3 and note_selection_begin < 16 then
+          note_sub_selection = 0
+          note_selection_begin += 16
+        elseif note_sub_selection > 3 and note_selection_begin >= 16 then
+          panel_selection = 1
+        end
+
+        note_selection_end = note_selection_begin
       end
 
       note_sub_selection = mid(0, note_sub_selection, 3)
-
-      if btnp(2) then note_selection -= 1 end
-      if btnp(3) then note_selection += 1 end
     end
 
-    note_selection = mid(0, note_selection, 31)
+    note_selection_begin = mid(1, note_selection_begin, 32)
+    note_selection_end = mid(1, note_selection_end, 32)
+
+    upd_uppper_lower()
+
+    -- update each selected note widget
+    for i=note_selection_lower,note_selection_upper do
+      notes[i]:update(note_sub_selection)
+    end
   end,
 
   update_settings_panel = function(_ENV)
+    -- sel modifier
+    if btn(4, 1) then
+      return
+    end
+
     local cur_setting_widget = sfx_settings[settings_selection+1]
     local old_setting_value = cur_setting_widget.value
 
@@ -189,12 +260,36 @@ sfx_editor = class:new {
     end
   end,
 
+  copy_selected_notes = function(_ENV)
+    copied_notes = {}
+    for i=note_selection_lower,note_selection_upper do
+      add(copied_notes, copy_note(notes[i]))
+    end
+    multi_selection = false
+  end,
+
+  cut_selected_notes = function(_ENV)
+    copy_selected_notes(_ENV)
+    -- multi_selection is false after the copy, but the note selection
+    -- lower and upper are not yet reset
+    for i=note_selection_lower,note_selection_upper do
+      notes[i].volume.value = 0
+    end
+  end,
+
+  paste_selected_notes = function(_ENV)
+    for i=note_selection_begin,min(note_selection_begin+#copied_notes-1,32) do
+      notes[i] = copy_note(copied_notes[i-note_selection_begin+1])
+    end
+  end,
+
   play_sfx = function(_ENV)
     store_sfx_in_memory(_ENV)
     sfx(sfx_editor.sfx_id, 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)
+    multi_selection = false
     new_sfx_id = mid(0, new_sfx_id, 63)
 
     if new_sfx_id == sfx_id then return end
