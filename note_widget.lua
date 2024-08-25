@@ -72,17 +72,11 @@ function make_note_widget()
         -- single X press pastes the last edited note if on
         -- an empty note in the pitch colum
         if volume.value == 0 and sub_selection == 0 then
-          if btnp(5) then
+          if btnp_once(5) then
             copy_values(_ENV, sfx_editor.last_edited_note)
 
             if volume.value == 0 then
               volume.value = 5
-            end
-
-            if stat(46) < 0 then
-              play_tmp_note(_ENV)
-            else
-              sfx_editor:store_sfx_in_memory()
             end
           end
         end
@@ -94,11 +88,8 @@ function make_note_widget()
       sub_widget:update()
 
       if sub_widget.value ~= old_value or btnp_once(5) then
-        -- @Refactor with other use
         if stat(46) < 0 then
           play_tmp_note(_ENV)
-        else
-          sfx_editor:store_sfx_in_memory()
         end
         sfx_editor.last_edited_note = _ENV
       end

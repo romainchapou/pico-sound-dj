@@ -42,3 +42,5 @@
 - [ ] mini map du pane actuel
 - [ ] meilleur gestion du hold_b+a pour delete pour éviter de recréer la note si on relache b en premier
 - [ ] pattern editor multi selection
+- [ ] special behaviour of effect 1 : the note should be visible even if the volume is at 0 as it affects the previous note
+- [ ] playhead out of the grid when still playing as the out loop is more than 32

@@ -15,15 +15,18 @@ pattern_editor = class:new {
 
   update = function(_ENV)
     -- play/pause
-    if btnp(5, 1) then
+    if btnp_once(5, 1) then
       if stat(57) then
         music(-1)
       else
+        -- TODO storing should be done not just here but every time we modify
+        -- any pattern (this would not keep in sync if the patterns are
+        -- modified while playing back the track)
         for p in all(patterns) do
           p:store_pattern_in_mem()
         end
 
-        music(line_selection)
+        music(btn(4, 1) and line_selection or 0)
       end
     end
 

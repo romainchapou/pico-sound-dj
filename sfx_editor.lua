@@ -52,13 +52,12 @@ sfx_editor = class:new {
   update = function(_ENV)
     -- pane movement
     if btn(4, 1) and btnp(0) then
-      store_sfx_in_memory(_ENV)
       GLOBAL.current_pane = pattern_editor
       return
     end
 
     -- play/pause on this sfx
-    if btnp(5, 1) then
+    if btnp_once(5, 1) then
       if stat(46) ~= sfx_id then
         play_sfx(_ENV)
       else
@@ -82,6 +81,10 @@ sfx_editor = class:new {
     elseif panel_selection == 1 then
       update_settings_panel(_ENV)
     end
+
+    -- sync the RAM representation with ours every frame.
+    -- not the most efficient but simpler than the alternative
+    store_sfx_in_memory(_ENV)
   end,
 
   draw = function(_ENV)
@@ -197,6 +200,7 @@ sfx_editor = class:new {
       copy_selected_notes(_ENV)
     end
 
+    -- moving the cursor around
     if not btn(4) and not btn(5) then
       if btnp(0) then note_sub_selection -= 1 end
       if btnp(1) then note_sub_selection += 1 end
@@ -207,13 +211,13 @@ sfx_editor = class:new {
       -- TODO see if we can handle the multi_selection case better
       if not multi_selection then
         -- move from one note column to the other
-        if note_sub_selection < 0 and note_selection_begin >= 16 then
+        if note_sub_selection < 0 and note_selection_begin > 16 then
           note_sub_selection = 3
           note_selection_begin -= 16
-        elseif note_sub_selection > 3 and note_selection_begin < 16 then
+        elseif note_sub_selection > 3 and note_selection_begin <= 16 then
           note_sub_selection = 0
           note_selection_begin += 16
-        elseif note_sub_selection > 3 and note_selection_begin >= 16 then
+        elseif note_sub_selection > 3 and note_selection_begin > 16 then
           panel_selection = 1
         end
 
@@ -244,10 +248,6 @@ sfx_editor = class:new {
     local old_setting_value = cur_setting_widget.value
 
     cur_setting_widget:update()
-
-    if cur_setting_widget.value ~= old_setting_value then
-      store_sfx_in_memory(_ENV)
-    end
 
     if not btn(4) and not btn(5) then
       if btnp(0) then panel_selection = 0 end
@@ -283,8 +283,7 @@ sfx_editor = class:new {
   end,
 
   play_sfx = function(_ENV)
-    store_sfx_in_memory(_ENV)
-    sfx(sfx_editor.sfx_id, 0)
+    sfx(sfx_editor.sfx_id, 0, btn(4, 1) and note_selection_begin-1 or 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)
@@ -293,7 +292,6 @@ sfx_editor = class:new {
 
     if new_sfx_id == sfx_id then return end
 
-    store_sfx_in_memory(_ENV)
     init(_ENV, new_sfx_id)
   end,
 
