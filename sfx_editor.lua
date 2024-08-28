@@ -9,6 +9,7 @@ end
 sfx_editor = class:new {
   sfx_id = 0,
   copied_notes = {},
+  whole_copy = {},
   last_edited_note = make_last_edited_note(),
 
   init = function(_ENV, sfx_id)
@@ -188,7 +189,7 @@ sfx_editor = class:new {
         if multi_selection then
           cut_selected_notes(_ENV)
         else
-          paste_selected_notes(_ENV)
+          paste_selection(_ENV)
         end
       end
 
@@ -239,6 +240,14 @@ sfx_editor = class:new {
   update_settings_panel = function(_ENV)
     -- sel modifier
     if btn(4, 1) then
+      -- TODO @Improve: this feature definitively should be present,
+      -- but I'm not sure about this UX
+      if btnp_once(4) then
+        copy_whole_sfx(_ENV)
+      elseif btnp_once(5) then
+        paste_selection(_ENV)
+      end
+
       return
     end
 
@@ -258,7 +267,9 @@ sfx_editor = class:new {
   end,
 
   copy_selected_notes = function(_ENV)
+    whole_copy = {}
     copied_notes = {}
+
     for i=selection_lower,selection_upper do
       add(copied_notes, copy_note(notes[i]))
     end
@@ -274,10 +285,22 @@ sfx_editor = class:new {
     end
   end,
 
-  paste_selected_notes = function(_ENV)
-    for i=current_note,min(current_note+#copied_notes-1,32) do
-      notes[i] = copy_note(copied_notes[i-current_note+1])
+  paste_selection = function(_ENV)
+    if #whole_copy ~= 0 then
+      poke(0x3200 + 68*sfx_id, unpack(whole_copy))
+      load_sfx_from_memory(_ENV)
+    else
+      for i=current_note,min(current_note+#copied_notes-1,32) do
+        notes[i] = copy_note(copied_notes[i-current_note+1])
+      end
     end
+  end,
+
+  copy_whole_sfx = function(_ENV)
+    whole_copy = {}
+    copied_notes = {}
+
+    whole_copy = pack(peek(0x3200 + 68*sfx_id, 68))
   end,
 
   play_sfx = function(_ENV)

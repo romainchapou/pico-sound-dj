@@ -10,4 +10,6 @@ function is_in_range(v, a, b)
   return v >= a and v <= b
 end
 
--- TODO minmax function to save some tokens
+-- TODO to save some tokens
+-- * minmax
+-- * nudge btn
