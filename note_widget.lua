@@ -71,7 +71,7 @@ function make_note_widget()
 
         -- single X press pastes the last edited note if on
         -- an empty note in the pitch colum
-        if volume.value == 0 and sub_selection == 0 then
+        if volume.value == 0 and sub_selection == 1 then
           if btnp_once(5) then
             copy_values(_ENV, sfx_editor.last_edited_note)
 
@@ -82,7 +82,7 @@ function make_note_widget()
         end
       end
 
-      local sub_widget = get_sub_widgets(_ENV)[sub_selection+1]
+      local sub_widget = get_sub_widgets(_ENV)[sub_selection]
       local old_value = sub_widget.value
 
       sub_widget:update()
@@ -96,12 +96,11 @@ function make_note_widget()
     end,
 
     draw = function(_ENV, x, y, is_note_selected, sub_selection)
-      local is_note_activated = volume.value > 0
-
-      pitch:draw(x, y, is_note_selected and sub_selection == 0, is_note_activated)
-      waveform:draw(x+18, y, is_note_selected and sub_selection == 1, is_note_activated)
-      volume:draw(x+24, y, is_note_selected and sub_selection == 2, is_note_activated)
-      effect:draw(x+30, y, is_note_selected and sub_selection == 3, is_note_activated)
+      for i=1,4 do
+        get_sub_widgets(_ENV)[i]:draw(x + (i > 1 and 6+i*6 or 0), y,
+                                      is_note_selected and sub_selection == i,
+                                      volume.value > 0)
+      end
     end,
 
     store_in_mem = function(_ENV, addr)

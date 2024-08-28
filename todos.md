@@ -44,3 +44,5 @@
 - [ ] pattern editor multi selection
 - [ ] special behaviour of effect 1 : the note should be visible even if the volume is at 0 as it affects the previous note
 - [ ] playhead out of the grid when still playing as the out loop is more than 32
+- [ ] il doit y avoir un moyen de copier tout un sfx, settings inclues, et de le paste sur un autre sfx
+- [ ] si je sélectionne le volume de toutes les notes, est ce que si je change la valeur c'est sensé la changer pour tous, ou juste pour les notes actives ? J'aurais tendance à dire juste les notes actives

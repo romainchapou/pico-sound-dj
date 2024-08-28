@@ -1,8 +1,8 @@
 function make_pattern_widget(pattern_id)
-  local channel_draw = function(_ENV, x, y, is_selected, is_activated)
-    if is_selected then
-      rectfill(x-2, y-1, x+8, y+5, 9)
-    end
+  local channel_draw = function(_ENV, x, y, is_activated)
+    -- if is_selected then
+    --   rectfill(x-2, y-1, x+8, y+5, 9)
+    -- end
 
     if is_activated then
       print(two_digit_number_str(value), x, y, 0)
@@ -48,40 +48,55 @@ function make_pattern_widget(pattern_id)
       else
         get_settings_widgets(_ENV)[sub_selection - #channels + 1]:update()
       end
+
+      if shl(btn(), 8) ~= 0 then
+        store_pattern_in_mem(_ENV)
+      end
     end,
 
-    draw = function(_ENV, x, y, is_pattern_seleted, sub_selection)
+    draw = function(_ENV, x, y, is_pattern_seleted, col_sel_start, col_sel_end)
+      -- hack: not letting each channel widget handle the visualisation of it
+      -- being selected, instead do it here so we can have one continuous
+      -- rectangle
+      if is_pattern_seleted and col_sel_start < 4 then
+        rectfill(x + col_sel_start*CHANNEL_X_OFFSET - 2, y-1,
+                 x + col_sel_end*CHANNEL_X_OFFSET   + 8, y+5, 9)
+      end
+
       for i, c in ipairs(channels) do
-        c:draw(x + CHANNEL_X_OFFSET*(i-1), y, is_pattern_seleted and sub_selection == i-1, is_channel_activated[i])
+        c:draw(x + CHANNEL_X_OFFSET*(i-1), y,
+               -- is_pattern_seleted and is_in_range(i-1, col_sel_start, col_sel_end),
+               is_channel_activated[i])
       end
 
       for i=4,6 do
-        get_settings_widgets(_ENV)[i-#channels+1]:draw(x + 63 + (i-4)*8, y,
-                                                       is_pattern_seleted and sub_selection == i)
+        get_settings_widgets(_ENV)[i-#channels+1]
+        :draw(x + 63 + (i-4)*8, y, is_pattern_seleted
+        and is_in_range(i, col_sel_start, col_sel_end))
       end
     end,
 
     store_pattern_in_mem = function(_ENV)
-      local addr = 0x3100 + pattern_id * 4
+      poke(get_pattern_mem_addr(pattern_id),
 
-      poke(addr, channels[1].value
-                 + 64 * bool_to_num(not is_channel_activated[1])
-                 + 128*bool_to_num(begin_loop.state))
+           channels[1].value
+           + 64 * bool_to_num(not is_channel_activated[1])
+           + 128*bool_to_num(begin_loop.state),
 
-      poke(addr + 1, channels[2].value
-                     + 64 * bool_to_num(not is_channel_activated[2])
-                     + 128*bool_to_num(end_loop.state))
+          channels[2].value
+          + 64 * bool_to_num(not is_channel_activated[2])
+          + 128*bool_to_num(end_loop.state),
 
-      poke(addr + 2, channels[3].value
-                     + 64 * bool_to_num(not is_channel_activated[3])
-                     + 128*bool_to_num(stop_at_end.state))
+          channels[3].value
+          + 64 * bool_to_num(not is_channel_activated[3])
+          + 128*bool_to_num(stop_at_end.state),
 
-      poke(addr + 3, channels[3].value
-                     + 64 * bool_to_num(not is_channel_activated[4]))
+          channels[3].value
+          + 64 * bool_to_num(not is_channel_activated[4]))
     end,
 
     load_pattern_from_mem = function(_ENV)
-      local addr = 0x3100 + pattern_id * 4
+      local addr = get_pattern_mem_addr(pattern_id)
 
       for i=0,3 do
         local byte = peek(addr + i)
@@ -94,4 +109,8 @@ function make_pattern_widget(pattern_id)
       stop_at_end.state = (peek(addr+2) & 0b10000000) > 0
     end
   }
+end
+
+function get_pattern_mem_addr(pat_id)
+  return 0x3100 + pat_id*4
 end

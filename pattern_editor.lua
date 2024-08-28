@@ -1,9 +1,28 @@
 pattern_editor = class:new {
+  copied_patterns = {},
+
   init = function(_ENV)
     first_visible_pattern = 0
 
-    line_selection = 0
-    column_selection = 0
+    cur_line = 0
+    cur_col = 0
+
+    -- TODO see about refactoring this in a selector_handler class (after doing
+    -- the implem for the sfx browser tab)
+    multi_selection = false
+
+    -- TODO @Improve: this selection system is not great, as it is not super
+    -- obvious that you are copying whole patterns while selecting only some
+    -- colums. For now it works ok
+    --
+    -- TODO @Unsure about those variable names
+    sel_start_line = 0
+    sel_start_col = 0
+
+    sel_line_upper = 0
+    sel_line_lower = 0
+    sel_col_upper = 0
+    sel_col_lower = 0
 
     patterns = {}
 
@@ -22,42 +41,91 @@ pattern_editor = class:new {
         -- TODO storing should be done not just here but every time we modify
         -- any pattern (this would not keep in sync if the patterns are
         -- modified while playing back the track)
-        for p in all(patterns) do
-          p:store_pattern_in_mem()
-        end
+        store_all_patterns_in_mem(_ENV)
 
-        music(btn(4, 1) and line_selection or 0)
+        music(btn(4, 1) and cur_line or 0)
       end
     end
 
-    -- pane movement
-    if btn(4, 1) then
-      if btnp(1) and patterns[line_selection+1].is_channel_activated[column_selection+1] then
-        GLOBAL.current_pane = sfx_editor
-        sfx_editor:init(patterns[line_selection+1].channels[column_selection+1].value)
+    local upd_upper_lower = function()
+      if multi_selection then
+        sel_line_lower = min(cur_line, sel_start_line)
+        sel_line_upper = max(cur_line, sel_start_line)
+        sel_col_lower  = min(cur_col, sel_start_col)
+        sel_col_upper  = max(cur_col, sel_start_col)
+      else
+        sel_start_line = cur_line
+        sel_start_col  = cur_col
+
+        sel_line_lower = cur_line
+        sel_line_upper = cur_line
+        sel_col_lower  = cur_col
+        sel_col_upper  = cur_col
       end
+    end
+
+    -- sel modifier
+    if btn(4, 1) then
+      -- pane movement
+      if btnp(1) and not multi_selection and patterns[cur_line+1].is_channel_activated[cur_col+1] then
+        GLOBAL.current_pane = sfx_editor
+        sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
+      end
+
+      if btnp_once(4) and cur_col < 4 then
+        if not multi_selection then
+          multi_selection = true
+        elseif sel_line_lower ~= 0 or sel_line_upper ~= 63 then
+          sel_start_line = 63
+          sel_start_col = 3
+          cur_line = 0
+          cur_col = 0
+        else
+          copy_selected_patterns(_ENV)
+        end
+      end
+
+      if btnp_once(5) then
+        if multi_selection then
+          cut_selected_patterns(_ENV)
+        else
+          paste_selected_patterns(_ENV)
+        end
+      end
+
+      upd_upper_lower()
 
       return
     end
 
+    if btnp_once(4) and multi_selection then
+      copy_selected_patterns(_ENV)
+    end
+
     if not btn(4) and not btn(5) then
-      if btnp(0) then column_selection -= 1 end
-      if btnp(1) then column_selection += 1 end
+      if btnp(0) then cur_col -= 1 end
+      if btnp(1) then cur_col += 1 end
 
-      if btnp(2) then line_selection -= 1 end
-      if btnp(3) then line_selection += 1 end
+      if btnp(2) then cur_line -= 1 end
+      if btnp(3) then cur_line += 1 end
 
-      column_selection = mid(0, column_selection, 6)
-      line_selection = mid(0, line_selection, 63)
+      cur_col = mid(0, cur_col, multi_selection and 3 or 6)
+      cur_line = mid(0, cur_line, 63)
 
-      if first_visible_pattern + 15 < line_selection then
-        first_visible_pattern = line_selection - 15
-      elseif line_selection < first_visible_pattern then
-        first_visible_pattern = line_selection
+      if first_visible_pattern + 15 < cur_line then
+        first_visible_pattern = cur_line - 15
+      elseif cur_line < first_visible_pattern then
+        first_visible_pattern = cur_line
       end
     end
 
-    patterns[line_selection+1]:update(column_selection)
+    upd_upper_lower()
+
+    for pat_line=sel_line_lower,sel_line_upper do
+      for pat_col=sel_col_lower,sel_col_upper do
+        patterns[pat_line+1]:update(pat_col)
+      end
+    end
   end,
 
   draw = function(_ENV)
@@ -93,8 +161,10 @@ pattern_editor = class:new {
             start_x - 13, start_y + i*6, is_highlight_line and 7 or 6)
 
       patterns[pat_id+1]:draw(start_x, start_y + i*6,
-                              line_selection == i+first_visible_pattern,
-                              column_selection)
+                              is_in_range(i+first_visible_pattern,
+                                          sel_line_lower,
+                                          sel_line_upper),
+                              sel_col_lower, sel_col_upper)
     end
 
     local cur_playing_pattern = stat(54)
@@ -106,4 +176,47 @@ pattern_editor = class:new {
       palt()
     end
   end,
+
+  -- update functions
+
+  copy_pattern_from_mem = function(_ENV, pat_id)
+      local addr = 0x3100 + pat_id * 4
+
+      return pack(peek(addr, 4))
+  end,
+
+  copy_selected_patterns = function(_ENV)
+    copied_patterns = {}
+    store_all_patterns_in_mem(_ENV)
+
+    for pat_id=sel_line_lower,sel_line_upper do
+      add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
+    end
+    multi_selection = false
+  end,
+
+  cut_selected_patterns = function(_ENV)
+    copy_selected_patterns(_ENV)
+
+    for pat_id=sel_line_lower,sel_line_upper do
+      patterns[pat_id+1] = make_pattern_widget(pat_id)
+    end
+
+    store_all_patterns_in_mem(_ENV)
+  end,
+
+  paste_selected_patterns = function(_ENV)
+    for i=1,#copied_patterns do
+      if cur_line + i-1 < 64 then
+        poke4(get_pattern_mem_addr(cur_line + i-1), copied_patterns[i])
+        patterns[cur_line + i]:load_pattern_from_mem()
+      end
+    end
+  end,
+
+  store_all_patterns_in_mem = function(_ENV)
+    for p in all(patterns) do
+      p:store_pattern_in_mem()
+    end
+  end
 }
