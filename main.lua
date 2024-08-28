@@ -1,5 +1,18 @@
 -- https://pico-8.fandom.com/wiki/Memory#Sound_effects
 
+function set_change_export_file_nb_menuitem()
+  menuitem(4, "< export nb " .. export_file_nb .. " >", function(b)
+    export_file_nb -= bool_to_num(b&1 > 0) -- left
+    export_file_nb += bool_to_num(b&2 > 0) -- right
+
+    export_file_nb = max(0, export_file_nb)
+
+    set_change_export_file_nb_menuitem()
+
+    return true
+  end)
+end
+
 function _init()
   -- set key repeat
   poke(0x5f5c, 4)
@@ -9,12 +22,34 @@ function _init()
   HEX_VALUES = "0123456789abcdef"
   CHANNEL_X_OFFSET = 16
 
-  menuitem(1, "save", function()
-    for p in all(pattern_editor.patterns) do
-      p:store_pattern_in_mem()
-    end
+  export_file_nb = 0
 
-    cstore(0x3100, 0x3100, 4*64 + 64*68)
+  menuitem(1, "save", function()
+    pattern_editor:store_all_patterns_in_mem()
+
+    cstore(0x3100, 0x3100, 0x1200)
+  end)
+
+  menuitem(2, "export", function()
+    pattern_editor:store_all_patterns_in_mem()
+
+    cstore(0x3100, 0x3100, 0x1200, "export_" .. export_file_nb .. ".p8")
+  end)
+
+  menuitem(3, "load export", function()
+    reload(0x3100, 0x3100, 0x1200, "export_" .. export_file_nb .. ".p8")
+
+    _init()
+  end)
+
+  set_change_export_file_nb_menuitem()
+
+  menuitem(5, "clear data", function()
+    memset(0x3100, 0b01000000, 0x0100)
+    -- TODO this sets a speed of 0 for every sfx, not the best
+    memset(0x3200, 0, 0x1100)
+
+    _init()
   end)
 
   T = 0 -- test variable
