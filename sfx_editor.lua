@@ -231,9 +231,17 @@ sfx_editor = class:new {
 
     upd_uppper_lower()
 
+    local are_all_selected_notes_volume_0 = true
+    for i=selection_lower,selection_upper do
+      if notes[i].volume.value ~= 0 then
+        are_all_selected_notes_volume_0 = false
+        break
+      end
+    end
+
     -- update each selected note widget
     for i=selection_lower,selection_upper do
-      notes[i]:update(sub_selection)
+      notes[i]:update(sub_selection, are_all_selected_notes_volume_0)
     end
   end,
 

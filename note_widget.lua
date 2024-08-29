@@ -55,7 +55,11 @@ function make_note_widget()
     end,
 
     -- we assume that this note is selected
-    update = function(_ENV, sub_selection)
+    update = function(_ENV, sub_selection, should_modify_if_no_volume)
+      if volume.value == 0 and not should_modify_if_no_volume then
+        return
+      end
+
       if not sfx_editor.multi_selection then
         if btn(4) then
           if btnp_once(5) then
