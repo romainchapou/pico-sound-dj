@@ -77,22 +77,14 @@ function make_pattern_widget(pattern_id)
     end,
 
     store_pattern_in_mem = function(_ENV)
-      poke(get_pattern_mem_addr(pattern_id),
+      local states = {begin_loop.state, end_loop.state, stop_at_end.state, false}
 
-           channels[1].value
-           + 64 * bool_to_num(not is_channel_activated[1])
-           + 128*bool_to_num(begin_loop.state),
-
-          channels[2].value
-          + 64 * bool_to_num(not is_channel_activated[2])
-          + 128*bool_to_num(end_loop.state),
-
-          channels[3].value
-          + 64 * bool_to_num(not is_channel_activated[3])
-          + 128*bool_to_num(stop_at_end.state),
-
-          channels[3].value
-          + 64 * bool_to_num(not is_channel_activated[4]))
+      for i=1,4 do
+        poke(get_pattern_mem_addr(pattern_id)+i-1,
+             channels[i].value
+             + 64 * bool_to_num(not is_channel_activated[i])
+             + 128*bool_to_num(states[i]))
+      end
     end,
 
     load_pattern_from_mem = function(_ENV)
