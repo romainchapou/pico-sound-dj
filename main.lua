@@ -46,8 +46,11 @@ function _init()
 
   menuitem(5, "clear data", function()
     memset(0x3100, 0b01000000, 0x0100)
-    -- TODO this sets a speed of 0 for every sfx, not the best
     memset(0x3200, 0, 0x1100)
+    -- set the default speed of each sfx to 16
+    for i=0,63 do
+      poke(0x3200 + i*68+65, 16)
+    end
 
     _init()
   end)
