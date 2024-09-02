@@ -18,8 +18,6 @@ function _init()
   poke(0x5f5c, 4)
   poke(0x5f5d, 1)
 
-  NOTE_NAMES = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
-  HEX_VALUES = "0123456789abcdef"
   CHANNEL_X_OFFSET = 16
 
   export_file_nb = 0
@@ -70,6 +68,8 @@ function _update60()
 
   current_pane:update()
 
+  message_panel:update()
+
   key_handler:update() -- should be done last
 end
 
@@ -77,6 +77,8 @@ function _draw()
   cls(7)
 
   current_pane:draw()
+
+  message_panel:draw()
 
   debug:draw()
 end

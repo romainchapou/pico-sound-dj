@@ -60,3 +60,4 @@
 - vue settings
 - review UX de l'ensemble
 - mini map
+- montrer les notes en train de jouer dans la vue pattern pendant le playback

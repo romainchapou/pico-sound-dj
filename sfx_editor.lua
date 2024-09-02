@@ -88,7 +88,7 @@ sfx_editor = class:new {
   end,
 
   draw = function(_ENV)
-    print("sfx " .. two_digit_number_str(sfx_id), 1, 1, 6)
+    shadow_print("sfx " .. two_digit_number_str(sfx_id), 1, 1)
 
     local start_x, start_y, col_x_diff = 10, 12, 48
 
@@ -174,6 +174,7 @@ sfx_editor = class:new {
       if btnp_once(4) then
         if not multi_selection then
           multi_selection = true
+          send_msg("select mode")
         else
           if selection_lower ~= 1 or selection_upper ~= 32 then
             -- second press of sel+b selects everything
@@ -282,6 +283,8 @@ sfx_editor = class:new {
       add(copied_notes, copy_note(notes[i]))
     end
     multi_selection = false
+
+    send_msg("copied " .. tostr(#copied_notes) .. " notes")
   end,
 
   cut_selected_notes = function(_ENV)
@@ -291,16 +294,22 @@ sfx_editor = class:new {
     for i=selection_lower,selection_upper do
       notes[i].volume.value = 0
     end
+
+    send_msg("cut " .. tostr(#copied_notes) .. " notes")
   end,
 
   paste_selection = function(_ENV)
     if #whole_copy ~= 0 then
       poke(0x3200 + 68*sfx_id, unpack(whole_copy))
       load_sfx_from_memory(_ENV)
+
+      send_msg("pasted whole sfx")
     else
       for i=current_note,min(current_note+#copied_notes-1,32) do
         notes[i] = copy_note(copied_notes[i-current_note+1])
       end
+
+      send_msg("pasted " .. tostr(#copied_notes) .. " notes")
     end
   end,
 
@@ -309,6 +318,8 @@ sfx_editor = class:new {
     copied_notes = {}
 
     whole_copy = pack(peek(0x3200 + 68*sfx_id, 68))
+
+    send_msg("copied whole sfx")
   end,
 
   play_sfx = function(_ENV)

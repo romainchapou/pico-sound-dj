@@ -75,6 +75,7 @@ pattern_editor = class:new {
       if btnp_once(4) and cur_col < 4 then
         if not multi_selection then
           multi_selection = true
+          send_msg("select mode")
         elseif sel_line_lower ~= 0 or sel_line_upper ~= 63 then
           sel_start_line = 63
           sel_start_col = 3
@@ -129,7 +130,7 @@ pattern_editor = class:new {
   end,
 
   draw = function(_ENV)
-    print("pattern editor", 1, 1, 6)
+    shadow_print("pattern editor", 1, 1)
 
     local start_x, start_y = 14, 18
 
@@ -179,12 +180,6 @@ pattern_editor = class:new {
 
   -- update functions
 
-  copy_pattern_from_mem = function(_ENV, pat_id)
-      local addr = 0x3100 + pat_id * 4
-
-      return pack(peek(addr, 4))
-  end,
-
   copy_selected_patterns = function(_ENV)
     copied_patterns = {}
     store_all_patterns_in_mem(_ENV)
@@ -193,6 +188,8 @@ pattern_editor = class:new {
       add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
     end
     multi_selection = false
+
+    send_msg("copied " .. tostr(#copied_patterns) .. " patterns")
   end,
 
   cut_selected_patterns = function(_ENV)
@@ -203,6 +200,8 @@ pattern_editor = class:new {
     end
 
     store_all_patterns_in_mem(_ENV)
+
+    send_msg("cut " .. tostr(#copied_patterns) .. " patterns")
   end,
 
   paste_selected_patterns = function(_ENV)
@@ -212,6 +211,8 @@ pattern_editor = class:new {
         patterns[cur_line + i]:load_pattern_from_mem()
       end
     end
+
+    send_msg("pasted " .. tostr(#copied_patterns) .. " patterns")
   end,
 
   store_all_patterns_in_mem = function(_ENV)

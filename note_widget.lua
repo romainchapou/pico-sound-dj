@@ -92,6 +92,16 @@ function make_note_widget()
       sub_widget:update()
 
       if sub_widget.value ~= old_value or btnp_once(5) then
+        if not sfx_editor.multi_selection and volume.value ~= 0 then
+          if sub_selection == 2 then
+            send_msg("instr " .. tostr(waveform.value) .. ": "
+            .. INSTRUMENT_NAMES[waveform.value+1], false)
+          elseif sub_selection == 4 then
+            send_msg("fx " .. tostr(effect.value) .. ": "
+            .. EFFECT_NAMES[effect.value+1], false)
+          end
+        end
+
         if stat(46) < 0 then
           play_tmp_note(_ENV)
         end

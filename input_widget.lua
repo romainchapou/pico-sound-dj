@@ -18,8 +18,6 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   if update == nil then
     update = function(_ENV)
       if btn(5) and not btn(4) then
-        local old_value = value
-
         if btnp(0) then value -= 1 end
         if btnp(1) then value += 1 end
         if btnp(2) then value += delta_up end
