@@ -67,9 +67,15 @@ pattern_editor = class:new {
     -- sel modifier
     if btn(4, 1) then
       -- pane movement
+      if btnp(0) then
+        GLOBAL.current_pane = settings_pane
+        return
+      end
+
       if btnp(1) and not multi_selection and patterns[cur_line+1].is_channel_activated[cur_col+1] then
         GLOBAL.current_pane = sfx_editor
         sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
+        return
       end
 
       if btnp_once(4) and cur_col < 4 then
