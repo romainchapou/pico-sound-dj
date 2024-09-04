@@ -1,9 +1,5 @@
 function make_pattern_widget(pattern_id)
   local channel_draw = function(_ENV, x, y, is_activated)
-    -- if is_selected then
-    --   rectfill(x-2, y-1, x+8, y+5, 9)
-    -- end
-
     if is_activated then
       print(two_digit_number_str(value), x, y, 0)
     else
