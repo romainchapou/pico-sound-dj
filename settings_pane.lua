@@ -1,8 +1,11 @@
 settings_pane = class:new {
   update = function(_ENV)
-    if btn(4, 1) and btnp(1) then
+    if btn(4) and btnp(1) then
       GLOBAL.current_pane = pattern_editor
     end
+
+    -- restore the default behaviour of the start button for this screen
+    poke(0x5f30, 0)
   end,
 
   draw = function(_ENV)

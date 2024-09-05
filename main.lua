@@ -62,11 +62,19 @@ function _init()
 end
 
 function _update60()
+  -- disable the default behaviour of the start button (which is to bring up
+  -- the pause menu) so we can use it for playback launch
+  poke(0x5f30, 1)
+
   -- debug
   if btnp(0, 1) then T -= 1 end
   if btnp(1, 1) then T += 1 end
 
   current_pane:update()
+
+  if current_pane.post_udpate ~= nil then
+    current_pane:post_udpate()
+  end
 
   message_panel:update()
 

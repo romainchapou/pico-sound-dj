@@ -32,9 +32,26 @@ pattern_editor = class:new {
     end
   end,
 
+  post_update = function(_ENV)
+    if multi_selection then
+      sel_line_lower = min(cur_line, sel_start_line)
+      sel_line_upper = max(cur_line, sel_start_line)
+      sel_col_lower  = min(cur_col, sel_start_col)
+      sel_col_upper  = max(cur_col, sel_start_col)
+    else
+      sel_start_line = cur_line
+      sel_start_col  = cur_col
+
+      sel_line_lower = cur_line
+      sel_line_upper = cur_line
+      sel_col_lower  = cur_col
+      sel_col_upper  = cur_col
+    end
+  end,
+
   update = function(_ENV)
     -- play/pause
-    if btnp_once(5, 1) then
+    if btn(6) then
       if stat(57) then
         music(-1)
       else
@@ -43,71 +60,47 @@ pattern_editor = class:new {
         -- modified while playing back the track)
         store_all_patterns_in_mem(_ENV)
 
-        music(btn(4, 1) and cur_line or 0)
+        music(btn(4) and cur_line or 0)
       end
     end
 
-    local upd_upper_lower = function()
-      if multi_selection then
-        sel_line_lower = min(cur_line, sel_start_line)
-        sel_line_upper = max(cur_line, sel_start_line)
-        sel_col_lower  = min(cur_col, sel_start_col)
-        sel_col_upper  = max(cur_col, sel_start_col)
-      else
-        sel_start_line = cur_line
-        sel_start_col  = cur_col
-
-        sel_line_lower = cur_line
-        sel_line_upper = cur_line
-        sel_col_lower  = cur_col
-        sel_col_upper  = cur_col
-      end
-    end
-
-    -- sel modifier
-    if btn(4, 1) then
-      -- pane movement
+    -- pane movement
+    if btn(4) then
       if btnp(0) then
         GLOBAL.current_pane = settings_pane
         return
       end
 
-      if btnp(1) and not multi_selection and patterns[cur_line+1].is_channel_activated[cur_col+1] then
+      if btnp(1) and patterns[cur_line+1].is_channel_activated[cur_col+1] then
         GLOBAL.current_pane = sfx_editor
         sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
         return
       end
-
-      if btnp_once(4) and cur_col < 4 then
-        if not multi_selection then
-          multi_selection = true
-          send_msg("select mode")
-        elseif sel_line_lower ~= 0 or sel_line_upper ~= 63 then
-          sel_start_line = 63
-          sel_start_col = 3
-          cur_line = 0
-          cur_col = 0
-        else
-          copy_selected_patterns(_ENV)
-        end
-      end
-
-      if btnp_once(5) then
-        if multi_selection then
-          cut_selected_patterns(_ENV)
-        else
-          paste_selected_patterns(_ENV)
-        end
-      end
-
-      upd_upper_lower()
-
-      return
     end
 
-    if btnp_once(4) and multi_selection then
-      copy_selected_patterns(_ENV)
+    if not multi_selection then
+      if btnp_seq(4, 4) and cur_col < 4 then
+        multi_selection = true
+        send_msg("select mode")
+        return
+      end
+
+      if btnp_seq(5, 4) then
+        paste_selected_patterns(_ENV)
+        return
+      end
+    else
+      if btnp_seq(5, 5) then
+        cut_selected_patterns(_ENV)
+        return
+      end
+
+      if btnp_once(4) then
+        copy_selected_patterns(_ENV)
+        return
+      end
     end
+
 
     if not btn(4) and not btn(5) then
       if btnp(0) then cur_col -= 1 end
@@ -117,7 +110,7 @@ pattern_editor = class:new {
       if btnp(3) then cur_line += 1 end
 
       cur_col = mid(0, cur_col, multi_selection and 3 or 6)
-      cur_line = mid(0, cur_line, 63)
+      cur_line %= 64
 
       if first_visible_pattern + 15 < cur_line then
         first_visible_pattern = cur_line - 15
@@ -126,7 +119,7 @@ pattern_editor = class:new {
       end
     end
 
-    upd_upper_lower()
+    post_update(_ENV)
 
     for pat_line=sel_line_lower,sel_line_upper do
       for pat_col=sel_col_lower,sel_col_upper do
@@ -194,6 +187,7 @@ pattern_editor = class:new {
       add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
     end
     multi_selection = false
+    key_handler.double_registered = true
 
     send_msg("copied " .. tostr(#copied_patterns) .. " patterns")
   end,

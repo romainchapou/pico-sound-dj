@@ -51,29 +51,24 @@ sfx_editor = class:new {
 
   update = function(_ENV)
     -- pane movement
-    if btn(4, 1) and btnp(0) then
-      GLOBAL.current_pane = pattern_editor
-      return
+    if btn(4) then
+      if btnp(0) then
+        GLOBAL.current_pane = pattern_editor
+        return
+      end
+
+      if btnp_once(2) then change_sfx(_ENV, sfx_id-1) end
+      if btnp_once(3) then change_sfx(_ENV, sfx_id+1) end
     end
 
     -- play/pause on this sfx
-    if btnp_once(5, 1) then
+    if btn(6) then
       if stat(46) ~= sfx_id then
         play_sfx(_ENV)
       else
         -- already playing, stop the playback
         sfx(sfx_id, -2)
       end
-    end
-
-    if not btn(4, 1) and btn(4) then
-      if btnp(0) then panel_selection -= 1 end
-      if btnp(1) then panel_selection += 1 end
-
-      panel_selection = mid(0, panel_selection, 1)
-
-      if btnp_once(2) then change_sfx(_ENV, sfx_id-1) end
-      if btnp_once(3) then change_sfx(_ENV, sfx_id+1) end
     end
 
     if panel_selection == 0 then
@@ -157,50 +152,41 @@ sfx_editor = class:new {
         note_id <= selection_upper
   end,
 
+  post_update = function(_ENV)
+    if multi_selection then
+      selection_upper = max(selection_start, current_note)
+      selection_lower = min(selection_start, current_note)
+    else
+      selection_start = current_note
+      selection_upper = current_note
+      selection_lower = current_note
+    end
+  end,
+
   update_note_panel = function(_ENV)
-    local upd_uppper_lower = function()
-      if multi_selection then
-        selection_upper = max(selection_start, current_note)
-        selection_lower = min(selection_start, current_note)
-      else
-        selection_start = current_note
-        selection_upper = current_note
-        selection_lower = current_note
-      end
-    end
-
     -- sel modifier
-    if btn(4, 1) then
+    if not multi_selection then
+      if btnp_seq(4, 4) then
+        multi_selection = true
+        send_msg("select mode")
+        return
+      end
+
+      if btnp_seq(5, 4) then
+        paste_selection(_ENV)
+        notes[current_note]:play_tmp_note()
+        return
+      end
+    else
+      if btnp_seq(5, 5) then
+        cut_selected_notes(_ENV)
+        return
+      end
+
       if btnp_once(4) then
-        if not multi_selection then
-          multi_selection = true
-          send_msg("select mode")
-        else
-          if selection_lower ~= 1 or selection_upper ~= 32 then
-            -- second press of sel+b selects everything
-            selection_start = 32
-            current_note = 1
-          else
-            copy_selected_notes(_ENV)
-          end
-        end
+        copy_selected_notes(_ENV)
+        return
       end
-
-      if btnp_once(5) then
-        if multi_selection then
-          cut_selected_notes(_ENV)
-        else
-          paste_selection(_ENV)
-        end
-      end
-
-      upd_uppper_lower()
-
-      return
-    end
-
-    if multi_selection and btnp_once(4) then
-      copy_selected_notes(_ENV)
     end
 
     -- moving the cursor around
@@ -228,9 +214,9 @@ sfx_editor = class:new {
       sub_selection = mid(1, sub_selection, 4)
     end
 
-    current_note = mid(1, current_note, 32)
+    current_note = (current_note-1)%32+1
 
-    upd_uppper_lower()
+    post_update(_ENV)
 
     local are_all_selected_notes_volume_0 = true
     for i=selection_lower,selection_upper do
@@ -248,15 +234,11 @@ sfx_editor = class:new {
 
   update_settings_panel = function(_ENV)
     -- sel modifier
-    if btn(4, 1) then
-      -- TODO @Improve: this feature definitively should be present,
-      -- but I'm not sure about this UX
-      if btnp_once(4) then
-        copy_whole_sfx(_ENV)
-      elseif btnp_once(5) then
-        paste_selection(_ENV)
-      end
-
+    if btnp_seq(4, 4) then
+      copy_whole_sfx(_ENV)
+      return
+    elseif btnp_seq(4, 5) then
+      paste_selection(_ENV)
       return
     end
 
@@ -323,7 +305,7 @@ sfx_editor = class:new {
   end,
 
   play_sfx = function(_ENV)
-    sfx(sfx_editor.sfx_id, 0, btn(4, 1) and current_note-1 or 0)
+    sfx(sfx_editor.sfx_id, 0, btn(4) and current_note-1 or 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)
