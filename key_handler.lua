@@ -1,74 +1,115 @@
-function make_btn_state_seq(btn_val)
+function make_btn_state_seq(btn_v1, btn_v2)
   return class:new {
-    btn_val = btn_val,
-    hold_nb_frames = 0,
-    time_since_last = 32000,
+    v1_hold_time = 0,
+    v2_hold_time = 0,
+    between_time = 0,
+    seq_registered = false,
+
+    s = 0,
 
     update = function(_ENV)
-      if btn(btn_val) and key_handler.last_frame_btn[1][btn_val] then
-        hold_nb_frames += 1
-      elseif btn() ~= 0 then
-        hold_nb_frames = 0
+      local function inct(v)
+        return min(32000, v+1)
       end
 
-      if btn() == 0 then
-        time_since_last += 1
-        time_since_last = min(32000, time_since_last)
-      elseif btn() == shl(1, btn_val) and not key_handler.double_registered then
-        time_since_last = 0
-      else
-        time_since_last = 32000
-      end
-    end,
+      if s == 0 then
+        -- waiting for input state
 
-    recent_short_press = function(_ENV)
-      return not key_handler.last_frame_btn[1][btn_val]
-             and hold_nb_frames < 10 and time_since_last < 20
+        -- reset all
+        v1_hold_time = 0
+        v2_hold_time = 0
+        between_time = 0
+        seq_registered = false
+
+        if btn(btn_v1) then
+          s += 1
+        end
+      elseif s == 1 then
+        -- hold of v1
+
+        if btn() == shl(1, btn_v1) then
+          v1_hold_time = inct(v1_hold_time)
+        elseif btn() ~= 0 then
+          s = 0
+        else
+          s = v1_hold_time < 10 and s+1 or 0
+        end
+      elseif s == 2 then
+        -- between presses
+
+        if btn() == 0 then
+          between_time = inct(between_time)
+        elseif btn() ~= shl(1, btn_v2) then
+          s = 0
+        else
+          s = between_time < 20 and s+1 or 0
+        end
+      elseif s == 3 then
+        -- hold of v2
+
+        if btn() == shl(1, btn_v2) then
+          v2_hold_time = inct(v2_hold_time)
+        elseif btn() ~= 0 then
+          s = 0
+        else
+          s = v2_hold_time < 10 and s+1 or 0
+        end
+      elseif s == 4 then
+        -- launch sequence registered
+
+        seq_registered = true
+        s = 0
+      end
     end
   }
 end
 
 key_handler = class:new {
-  last_frame_btn = {{}, {}},
+  last_frame_btn = {},
 
-  o_state = make_btn_state_seq(4),
-  x_state = make_btn_state_seq(5),
-
-  double_registered = false, -- TODO use could probably be simplified
+  states = {
+    [4] = {[4] = make_btn_state_seq(4, 4), [5] = make_btn_state_seq(4, 5)},
+    [5] = {[4] = make_btn_state_seq(5, 4), [5] = make_btn_state_seq(5, 5)}
+  },
 
   update = function(_ENV)
-    o_state:update()
-    x_state:update()
-
-    for pl=0,1 do
-      for v=0,5 do
-        last_frame_btn[pl+1][v] = btn(v, pl)
+    for i=4,5 do
+      for j=4,5 do
+        states[i][j]:update()
       end
     end
 
-    if btn() == 0 then
-      double_registered = false
+    for v=0,5 do
+      last_frame_btn[v] = btn(v, pl)
+    end
+  end,
+
+  reset_states = function(_ENV)
+    for i=4,5 do
+      for j=4,5 do
+        states[i][j].s = 0
+      end
     end
   end
 }
 
-function btnp_once(val, pl)
-  if pl == nil then pl = 0 end
-  return btn(val, pl) and not key_handler.last_frame_btn[pl+1][val]
+function btnp_once(val, dont_launch_action)
+  local ret = btn(val) and not key_handler.last_frame_btn[val]
+
+  if ret and not dont_launch_action then
+    key_handler:reset_states()
+  end
+
+  return ret
 end
 
 -- return true when the sequence "btn(v1) -> btn(v2)" is quickly inputed
 -- v1 must be 4 or 5
--- TODO launch only when btn(v2) is RELEASED!!!!
 function btnp_seq(v1, v2)
-  if v1 ~= 4 and v1 ~= 5 then return false end
-
-  local btn_state = v1 == 4 and key_handler.o_state or key_handler.x_state
-
-  local ret = btnp_once(v2) and btn_state:recent_short_press()
+  local ret = key_handler.states[v1][v2].seq_registered
 
   if ret then
-    key_handler.double_registered = true
+    key_handler:reset_states()
   end
 
   return ret

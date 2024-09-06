@@ -91,7 +91,7 @@ function make_note_widget()
 
       sub_widget:update()
 
-      if sub_widget.value ~= old_value or btnp_once(5) then
+      if sub_widget.value ~= old_value or btnp_once(5, true) then
         if not sfx_editor.multi_selection and volume.value ~= 0 then
           if sub_selection == 2 then
             send_msg("instr " .. tostr(waveform.value) .. ": "

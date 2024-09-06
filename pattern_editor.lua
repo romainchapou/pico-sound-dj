@@ -187,7 +187,6 @@ pattern_editor = class:new {
       add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
     end
     multi_selection = false
-    key_handler.double_registered = true
 
     send_msg("copied " .. tostr(#copied_patterns) .. " patterns")
   end,
