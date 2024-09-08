@@ -1,3 +1,20 @@
+## Settings View
+
+- save scratch
+- set current project
+    - sub actions
+        - reload option when set
+        - export to project when set
+    - both sub actions need a confirmation pop up
+- create new project
+    - implies inputing a file name
+    - implies setting the current project
+- theme option
+- clear scratch data
+    - needs a confirmation pop up
+
+
+
 - penser à un system de notification/message global
 - peut être bloquer la descente/montée d'une octave si pas atteignable plutôt que de clamp sur le min/max
 
@@ -38,15 +55,15 @@
 
 # More TODOS
 
-- [ ] system de message / notification en bas
+- [X] system de message / notification en bas
 - [ ] mini map du pane actuel
 - [X] meilleur gestion du hold_b+a pour delete pour éviter de recréer la note si on relache b en premier
-- [ ] pattern editor multi selection
-    - [ ] done but UX to improve
+- [X] pattern editor multi selection
+    - [X] done but UX to improve
 - [ ] special behaviour of effect 1 : the note should be visible even if the volume is at 0 as it affects the previous note
 - [ ] playhead out of the grid when still playing as the out loop is more than 32
-- [ ] il doit y avoir un moyen de copier tout un sfx, settings inclues, et de le paste sur un autre sfx
-    - [ ] done but improve UX
+- [X] il doit y avoir un moyen de copier tout un sfx, settings inclues, et de le paste sur un autre sfx
+    - [X] done but improve UX
 - [X] si je sélectionne le volume de toutes les notes, est ce que si je change la valeur c'est sensé la changer pour tous, ou juste pour les notes actives ? J'aurais tendance à dire juste les notes actives
 
 

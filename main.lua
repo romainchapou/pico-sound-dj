@@ -57,6 +57,7 @@ function _init()
 
   current_pane = pattern_editor
 
+  settings_pane:init()
   pattern_editor:init()
   sfx_editor:init(0)
 end

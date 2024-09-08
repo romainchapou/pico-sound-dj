@@ -11,6 +11,7 @@ __lua__
 #include message_panel.lua
 #include note_widget.lua
 #include pattern_widget.lua
+#include name_chooser.lua
 
 #include settings_pane.lua
 #include pattern_editor.lua

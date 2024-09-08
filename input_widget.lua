@@ -87,3 +87,26 @@ function make_button_widget(btn_spr)
     end
   }
 end
+
+function make_btn_pushed_widget(txt, upd_func)
+  if upd_func == nil then
+    -- supposes that this is currently selected
+    -- by default returns the hold text when pressed
+    upd_func = function(_ENV)
+      if btnp_once(5) then return txt end
+
+    end
+  end
+
+  return class:new {
+    update = upd_func,
+
+    draw = function(_ENV, x, y, is_selected)
+      if is_selected then
+        rectfill(x-2, y-1, x + 4*#txt, y+5, 9)
+      end
+
+      print(txt, x, y, 0)
+    end
+  }
+end
