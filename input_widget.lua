@@ -88,18 +88,21 @@ function make_button_widget(btn_spr)
   }
 end
 
-function make_btn_pushed_widget(txt, upd_func)
-  if upd_func == nil then
-    -- supposes that this is currently selected
-    -- by default returns the hold text when pressed
-    upd_func = function(_ENV)
-      if btnp_once(5) then return txt end
-
-    end
-  end
-
+function make_btn_pushed_widget(txt, action_func)
   return class:new {
-    update = upd_func,
+    -- supposes that this is currently selected
+    update = function(_ENV)
+      if btnp_once(5) then
+        if action_func ~= nil then
+          action_func()
+          -- signify that the input was handled
+          return true
+        else
+          -- by default returns the hold text when pressed
+          return txt
+        end
+      end
+    end,
 
     draw = function(_ENV, x, y, is_selected)
       if is_selected then

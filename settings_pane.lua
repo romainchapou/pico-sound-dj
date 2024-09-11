@@ -1,9 +1,14 @@
 settings_pane = class:new {
-  init = function(_ENV)
-    proj_create_win:init()
-  end,
+  sub_wins = {proj_create_win},
+  proj_name = nil,
 
   update = function(_ENV)
+    for w in all(sub_wins) do
+      if w:update() ~= "inactive" then
+        return
+      end
+    end
+
     if btn(4) and btnp(1) then
       GLOBAL.current_pane = pattern_editor
       return
@@ -12,12 +17,18 @@ settings_pane = class:new {
     -- restore the default behaviour of the start button for this screen
     poke(0x5f30, 0)
 
-    proj_create_win:update()
+    if btnp_once(5) then
+      proj_create_win:init(function(new_name)
+        proj_name = new_name
+      end)
+    end
   end,
 
   draw = function(_ENV)
-    shadow_print("settings", 1, 1)
+    for w in all(sub_wins) do
+      w:draw()
+    end
 
-    proj_create_win:draw()
+    shadow_print("settings", 1, 1)
   end,
 }

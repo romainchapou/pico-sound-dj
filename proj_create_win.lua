@@ -1,6 +1,9 @@
 proj_create_win = class:new {
-  init = function(_ENV)
+  init = function(_ENV, on_confirm)
     new_name = ""
+
+    on_confirm = on_confirm
+    active = true
 
     panel_i = 1
     letter_i = 0
@@ -23,16 +26,18 @@ proj_create_win = class:new {
       add(letter_widgs, make_btn_pushed_widget(c))
     end
 
-    cancel_widg = make_btn_pushed_widget("cancel", function(_ENV)
-      -- TODO cancel the name change
-    end)
+    cancel_widg = make_btn_pushed_widget("cancel", function() end)
 
-    confirm_widg = make_btn_pushed_widget("ok", function(_ENV)
-      -- TODO cancel the name change
+    confirm_widg = make_btn_pushed_widget("ok", function()
+      on_confirm(new_name)
     end)
   end,
 
   update = function(_ENV)
+    if not active then
+      return "inactive"
+    end
+
     timer += 1
     timer %= 60
 
@@ -70,19 +75,23 @@ proj_create_win = class:new {
         if btnp(1) then conf_btn_i += 1 end
 
         conf_btn_i = mid(0, conf_btn_i, 1)
+        local conf_ret = conf_btn_i == 0 and cancel_widg:update() or confirm_widg:update()
 
-        if conf_btn_i == 0 then
-          cancel_widg:update()
-        else
-          confirm_widg:update()
+        if conf_ret then
+          active = false
+          return "done"
         end
       end
     end
 
     panel_i = mid(1, panel_i, 2)
+
+    return "updated"
   end,
 
   draw = function(_ENV)
+    if not active then return end
+
     local start_x, start_y = 29, 36
 
     rectfill(start_x-7, start_y-5, start_x+73, start_y + 57, 7)
