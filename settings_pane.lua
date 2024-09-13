@@ -1,6 +1,6 @@
 settings_pane = class:new {
   sub_wins = {proj_create_win, file_chooser},
-  proj_name = nil,
+  export_file = nil,
 
   widgs = {
     make_btn_pushed_widget("save scratch", function()
@@ -10,17 +10,31 @@ settings_pane = class:new {
       send_msg("scratch saved to cartridge")
     end),
 
-    make_btn_pushed_widget("open new project", function()
-      proj_create_win:init(function(new_name)
-        proj_name = new_name
+    make_btn_pushed_widget(
+      function()
+        local txt
+
+        if export_file == nil then
+          txt = "not set!"
+        else
+          local path = split(export_file, "/")
+          txt = #path > 2 and "../" .. path[#path] or "/" .. path[#path]
+        end
+
+        return "export file: " .. txt
+      end,
+      function()
+        file_chooser:init(function(new_file)
+          export_file = new_file
       end)
     end),
 
-    make_btn_pushed_widget("set export file", function()
-      file_chooser:init(function(new_file)
-        proj_name = new_file
+    make_btn_pushed_widget("choose new project name", function()
+      proj_create_win:init(function(new_name)
+        export_file = new_name .. ".p8"
       end)
     end),
+
 
     make_btn_pushed_widget("clear scratch data", function()
       memset(0x3100, 0b01000000, 0x0100)
@@ -78,5 +92,16 @@ settings_pane = class:new {
     for w in all(sub_wins) do
       w:draw()
     end
+
+    -- TODO tmp remove this
+    local function str_san(s)
+      if s == nil then
+        return "[nil]"
+      else
+        return s
+      end
+    end
+
+    print("cur proj:" .. str_san(export_file), start_x, 100, 6)
   end,
 }

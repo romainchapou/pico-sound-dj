@@ -88,7 +88,7 @@ function make_button_widget(btn_spr)
   }
 end
 
-function make_btn_pushed_widget(txt, action_func)
+function make_btn_pushed_widget(name, action_func)
   return class:new {
     -- supposes that this is currently selected
     update = function(_ENV)
@@ -99,12 +99,14 @@ function make_btn_pushed_widget(txt, action_func)
           return true
         else
           -- by default returns the hold text when pressed
-          return txt
+          return name
         end
       end
     end,
 
     draw = function(_ENV, x, y, is_selected)
+      local txt = (type(name) == "function") and name() or name
+
       if is_selected then
         rectfill(x-2, y-1, x + 4*#txt, y+5, 9)
       end

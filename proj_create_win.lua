@@ -2,7 +2,6 @@ proj_create_win = class:new {
   init = function(_ENV, on_confirm)
     new_name = ""
 
-    on_confirm = on_confirm
     active = true
 
     panel_i = 1

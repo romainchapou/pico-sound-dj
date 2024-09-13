@@ -1,5 +1,20 @@
 ## Settings View
 
+- scratch
+    - save to cartridge
+    - clear
+
+- export file
+    - current (RO)
+    - export scratch to file (if set)
+    - load to scratch (if set)
+    - choose file
+    - new
+
+- theme selection
+
+---------------------
+
 - save scratch
 - set current project
     - sub actions
