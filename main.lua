@@ -22,12 +22,6 @@ function _init()
 
   export_file_nb = 0
 
-  menuitem(1, "save", function()
-    pattern_editor:store_all_patterns_in_mem()
-
-    cstore(0x3100, 0x3100, 0x1200)
-  end)
-
   menuitem(2, "export", function()
     pattern_editor:store_all_patterns_in_mem()
 
@@ -41,17 +35,6 @@ function _init()
   end)
 
   set_change_export_file_nb_menuitem()
-
-  menuitem(5, "clear data", function()
-    memset(0x3100, 0b01000000, 0x0100)
-    memset(0x3200, 0, 0x1100)
-    -- set the default speed of each sfx to 16
-    for i=0,63 do
-      poke(0x3200 + i*68+65, 16)
-    end
-
-    _init()
-  end)
 
   T = 0 -- test variable
 

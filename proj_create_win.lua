@@ -35,7 +35,7 @@ proj_create_win = class:new {
 
   update = function(_ENV)
     if not active then
-      return "inactive"
+      return
     end
 
     timer += 1
@@ -79,14 +79,11 @@ proj_create_win = class:new {
 
         if conf_ret then
           active = false
-          return "done"
         end
       end
     end
 
     panel_i = mid(1, panel_i, 2)
-
-    return "updated"
   end,
 
   draw = function(_ENV)
