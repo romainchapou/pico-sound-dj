@@ -191,11 +191,8 @@ sfx_editor = class:new {
 
     -- moving the cursor around
     if not btn(4) and not btn(5) then
-      if btnp(0) then sub_selection -= 1 end
-      if btnp(1) then sub_selection += 1 end
-
-      if btnp(2) then current_note -= 1 end
-      if btnp(3) then current_note += 1 end
+      sub_selection += nudge()
+      current_note += nudge(true)
 
       -- TODO see if we can handle the multi_selection case better
       if not multi_selection then
@@ -250,10 +247,7 @@ sfx_editor = class:new {
     if not btn(4) and not btn(5) then
       if btnp(0) then panel_selection = 0 end
 
-      if btnp(2) then settings_selection -= 1 end
-      if btnp(3) then settings_selection += 1 end
-
-      settings_selection = mid(0, settings_selection, #sfx_settings-1)
+      settings_selection = mid(0, settings_selection + nudge(true), #sfx_settings-1)
     end
   end,
 

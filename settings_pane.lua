@@ -75,10 +75,7 @@ settings_pane = class:new {
         return
       end
 
-      if btnp(2) then cur_widg -= 1 end
-      if btnp(3) then cur_widg += 1 end
-
-      cur_widg = mid(1, cur_widg, #widgs)
+      cur_widg = mid(1, cur_widg + nudge(true), #widgs)
     end
   end,
 

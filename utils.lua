@@ -26,6 +26,18 @@ function draw_win_bg(x1, y1, x2, y2)
   rect(x1, y1, x2, y2, 6)
 end
 
+function nudge(vert)
+  if vert then
+    if btnp(2) then return -1 end
+    if btnp(3) then return  1 end
+  else
+    if btnp(0) then return -1 end
+    if btnp(1) then return  1 end
+  end
+
+  return 0
+end
+
 -- TODO to save some tokens
 -- * minmax
 -- * nudge btn

@@ -18,10 +18,7 @@ confirm_pop_up = class:new {
   update = function(_ENV)
     if not active then return end
 
-    if btnp(0) then conf_btn_i -= 1 end
-    if btnp(1) then conf_btn_i += 1 end
-
-    conf_btn_i = mid(0, conf_btn_i, 1)
+    conf_btn_i = mid(0, conf_btn_i + nudge(), 1)
 
     local conf_ret = conf_btn_i == 0 and cancel_widg:update() or confirm_widg:update()
 

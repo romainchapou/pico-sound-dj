@@ -103,13 +103,9 @@ pattern_editor = class:new {
 
 
     if not btn(4) and not btn(5) then
-      if btnp(0) then cur_col -= 1 end
-      if btnp(1) then cur_col += 1 end
+      cur_col = mid(0, cur_col + nudge(), multi_selection and 3 or 6)
 
-      if btnp(2) then cur_line -= 1 end
-      if btnp(3) then cur_line += 1 end
-
-      cur_col = mid(0, cur_col, multi_selection and 3 or 6)
+      cur_line += nudge(true)
       cur_line %= 64
 
       if first_visible_pattern + 15 < cur_line then

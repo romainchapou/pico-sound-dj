@@ -18,12 +18,7 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   if update == nil then
     update = function(_ENV)
       if btn(5) and not btn(4) then
-        if btnp(0) then value -= 1 end
-        if btnp(1) then value += 1 end
-        if btnp(2) then value += delta_up end
-        if btnp(3) then value -= delta_up end
-
-        value = mid(min_value, value, max_value)
+        value = mid(min_value, value + nudge() - nudge(true)*delta_up, max_value)
       end
     end
   end

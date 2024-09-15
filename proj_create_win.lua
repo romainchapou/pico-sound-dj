@@ -70,10 +70,7 @@ proj_create_win = class:new {
       if btnp(2) then
         panel_i -= 1
       else
-        if btnp(0) then conf_btn_i -= 1 end
-        if btnp(1) then conf_btn_i += 1 end
-
-        conf_btn_i = mid(0, conf_btn_i, 1)
+        conf_btn_i = mid(0, conf_btn_i + nudge(), 1)
         local conf_ret = conf_btn_i == 0 and cancel_widg:update() or confirm_widg:update()
 
         if conf_ret then
