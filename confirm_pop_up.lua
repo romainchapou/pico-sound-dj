@@ -8,7 +8,7 @@ confirm_pop_up = class:new {
 
     conf_btn_i = 0
 
-    cancel_widg = make_btn_pushed_widget("no, cancel", function() end)
+    cancel_widg = make_btn_pushed_widget("no", function() end)
 
     confirm_widg = make_btn_pushed_widget("yes!", function()
       conf_func()

@@ -8,6 +8,10 @@ function two_digit_number_str(num)
   return num < 10 and "0" .. tostr(num) or tostr(num)
 end
 
+function file_readable(file)
+  return reload(0x4300, 0x4300, 1, file) == 1
+end
+
 function bool_to_num(bool)
   return bool and 1 or 0
 end

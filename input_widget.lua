@@ -106,7 +106,10 @@ function make_btn_pushed_widget(name, action_func)
         rectfill(x-2, y-1, x + 4*#txt, y+5, 9)
       end
 
-      print(txt, x, y, 0)
+      local color = 0
+      if inactive then color = 6 end
+
+      print(txt, x, y, color)
     end
   }
 end

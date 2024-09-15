@@ -1,54 +1,90 @@
 settings_pane = class:new {
-  sub_wins = {confirm_pop_up, proj_create_win, file_chooser},
-  export_file = nil,
+  init = function(_ENV)
+    sub_wins = {confirm_pop_up, proj_create_win, file_chooser}
+    export_file = nil
 
-  widgs = {
-    -- scratch --
+    local function load_export_file()
+      reload(0x3100, 0x3100, 0x1200, export_file)
+      pattern_editor:init()
+    end
 
-    make_btn_pushed_widget("save", function()
-      pattern_editor:store_all_patterns_in_mem()
-      cstore(0x3100, 0x3100, 0x1200)
+    export_widg = make_btn_pushed_widget("save to file", function()
+      confirm_pop_up:init("this will\noverwrite all\nexisting music\ndata in the\nexport file,\ncontinue?",
+      function()
+        pattern_editor:store_all_patterns_in_mem()
+        cstore(0x3100, 0x3100, 0x1200, export_file)
 
-      send_msg("scratch saved to cartridge")
-    end),
-
-    make_btn_pushed_widget("clear", function()
-      confirm_pop_up:init("current scratch\ndata will be\nlost, continue?", function()
-        memset(0x3100, 0b01000000, 0x0100)
-        memset(0x3200, 0, 0x1100)
-        -- set the default speed of each sfx to 16
-        for i=0,63 do
-          poke(0x3200 + i*68+65, 16)
-        end
-
-        pattern_editor:init()
-
-        send_msg("scratch data cleared")
-      end)
-    end),
-
-    -- export file --
-
-    make_btn_pushed_widget("export to file", function()
-    end),
-
-    make_btn_pushed_widget("load to scratch", function()
-    end),
-
-    make_btn_pushed_widget("choose file", function()
-        file_chooser:init(function(new_file)
-          export_file = new_file
-      end)
-    end),
-
-    make_btn_pushed_widget("new file", function()
-      proj_create_win:init(function(new_name)
-        export_file = new_name .. ".p8"
+        load_widg.inactive = false
       end)
     end)
-  },
 
-  cur_widg = 1,
+    load_widg = make_btn_pushed_widget("load to scratch", function()
+      confirm_pop_up:init(
+       "current scratch\ndata will be\nlost, continue?",
+       load_export_file
+     )
+    end)
+
+    widgs = {
+      -- scratch --
+
+      make_btn_pushed_widget("save", function()
+        pattern_editor:store_all_patterns_in_mem()
+        cstore(0x3100, 0x3100, 0x1200)
+
+        send_msg("saved scratch to cartridge")
+      end),
+
+      make_btn_pushed_widget("clear", function()
+        confirm_pop_up:init("current scratch\ndata will be\nlost, continue?", function()
+          memset(0x3100, 0b01000000, 0x0100)
+          memset(0x3200, 0, 0x1100)
+          -- set the default speed of each sfx to 16
+          for i=0,63 do
+            poke(0x3200 + i*68+65, 16)
+          end
+
+          pattern_editor:init()
+
+          send_msg("scratch data cleared")
+        end)
+      end),
+
+      -- export file --
+
+      export_widg,
+      load_widg,
+
+      make_btn_pushed_widget("open file", function()
+          file_chooser:init(function(new_file)
+            export_file = new_file
+            export_widg.inactive = false
+            load_widg.inactive = false
+
+            confirm_pop_up:init(
+              "load file into\nthe scratch?\ncurrent scratch\nwill be lost",
+              load_export_file
+            )
+        end)
+      end),
+
+      make_btn_pushed_widget("new file", function()
+        proj_create_win:init(function(new_name)
+          export_file = "/" .. new_name .. ".p8"
+          export_widg.inactive = false
+
+          load_widg.inactive = not file_readable(export_file)
+        end)
+      end)
+    }
+
+    -- those two widgets are inactive while the export file is not set
+    export_widg.inactive = true
+    load_widg.inactive = true
+
+    cur_widg = 1
+  end,
+
 
   update = function(_ENV)
     -- restore the default behaviour of the start button for this screen
@@ -72,6 +108,12 @@ settings_pane = class:new {
       end
 
       cur_widg = mid(1, cur_widg + nudge(true), #widgs)
+
+      -- note that this would produce an infinite loop if there was an inactive
+      -- widget as the first or last one
+      while widgs[cur_widg].inactive do
+        cur_widg = mid(1, cur_widg + nudge(true), #widgs)
+      end
     end
   end,
 
@@ -87,18 +129,16 @@ settings_pane = class:new {
       widgs[i]:draw(start_x+12, start_y + 8*i+11, i == cur_widg)
     end
 
-    shadow_rect(start_x -1, start_y +42, start_x + 122, start_y + 100)
+    shadow_rect(start_x -1, start_y +42, start_x + 122, start_y + 91)
     shadow_print("export file", start_x+4, start_y+40)
 
-    local exp_txt, exp_color
+    local exp_txt
 
     if export_file == nil then
       exp_txt = "not yet set!"
-      exp_color = 6
     else
       local path = split(export_file, "/")
       exp_txt = #path > 2 and "../" .. path[#path] or "/" .. path[#path]
-      exp_color = 9
     end
 
     print(exp_txt, start_x+12, start_y+49, 9)

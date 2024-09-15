@@ -1,18 +1,3 @@
--- https://pico-8.fandom.com/wiki/Memory#Sound_effects
-
-function set_change_export_file_nb_menuitem()
-  menuitem(4, "< export nb " .. export_file_nb .. " >", function(b)
-    export_file_nb -= bool_to_num(b&1 > 0) -- left
-    export_file_nb += bool_to_num(b&2 > 0) -- right
-
-    export_file_nb = max(0, export_file_nb)
-
-    set_change_export_file_nb_menuitem()
-
-    return true
-  end)
-end
-
 function _init()
   -- set key repeat
   poke(0x5f5c, 4)
@@ -20,26 +5,11 @@ function _init()
 
   CHANNEL_X_OFFSET = 16
 
-  export_file_nb = 0
-
-  menuitem(2, "export", function()
-    pattern_editor:store_all_patterns_in_mem()
-
-    cstore(0x3100, 0x3100, 0x1200, "export_" .. export_file_nb .. ".p8")
-  end)
-
-  menuitem(3, "load export", function()
-    reload(0x3100, 0x3100, 0x1200, "export_" .. export_file_nb .. ".p8")
-
-    _init()
-  end)
-
-  set_change_export_file_nb_menuitem()
-
   T = 0 -- test variable
 
   current_pane = pattern_editor
 
+  settings_pane:init()
   pattern_editor:init()
   sfx_editor:init(0)
 end
