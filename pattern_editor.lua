@@ -175,6 +175,11 @@ pattern_editor = class:new {
 
   -- update functions
 
+  send_pat_msg = function(_ENV, act)
+    send_msg(act .. #copied_patterns .. " pattern"
+             .. (#copied_patterns == 1 and "" or "s"))
+  end,
+
   copy_selected_patterns = function(_ENV)
     copied_patterns = {}
     store_all_patterns_in_mem(_ENV)
@@ -184,7 +189,7 @@ pattern_editor = class:new {
     end
     multi_selection = false
 
-    send_msg("copied " .. tostr(#copied_patterns) .. " patterns")
+    send_pat_msg(_ENV, "copied ")
   end,
 
   cut_selected_patterns = function(_ENV)
@@ -196,7 +201,7 @@ pattern_editor = class:new {
 
     store_all_patterns_in_mem(_ENV)
 
-    send_msg("cut " .. tostr(#copied_patterns) .. " patterns")
+    send_pat_msg(_ENV, "cut ")
   end,
 
   paste_selected_patterns = function(_ENV)
@@ -207,7 +212,7 @@ pattern_editor = class:new {
       end
     end
 
-    send_msg("pasted " .. tostr(#copied_patterns) .. " patterns")
+    send_pat_msg(_ENV, "pasted ")
   end,
 
   store_all_patterns_in_mem = function(_ENV)

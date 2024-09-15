@@ -251,6 +251,11 @@ sfx_editor = class:new {
     end
   end,
 
+  send_notes_msg = function(_ENV, act)
+    send_msg(act .. #copied_notes .. " note"
+             .. (#copied_notes == 1 and "" or "s"))
+  end,
+
   copy_selected_notes = function(_ENV)
     whole_copy = {}
     copied_notes = {}
@@ -260,7 +265,7 @@ sfx_editor = class:new {
     end
     multi_selection = false
 
-    send_msg("copied " .. tostr(#copied_notes) .. " notes")
+    send_notes_msg(_ENV, "copied ")
   end,
 
   cut_selected_notes = function(_ENV)
@@ -271,7 +276,7 @@ sfx_editor = class:new {
       notes[i].volume.value = 0
     end
 
-    send_msg("cut " .. tostr(#copied_notes) .. " notes")
+    send_notes_msg(_ENV, "cut ")
   end,
 
   paste_selection = function(_ENV)
@@ -285,7 +290,7 @@ sfx_editor = class:new {
         notes[i] = copy_note(copied_notes[i-current_note+1])
       end
 
-      send_msg("pasted " .. tostr(#copied_notes) .. " notes")
+      send_notes_msg(_ENV, "pasted ")
     end
   end,
 
