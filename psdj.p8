@@ -13,6 +13,7 @@ __lua__
 #include pattern_widget.lua
 #include proj_create_win.lua
 #include file_chooser.lua
+#include confirm_pop_up.lua
 
 #include settings_pane.lua
 #include pattern_editor.lua

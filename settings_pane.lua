@@ -1,5 +1,5 @@
 settings_pane = class:new {
-  sub_wins = {proj_create_win, file_chooser},
+  sub_wins = {confirm_pop_up, proj_create_win, file_chooser},
   export_file = nil,
 
   widgs = {
@@ -37,16 +37,18 @@ settings_pane = class:new {
 
 
     make_btn_pushed_widget("clear scratch data", function()
-      memset(0x3100, 0b01000000, 0x0100)
-      memset(0x3200, 0, 0x1100)
-      -- set the default speed of each sfx to 16
-      for i=0,63 do
-        poke(0x3200 + i*68+65, 16)
-      end
+      confirm_pop_up:init("current scratch\ndata will be\nlost, continue?", function()
+        memset(0x3100, 0b01000000, 0x0100)
+        memset(0x3200, 0, 0x1100)
+        -- set the default speed of each sfx to 16
+        for i=0,63 do
+          poke(0x3200 + i*68+65, 16)
+        end
 
-      pattern_editor:init()
+        pattern_editor:init()
 
-      send_msg("scratch data cleared")
+        send_msg("scratch data cleared")
+      end)
     end)
   },
 

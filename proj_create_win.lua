@@ -109,7 +109,5 @@ proj_create_win = class:new {
 
     cancel_widg:draw(start_x, start_y + 48, conf_btn_i == 0 and panel_i == 2)
     confirm_widg:draw(start_x+60, start_y + 48, conf_btn_i == 1 and panel_i == 2)
-
-
   end
 }
