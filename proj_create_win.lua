@@ -90,8 +90,7 @@ proj_create_win = class:new {
 
     local start_x, start_y = 29, 36
 
-    rectfill(start_x-7, start_y-5, start_x+73, start_y + 57, 7)
-    rect(start_x-6, start_y-4, start_x+72, start_y + 56, 6)
+    draw_win_bg(start_x-6, start_y-4, start_x+72, start_y + 56)
 
     print("new project name:", start_x, start_y, 6)
 

@@ -2,7 +2,7 @@ file_chooser = class:new {
   init = function(_ENV, on_confirm)
     active = true
 
-    NB_SHOWN_FILES = 19
+    NB_SHOWN_FILES = 16
 
     confirm_func = on_confirm
 
@@ -15,6 +15,7 @@ file_chooser = class:new {
     cur_line = 1
 
     saved_pos = {}
+    saved_first_vis = {}
   end,
 
   update = function(_ENV)
@@ -52,14 +53,13 @@ file_chooser = class:new {
 
       if selection[#selection] == "/" then
         saved_pos[cur_dir] = cur_line
+        saved_first_vis[cur_dir] = first_visible_line
 
         -- this is a directory, entering it
         cur_dir = cur_dir .. selection
         update_dir_files(_ENV)
 
-        if saved_pos[cur_dir] then
-          cur_line = saved_pos[cur_dir]
-        end
+        restore_pos(_ENV)
       else
         -- this is a file, return it
         confirm_func(cur_dir .. selection)
@@ -70,6 +70,7 @@ file_chooser = class:new {
 
   move_back = function(_ENV)
     saved_pos[cur_dir] = cur_line
+    saved_first_vis[cur_dir] = first_visible_line
 
     local path = split(cur_dir, "/")
     cur_dir = ""
@@ -82,9 +83,7 @@ file_chooser = class:new {
 
     update_dir_files(_ENV)
 
-    if saved_pos[cur_dir] then
-      cur_line = saved_pos[cur_dir]
-    end
+    restore_pos(_ENV)
   end,
 
   update_dir_files = function(_ENV)
@@ -99,28 +98,41 @@ file_chooser = class:new {
       local exts = split(path[#path], ".")
       local last_ext = exts[#exts]
 
-      if path[#path] == "" or last_ext == "p8" or (last_ext == "png" and exts[#exts-1] == "p8") then
+      if path[#path] == "" or last_ext == "p8" or last_ext == "png" and exts[#exts-1] == "p8" then
         add(dir_files, f)
       end
+    end
+  end,
+
+  restore_pos = function(_ENV)
+    if saved_pos[cur_dir] then
+      cur_line = saved_pos[cur_dir]
+      first_visible_line = saved_first_vis[cur_dir]
+    else
+      cur_line = 1
+      first_visible_line = 0
     end
   end,
 
   draw = function(_ENV)
     if not active then return end
 
-    cls(7)
+    draw_win_bg(5, 8, 122, 122)
 
-    rectfill(9, -1+6*(cur_line-first_visible_line),
-             100, 5+6*(cur_line-first_visible_line), 9)
+    print("choose an export file", 10, 10, 6)
+
+    print(cur_dir, 10, 17, 9)
+
+    -- cursor
+    rectfill(9, 18+6*(cur_line-first_visible_line),
+             118, 24+6*(cur_line-first_visible_line), 9)
 
     for i=1,NB_SHOWN_FILES do
       local f = dir_files[first_visible_line+i]
 
       if f then
-        print(dir_files[first_visible_line+i], 10, i*6, 0)
+        print(f, 10, i*6+19, 0)
       end
     end
-
-    print(cur_dir, 0, 120, 8)
   end
 }

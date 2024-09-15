@@ -21,6 +21,11 @@ function shadow_print(txt, x, y)
   print(txt, x, y, 0)
 end
 
+function draw_win_bg(x1, y1, x2, y2)
+  rectfill(x1-1, y1-1, x2+1, y2+1, 7)
+  rect(x1, y1, x2, y2, 6)
+end
+
 -- TODO to save some tokens
 -- * minmax
 -- * nudge btn

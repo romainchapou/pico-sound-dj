@@ -101,7 +101,5 @@ settings_pane = class:new {
         return s
       end
     end
-
-    print("cur proj:" .. str_san(export_file), start_x, 100, 6)
   end,
 }
