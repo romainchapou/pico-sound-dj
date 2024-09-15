@@ -36,7 +36,7 @@ confirm_pop_up = class:new {
 
     print("confirmation", start_x+10, start_y-1, 6)
 
-    print(txt, start_x-3, start_y+7, 0)
+    print(txt, start_x-2, start_y+7, 0)
 
     cancel_widg:draw(start_x, start_y + 48, conf_btn_i == 0)
     confirm_widg:draw(start_x+52, start_y + 48, conf_btn_i == 1)

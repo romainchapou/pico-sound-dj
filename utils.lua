@@ -17,8 +17,15 @@ function is_in_range(v, a, b)
 end
 
 function shadow_print(txt, x, y)
+  rectfill(x-2, y-1, x+#txt*4, y+6, 7)
+
   print(txt, x, y+1, 6)
   print(txt, x, y, 0)
+end
+
+function shadow_rect(x1, y1, x2, y2)
+  rect(x1, y1+1, x2, y2+1, 6)
+  rect(x1,   y1, x2,   y2, 0)
 end
 
 function draw_win_bg(x1, y1, x2, y2)

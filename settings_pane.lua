@@ -3,40 +3,16 @@ settings_pane = class:new {
   export_file = nil,
 
   widgs = {
-    make_btn_pushed_widget("save scratch", function()
+    -- scratch --
+
+    make_btn_pushed_widget("save", function()
       pattern_editor:store_all_patterns_in_mem()
       cstore(0x3100, 0x3100, 0x1200)
 
       send_msg("scratch saved to cartridge")
     end),
 
-    make_btn_pushed_widget(
-      function()
-        local txt
-
-        if export_file == nil then
-          txt = "not set!"
-        else
-          local path = split(export_file, "/")
-          txt = #path > 2 and "../" .. path[#path] or "/" .. path[#path]
-        end
-
-        return "export file: " .. txt
-      end,
-      function()
-        file_chooser:init(function(new_file)
-          export_file = new_file
-      end)
-    end),
-
-    make_btn_pushed_widget("choose new project name", function()
-      proj_create_win:init(function(new_name)
-        export_file = new_name .. ".p8"
-      end)
-    end),
-
-
-    make_btn_pushed_widget("clear scratch data", function()
+    make_btn_pushed_widget("clear", function()
       confirm_pop_up:init("current scratch\ndata will be\nlost, continue?", function()
         memset(0x3100, 0b01000000, 0x0100)
         memset(0x3200, 0, 0x1100)
@@ -48,6 +24,26 @@ settings_pane = class:new {
         pattern_editor:init()
 
         send_msg("scratch data cleared")
+      end)
+    end),
+
+    -- export file --
+
+    make_btn_pushed_widget("export to file", function()
+    end),
+
+    make_btn_pushed_widget("load to scratch", function()
+    end),
+
+    make_btn_pushed_widget("choose file", function()
+        file_chooser:init(function(new_file)
+          export_file = new_file
+      end)
+    end),
+
+    make_btn_pushed_widget("new file", function()
+      proj_create_win:init(function(new_name)
+        export_file = new_name .. ".p8"
       end)
     end)
   },
@@ -84,21 +80,35 @@ settings_pane = class:new {
 
     local start_x, start_y = 3, 6
 
-    for i = 1,#widgs do
-      widgs[i]:draw(start_x, start_y + 8*i, i == cur_widg)
+    shadow_rect(start_x -1, start_y +12, start_x + 122, start_y + 35)
+    shadow_print("scratch", start_x+4, start_y+10)
+
+    for i=1,2 do
+      widgs[i]:draw(start_x+12, start_y + 8*i+11, i == cur_widg)
+    end
+
+    shadow_rect(start_x -1, start_y +42, start_x + 122, start_y + 100)
+    shadow_print("export file", start_x+4, start_y+40)
+
+    local exp_txt, exp_color
+
+    if export_file == nil then
+      exp_txt = "not yet set!"
+      exp_color = 6
+    else
+      local path = split(export_file, "/")
+      exp_txt = #path > 2 and "../" .. path[#path] or "/" .. path[#path]
+      exp_color = 9
+    end
+
+    print(exp_txt, start_x+12, start_y+49, 9)
+
+    for i=3,#widgs do
+      widgs[i]:draw(start_x+12, start_y + 8*i+35, i == cur_widg)
     end
 
     for w in all(sub_wins) do
       w:draw()
-    end
-
-    -- TODO tmp remove this
-    local function str_san(s)
-      if s == nil then
-        return "[nil]"
-      else
-        return s
-      end
     end
   end,
 }
