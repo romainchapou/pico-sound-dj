@@ -75,7 +75,17 @@ settings_pane = class:new {
 
           load_widg.inactive = not file_readable(export_file)
         end)
-      end)
+      end),
+
+      make_named_input_widget("theme", 1, 1, #THEMES, nil, nil,
+        function(_ENV)
+          base_widget_udpate(_ENV)
+
+          for i=1,4 do
+            pal(THEMES[1][2][i], THEMES[value][2][i], 1)
+          end
+        end,
+        THEMES)
     }
 
     -- those two widgets are inactive while the export file is not set
@@ -143,9 +153,11 @@ settings_pane = class:new {
 
     print(exp_txt, start_x+12, start_y+49, 9)
 
-    for i=3,#widgs do
+    for i=3,6 do
       widgs[i]:draw(start_x+12, start_y + 8*i+35, i == cur_widg)
     end
+
+    widgs[7]:draw(start_x+4, start_y + 97, cur_widg == 7)
 
     for w in all(sub_wins) do
       w:draw()

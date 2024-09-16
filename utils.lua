@@ -4,6 +4,15 @@ HEX_VALUES = "0123456789abcdef"
 INSTRUMENT_NAMES = split("triangle,tilted saw,saw,square,pulse,organ,noise,phaser")
 EFFECT_NAMES = split("no effect,slide,vibrato,drop,fade in,fade out,arp fast,arp slow")
 
+-- TODO @Cleanup: use THEMES + THEME_NAMES, would probably save some tokens
+THEMES = {
+  { "honey"    , split "7,6,0,9"   }, -- default
+  { "navy"     , split "1,13,7,4"  },
+  { "artic"    , split "0,13,7,12" },
+  { "nerd"     , split "0,3,11,5"  },
+  { "pumpkin"  , split "4,2,1,15"  },
+}
+
 function two_digit_number_str(num)
   return num < 10 and "0" .. tostr(num) or tostr(num)
 end
@@ -48,7 +57,3 @@ function nudge(vert)
 
   return 0
 end
-
--- TODO to save some tokens
--- * minmax
--- * nudge btn

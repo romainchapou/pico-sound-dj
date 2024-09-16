@@ -1,18 +1,3 @@
-function apply_palette(name)
-  -- bg, shade, txt, highligth
-  local p = {
-    honey = split "7,6,0,9",
-    artic = split "0,13,7,12",
-    nerd  = split "0,3,11,10",
-    fire  = split "7,6,0,8",
-    nerd2 = split "0,5,7,11"
-  }
-
-  for i=1,4 do
-    pal(p.honey[i], p[name][i], 1)
-  end
-end
-
 function _init()
   -- set key repeat
   poke(0x5f5c, 4)
@@ -20,8 +5,6 @@ function _init()
 
   palt(0, false)
   palt(14, true)
-
-  apply_palette "nerd2"
 
   CHANNEL_X_OFFSET = 16
 

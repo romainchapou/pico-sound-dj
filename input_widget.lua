@@ -1,3 +1,9 @@
+function base_widget_udpate(_ENV)
+  if btn(5) and not btn(4) then
+    value = mid(min_value, value + nudge() - nudge(true)*delta_up, max_value)
+  end
+end
+
 -- note that this should actually be named "numeric_input_widget"
 function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   if draw == nil then
@@ -16,11 +22,7 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   if delta == nil then delta = max_val end
 
   if update == nil then
-    update = function(_ENV)
-      if btn(5) and not btn(4) then
-        value = mid(min_value, value + nudge() - nudge(true)*delta_up, max_value)
-      end
-    end
+    update = base_widget_udpate
   end
 
   return class:new {
@@ -34,16 +36,23 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
   }
 end
 
-function make_named_input_widget(name, base_val, min_val, max_val, delta, draw, update)
+function make_named_input_widget(name, base_val, min_val, max_val, delta,
+                                 draw, update, value_tbl)
   if draw == nil then
     draw = function(_ENV, x, y, is_selected)
       if name ~= nil then
+        local str_val = tostr(value)
+
+        if value_tbl then
+          str_val = value_tbl[value][1]
+        end
+
         if is_selected then
-          rectfill(#name*4+5 + x-2, y-1, #name*4+1 + x+4 + #tostr(value)*4, y+5, 9)
+          rectfill(#name*4+5 + x-2, y-1, #name*4+1 + x+4 + #str_val*4, y+5, 9)
         end
 
         print(name .. ":", x, y, is_selected and 0 or 6)
-        print(value, x + #name*4+4+1, y, 0)
+        print(str_val, x + #name*4+5, y, 0)
       end
     end
   end
