@@ -124,10 +124,7 @@ sfx_editor = class:new {
 
     -- draw the playhead
     if stat(46) == sfx_id and stat(50) >= 0 then
-      palt(0, false)
-      palt(14, true)
       spr(1, start_x - 4 + stat(50)\16 * col_x_diff, start_y + 6 + stat(50)%16 * 6)
-      palt()
     end
 
     -- draw the settings

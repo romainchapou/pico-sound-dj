@@ -133,8 +133,6 @@ pattern_editor = class:new {
       print("ch" .. tostr(i), start_x - 2 + i*CHANNEL_X_OFFSET, start_y - 8, 6)
     end
 
-    palt(14, true)
-    palt(0, false)
     pal(0, 6)
 
     for i=0,2 do
@@ -142,7 +140,7 @@ pattern_editor = class:new {
       spr(2+i, start_x + 63 + i*8, start_y - 8)
     end
 
-    pal()
+    pal(0, 0)
 
     for i=0,15 do
       local pat_id = i + first_visible_pattern
@@ -166,10 +164,7 @@ pattern_editor = class:new {
     local cur_playing_pattern = stat(54)
 
     if cur_playing_pattern >= first_visible_pattern and cur_playing_pattern < first_visible_pattern+16 then
-      palt(0, false)
-      palt(14, true)
       spr(1, start_x - 4, start_y + (cur_playing_pattern - first_visible_pattern)%16 * 6)
-      palt()
     end
   end,
 

@@ -70,12 +70,7 @@ function make_button_widget(btn_spr)
       end
 
       if state then
-        palt(14, true)
-        palt(0, false)
-
         spr(btn_spr, x, y)
-
-        palt()
       else
         pset(x+2, y+2, 0)
       end
