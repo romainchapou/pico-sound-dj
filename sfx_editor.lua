@@ -62,7 +62,7 @@ sfx_editor = class:new {
     end
 
     -- play/pause on this sfx
-    if btn(6) then
+    if btnp_once(6) then
       if stat(46) ~= sfx_id then
         play_sfx(_ENV)
       else

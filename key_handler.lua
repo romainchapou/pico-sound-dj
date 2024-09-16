@@ -79,8 +79,8 @@ key_handler = class:new {
       end
     end
 
-    for v=0,5 do
-      last_frame_btn[v] = btn(v, pl)
+    for v=0,6 do
+      last_frame_btn[v] = btn(v)
     end
   end,
 

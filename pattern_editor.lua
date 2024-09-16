@@ -51,7 +51,7 @@ pattern_editor = class:new {
 
   update = function(_ENV)
     -- play/pause
-    if btn(6) then
+    if btnp_once(6) then
       if stat(57) then
         music(-1)
       else
