@@ -40,6 +40,15 @@ proj_create_win = class:new {
     timer += 1
     timer %= 60
 
+    -- remove char with btn O
+    if btnp_once(4) then
+      if new_name == "" then
+        active = false
+      end
+
+      new_name = sub(new_name, 1, #new_name-1)
+    end
+
     if panel_i == 1 then
       -- letters panel
       if letter_i >= 30 and btnp(3) then
@@ -59,11 +68,6 @@ proj_create_win = class:new {
         if letter then
           new_name = new_name .. letter
           timer = 0
-        end
-
-        -- remove char with btn O
-        if btnp_once(4) then
-          new_name = sub(new_name, 1, #new_name-1)
         end
       end
     else

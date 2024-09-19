@@ -57,8 +57,8 @@ sfx_editor = class:new {
         return
       end
 
-      if btnp_once(2) then change_sfx(_ENV, sfx_id-1) end
-      if btnp_once(3) then change_sfx(_ENV, sfx_id+1) end
+      if btnp(2) then change_sfx(_ENV, sfx_id-1) end
+      if btnp(3) then change_sfx(_ENV, sfx_id+1) end
     end
 
     -- play/pause on this sfx
