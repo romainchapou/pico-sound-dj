@@ -7,6 +7,8 @@ pattern_editor = class:new {
     cur_line = 0
     cur_col = 0
 
+    last_edited_pattern = 0
+
     -- TODO see about refactoring this in a selector_handler class (after doing
     -- the implem for the sfx browser tab)
     multi_selection = false
@@ -125,7 +127,7 @@ pattern_editor = class:new {
   end,
 
   draw = function(_ENV)
-    shadow_print("pattern editor", 1, 1)
+    shadow_print("patterns", 1, 1)
 
     local start_x, start_y = 14, 18
 

@@ -26,23 +26,30 @@ function make_pattern_widget(pattern_id)
       return {begin_loop, end_loop, stop_at_end}
     end,
 
+    -- TODO sub_selection should be 0 based
     update = function(_ENV, sub_selection)
       if sub_selection < #channels then
-        if not pattern_editor.multi_selection then
+        if not pattern_editor.multi_selection and btnp_once(5) then
           if btn(4) then
-            if btnp_once(5) then
-              -- TODO also copy the channel here (cut behaviour)
-              is_channel_activated[sub_selection+1] = false
-            end
+            -- TODO also copy the channel here (cut behaviour)
+            is_channel_activated[sub_selection+1] = false
+            pattern_editor.last_edited_pattern = channels[sub_selection+1].value
           else
-            if btnp_once(5) then
-              -- activate the channel
-              is_channel_activated[sub_selection+1] = true
+            -- activate the channel
+            if not is_channel_activated[sub_selection+1] then
+              channels[sub_selection+1].value = pattern_editor.last_edited_pattern
             end
+
+            is_channel_activated[sub_selection+1] = true
           end
         end
 
         channels[sub_selection+1]:update()
+
+        if btn(5) and is_channel_activated[sub_selection+1] then
+          pattern_editor.last_edited_pattern = channels[sub_selection+1].value
+        end
+
       else
         get_settings_widgets(_ENV)[sub_selection - #channels + 1]:update()
       end

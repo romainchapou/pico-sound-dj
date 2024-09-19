@@ -8,7 +8,7 @@ EFFECT_NAMES = split("no effect,slide,vibrato,drop,fade in,fade out,arp fast,arp
 THEMES = {
   { "honey"    , split "7,6,0,9"   }, -- default
   { "navy"     , split "1,13,7,4"  },
-  { "artic"    , split "0,13,7,12" },
+  { "arctic"   , split "0,13,7,12" },
   { "nerd"     , split "0,3,11,5"  },
   { "pumpkin"  , split "4,2,1,15"  },
 }
