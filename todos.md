@@ -1,33 +1,11 @@
-## Settings View
+# New
 
-- scratch
-    - save to cartridge
-    - clear
-
-- export file
-    - current (RO)
-    - export scratch to file (if set)
-    - load to scratch (if set)
-    - choose file
-    - new
-
-- theme selection
-
----------------------
-
-- save scratch
-- set current project
-    - sub actions
-        - reload option when set
-        - export to project when set
-    - both sub actions need a confirmation pop up
-- create new project
-    - implies inputing a file name
-    - implies setting the current project
-- theme option
-- clear scratch data
-    - needs a confirmation pop up
-
+- [ ] sélection par colonne intelligente en vue patterns
+- [ ] mini map
+- [ ] transition effect
+- [X] changement mapping pour cut / paste
+- [ ] custom instrument handling
+- [ ] save theme settings ?
 
 
 - penser à un system de notification/message global
@@ -93,3 +71,35 @@
 - review UX de l'ensemble
 - mini map
 - montrer les notes en train de jouer dans la vue pattern pendant le playback
+
+
+## Settings View
+
+- scratch
+    - save to cartridge
+    - clear
+
+- export file
+    - current (RO)
+    - export scratch to file (if set)
+    - load to scratch (if set)
+    - choose file
+    - new
+
+- theme selection
+
+---------------------
+
+- save scratch
+- set current project
+    - sub actions
+        - reload option when set
+        - export to project when set
+    - both sub actions need a confirmation pop up
+- create new project
+    - implies inputing a file name
+    - implies setting the current project
+- theme option
+- clear scratch data
+    - needs a confirmation pop up
+

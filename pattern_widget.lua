@@ -98,12 +98,12 @@ function make_pattern_widget(pattern_id)
       for i=0,3 do
         local byte = peek(addr + i)
         channels[i+1].value = byte & 0b00111111
-        is_channel_activated[i+1] = (byte & 0b01000000) == 0
+        is_channel_activated[i+1] = byte & 0b01000000 == 0
       end
 
-      begin_loop.state = (peek(addr) & 0b10000000) > 0
-      end_loop.state = (peek(addr+1) & 0b10000000) > 0
-      stop_at_end.state = (peek(addr+2) & 0b10000000) > 0
+      begin_loop.state = peek(addr) & 0b10000000 > 0
+      end_loop.state = peek(addr+1) & 0b10000000 > 0
+      stop_at_end.state = peek(addr+2) & 0b10000000 > 0
     end
   }
 end

@@ -165,7 +165,7 @@ pattern_editor = class:new {
 
     local cur_playing_pattern = stat(54)
 
-    if cur_playing_pattern >= first_visible_pattern and cur_playing_pattern < first_visible_pattern+16 then
+    if is_in_range(cur_playing_pattern, first_visible_pattern, first_visible_pattern+15) then
       spr(1, start_x - 4, start_y + (cur_playing_pattern - first_visible_pattern)%16 * 6)
     end
   end,

@@ -1,8 +1,8 @@
 -- some constants
-NOTE_NAMES = split("c,c#,d,d#,e,f,f#,g,g#,a,a#,b")
+NOTE_NAMES = split "c,c#,d,d#,e,f,f#,g,g#,a,a#,b"
 HEX_VALUES = "0123456789abcdef"
-INSTRUMENT_NAMES = split("triangle,tilted saw,saw,square,pulse,organ,noise,phaser")
-EFFECT_NAMES = split("no effect,slide,vibrato,drop,fade in,fade out,arp fast,arp slow")
+INSTRUMENT_NAMES = split "triangle,tilted saw,saw,square,pulse,organ,noise,phaser"
+EFFECT_NAMES = split "no effect,slide,vibrato,drop,fade in,fade out,arp fast,arp slow"
 
 -- TODO @Cleanup: use THEMES + THEME_NAMES, would probably save some tokens
 THEMES = {

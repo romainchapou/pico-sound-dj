@@ -127,17 +127,21 @@ sfx_editor = class:new {
       spr(1, start_x - 4 + stat(50)\16 * col_x_diff, start_y + 6 + stat(50)%16 * 6)
     end
 
+    local function setting_selected(i)
+      return panel_selection == 1 and settings_selection == i
+    end
+
     -- draw the settings
-    sfx_speed:draw(start_x + 89, start_y + 6, panel_selection == 1 and settings_selection == 0)
+    sfx_speed:draw(start_x + 89, start_y + 6, setting_selected(0))
 
     -- TODO : could be better to visualize in hex
     print("-loop-", start_x + 89, start_y + 18, 6)
 
-    sfx_loop_in:draw(start_x + 93, start_y + 24, panel_selection == 1 and settings_selection == 1)
-    sfx_loop_out:draw(start_x + 89, start_y + 30, panel_selection == 1 and settings_selection == 2)
+    sfx_loop_in:draw(start_x + 93, start_y + 24, setting_selected(1))
+    sfx_loop_out:draw(start_x + 89, start_y + 30, setting_selected(2))
 
     for i=4,#sfx_settings do
-      sfx_settings[i]:draw(start_x + 89, start_y + 18 + i*6, panel_selection == 1 and i-1 == settings_selection)
+      sfx_settings[i]:draw(start_x + 89, start_y + 18 + i*6, setting_selected(i-1))
     end
   end,
 
