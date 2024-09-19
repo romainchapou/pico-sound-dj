@@ -42,7 +42,8 @@ sfx_editor = class:new {
     sfx_dampen = make_named_input_widget("damp", 0, 0, 2)
 
     sfx_settings = {
-      sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise, sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
+      sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise,
+      sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
     }
 
     notes = {}
@@ -52,10 +53,7 @@ sfx_editor = class:new {
   update = function(_ENV)
     -- pane movement
     if btn(4) then
-      if btnp(0) then
-        GLOBAL.current_pane = pattern_editor
-        return
-      end
+      if handle_move_pane(-1) then return end
 
       if btnp(2) then change_sfx(_ENV, sfx_id-1) end
       if btnp(3) then change_sfx(_ENV, sfx_id+1) end
@@ -85,7 +83,7 @@ sfx_editor = class:new {
   draw = function(_ENV)
     shadow_print("sfx " .. two_digit_number_str(sfx_id), 1, 1)
 
-    local start_x, start_y, col_x_diff = 10, 12, 48
+    local start_x, start_y, col_x_diff = 10, 14, 48
 
     for i=0,1 do
       rectfill(start_x + i*col_x_diff - 10, start_y - 3, start_x + i*col_x_diff - 6, start_y + 3, 6)

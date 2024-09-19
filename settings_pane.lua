@@ -106,12 +106,9 @@ settings_pane = class:new {
       if was_active then return end
     end
 
-    if btn(4) then
-      if btnp(1) then
-        GLOBAL.current_pane = pattern_editor
-        return
-      end
-    else
+    if handle_move_pane(1) then return end
+
+    if not btn(4) then
       if widgs[cur_widg]:update() then
         -- input handled
         return
@@ -130,7 +127,7 @@ settings_pane = class:new {
   draw = function(_ENV)
     shadow_print("settings", 1, 1)
 
-    local start_x, start_y = 3, 6
+    local start_x, start_y = 3, 2
 
     shadow_rect(start_x -1, start_y +12, start_x + 122, start_y + 35)
     shadow_print("scratch", start_x+4, start_y+10)

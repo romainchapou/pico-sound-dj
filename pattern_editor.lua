@@ -67,17 +67,11 @@ pattern_editor = class:new {
     end
 
     -- pane movement
-    if btn(4) then
-      if btnp(0) then
-        GLOBAL.current_pane = settings_pane
-        return
-      end
+    if handle_move_pane(-1) then return end
 
-      if btnp(1) and patterns[cur_line+1].is_channel_activated[cur_col+1] then
-        GLOBAL.current_pane = sfx_editor
-        sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
-        return
-      end
+    if patterns[cur_line+1].is_channel_activated[cur_col+1] and handle_move_pane(1) then
+      sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
+      return
     end
 
     if not multi_selection then
@@ -129,7 +123,7 @@ pattern_editor = class:new {
   draw = function(_ENV)
     shadow_print("patterns", 1, 1)
 
-    local start_x, start_y = 14, 18
+    local start_x, start_y = 14, 20
 
     for i=0,3 do
       print("ch" .. tostr(i), start_x - 2 + i*CHANNEL_X_OFFSET, start_y - 8, 6)
