@@ -1,11 +1,13 @@
 # New
 
 - [ ] sélection par colonne intelligente en vue patterns
-- [ ] mini map
-- [ ] transition effect
+- [X] mini map
+- [X] transition effect
 - [X] changement mapping pour cut / paste
 - [ ] custom instrument handling
 - [ ] save theme settings ?
+- [X] show playing channels in pattern view
+- [ ] bug fixes
 
 
 - penser à un system de notification/message global

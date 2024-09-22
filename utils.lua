@@ -57,3 +57,27 @@ function nudge(vert)
 
   return 0
 end
+
+function pitch_to_str(val)
+  local name, oct = NOTE_NAMES[val % 12 + 1], val \ 12
+
+  return #name == 1 and name .. " " .. oct or name .. oct
+
+end
+
+function get_playing_note(channel)
+  local sfx_id = stat(46 + channel)
+
+  if sfx_id < 0 then
+    return "---"
+  end
+
+  local data = peek2(0x3200 + 68*sfx_id + 2*stat(50 + channel))
+  local note, volume = data & 0b0000000000111111, shr(data & 0b0000111000000000, 9)
+
+  if volume == 0 then
+    return ""
+  end
+
+  return pitch_to_str(note)
+end

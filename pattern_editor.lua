@@ -162,6 +162,16 @@ pattern_editor = class:new {
     if is_in_range(cur_playing_pattern, first_visible_pattern, first_visible_pattern+15) then
       spr(1, start_x - 4, start_y + (cur_playing_pattern - first_visible_pattern)%16 * 6)
     end
+
+    -- play infos
+
+    print("pt:", 104, 26, 6)
+    print(stat(54) >= 0 and stat(54) or "---", 116, 26, 0)
+
+    for i=0,3 do
+      print("c" .. i .. ":", 104, 32 + 6*i, 6)
+      print(get_playing_note(i), 116, 32 + 6*i, 0)
+    end
   end,
 
   -- update functions

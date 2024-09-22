@@ -5,8 +5,7 @@ function make_note_widget()
     end
 
     if is_activated then
-      print(NOTE_NAMES[value % 12 + 1], x, y, 0)
-      print(value \ 12, x+8, y, 0)
+      print(pitch_to_str(value), x, y, 0)
     else
       print("...", x, y-2, 0)
     end
