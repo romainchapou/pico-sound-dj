@@ -17,6 +17,7 @@ __lua__
 
 #include settings_pane.lua
 #include pattern_editor.lua
+#include waveform_editor.lua
 #include sfx_editor.lua
 
 #include key_handler.lua
