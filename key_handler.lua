@@ -21,7 +21,7 @@ function make_btn_state_seq(btn_v1, btn_v2)
         between_time = 0
         seq_registered = false
 
-        if btn(btn_v1) then
+        if btnp(btn_v1) and not key_handler.last_frame_btn[btn_v1] then
           s += 1
         end
       elseif s == 1 then
