@@ -98,7 +98,12 @@ function make_btn_pushed_widget(name, action_func)
       local txt = type(name) == "function" and name() or name
 
       if is_selected then
-        rectfill(x-2, y-1, x + 4*#txt, y+5, 9)
+        local txt_len = 0
+        for c in all(txt) do
+          txt_len += ord(c) >= 128 and 8 or 4
+        end
+
+        rectfill(x-2, y-1, x + txt_len, y+5, 9)
       end
 
       local color = 0

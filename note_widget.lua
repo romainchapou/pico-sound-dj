@@ -26,6 +26,8 @@ function make_note_widget()
     volume   = make_input_widget(0, 0, 7),
     effect   = make_input_widget(0, 0, 7, nil, effect_draw_func),
 
+    custom_inst = 0,
+
     get_sub_widgets = function(_ENV)
       return {pitch, waveform, volume, effect}
     end,
@@ -37,7 +39,7 @@ function make_note_widget()
       -- the playback to avoid overlaps -> not sure that this is possible
 
       -- no note preview when multi selection on
-      if sfx_editor.multi_selection then
+      if sfx_editor.n_multi_selection then
         return
       end
 
@@ -59,7 +61,7 @@ function make_note_widget()
         return
       end
 
-      if not sfx_editor.multi_selection then
+      if not sfx_editor.n_multi_selection then
         if btn(4) then
           if btnp_once(5) then
             -- cut the selection by copying its value to last_edited_note
@@ -91,7 +93,7 @@ function make_note_widget()
       sub_widget:update()
 
       if sub_widget.value ~= old_value or btnp_once(5, true) then
-        if not sfx_editor.multi_selection and volume.value ~= 0 then
+        if not sfx_editor.n_multi_selection and volume.value ~= 0 then
           if sub_selection == 2 then
             send_msg("instr " .. tostr(waveform.value) .. ": "
             .. INSTRUMENT_NAMES[waveform.value+1], false)
@@ -118,11 +120,11 @@ function make_note_widget()
 
     store_in_mem = function(_ENV, addr)
       local v = 0
-      v += pitch.value
-      v += shl(waveform.value, 6)
-      v += shl(volume.value, 9)
-      v += shl(effect.value, 12)
-      -- TODO purposefully letting the custom instrument byte be 0
+      v |= pitch.value
+      v |= shl(waveform.value, 6)
+      v |= shl(volume.value, 9)
+      v |= shl(effect.value, 12)
+      v |= shl(bool_to_num(custom_inst), 15)
 
       poke2(addr, v)
     end,
@@ -135,7 +137,7 @@ function make_note_widget()
       volume.value   = shr(data & 0b0000111000000000, 9)
       effect.value   = shr(data & 0b0111000000000000, 12)
 
-      -- TODO custom instrument byte
+      custom_inst = data & 0b1000000000000000 ~= 0
     end,
   }
 end

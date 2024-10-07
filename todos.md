@@ -1,3 +1,18 @@
+# waveform editor
+
+- top
+    - zoom level
+    - bass on/off
+    - waveform editor toggle
+- middle
+    - editor
+- bottom
+    - noiz
+    - buzz
+    - detune
+    - reverb
+    - damp
+
 # New
 
 - [ ] sélection par colonne intelligente en vue patterns
