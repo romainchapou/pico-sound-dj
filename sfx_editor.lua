@@ -65,7 +65,7 @@ sfx_editor = class:new {
     end)
 
     wave_do_bass = make_named_input_widget("bass", 0, 0, 1)
-    wave_zoom    = make_named_input_widget("zoom", 0, 0, 3)
+    wave_zoom    = make_named_input_widget("zoom", 1, 1, 3)
 
     sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
 
@@ -481,49 +481,72 @@ sfx_editor = class:new {
     sfx_loop_in:draw(start_x + 93, start_y + 24, setting_selected(1))
     sfx_loop_out:draw(start_x + 89, start_y + 30, setting_selected(2))
 
-    for i=4,#n_sfx_settings do
+    for i=4,8 do
       n_sfx_settings[i]:draw(start_x + 89, start_y + 18 + i*6, setting_selected(i-1))
+    end
+
+    if sfx_id < 8 then
+      print("edit as\n wave:", start_x + 89, start_y + 78, setting_selected(8) and 0 or 6)
+
+      waveform_edit_btn:draw(start_x + 99, start_y + 91, setting_selected(8))
     end
   end,
 
   draw_waveform_editor = function(_ENV)
-    wave_zoom:draw(30, 11, w_panel_selection == 0 and w_top_settings_selection == 1)
-    wave_do_bass:draw(60, 11, w_panel_selection == 0 and w_top_settings_selection == 2)
-    waveform_edit_btn:draw(100, 11, w_panel_selection == 0 and w_top_settings_selection == 3)
+    function is_top_selected(i)
+      return w_panel_selection == 0 and w_top_settings_selection == i
+    end
+
+    wave_zoom:draw(2, 11, is_top_selected(1))
+    wave_do_bass:draw(31, 11, is_top_selected(2))
+    waveform_edit_btn:draw(117, 11, is_top_selected(3))
+
+    print("edit as notes:", 60, 11, is_top_selected(3) and 0 or 6)
 
     local editor_cursor_color = w_panel_selection == 1 and 9 or 6
 
+    clip(0, 21, 128, 87)
+
     for i=1,64 do
       local xpos = 2*(i-1)
-      line(xpos, 64, xpos, 64+waveform_values[i], i == w_cur_col and editor_cursor_color or 6)
+      line(xpos, 64, xpos, 64+waveform_values[i] / wave_zoom.value,
+           i == w_cur_col and editor_cursor_color or 6)
+
+      if abs(waveform_values[i]) > 43*wave_zoom.value then
+        pset(xpos, 64+sgn(waveform_values[i])*43, 0)
+      end
     end
 
     local v = waveform_values[w_cur_col]
 
-    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), 64+v
+    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), 64+v/wave_zoom.value
     rect(cur_x_pos-1, cur_y_pos-1, cur_x_pos+1, cur_y_pos+1, editor_cursor_color)
     pset(cur_x_pos, cur_y_pos, 7)
 
     local print_str = tostr(v)
 
-    if abs(v) > 64 then
+    if abs(v) > 43*wave_zoom.value and w_panel_selection == 1 then
       local px, py = cur_x_pos - #print_str*2+1, v <= 0 and 67 or 58
       px = mid(0, px, 129 - #print_str*4)
       rectfill(px-1, py-1, px + #print_str*4 - 1, py+5, 7)
       print(v, px, py, editor_cursor_color)
     end
 
-    local wx, wy = 5, 110
+    clip()
 
-    for i=1,#w_sfx_settings_bottom do
-      w_sfx_settings_bottom[i]:draw(wx, wy, w_panel_selection == 2 and
-                                            w_bottom_settings_selection == i)
-      wx += 30
+    fillp(0b0101101001011010.1)
+    draw_horiz_line(18)
+    draw_horiz_line(110)
+    fillp()
 
-      if wx > 100 then
-        wx = 5
-        wy += 8
-      end
+    draw_horiz_line(19)
+    draw_horiz_line(109)
+
+    for i=1,5 do
+      local b = bool_to_num(i>3)
+      w_sfx_settings_bottom[i]:draw(i*40 - 28 - 120*b, 113 + 7*b,
+                                    w_panel_selection == 2 and
+                                    w_bottom_settings_selection == i)
     end
   end
 }

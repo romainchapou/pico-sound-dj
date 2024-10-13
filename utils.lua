@@ -81,3 +81,7 @@ function get_playing_note(channel)
 
   return pitch_to_str(note)
 end
+
+function draw_horiz_line(y)
+  line(0, y, 128, y, 6)
+end

@@ -24,6 +24,7 @@
 - [X] show playing channels in pattern view
 - [ ] bug fixes
     - [ ] mod + right (arrive sur écran sfx) puis just mod -> compte comme un double clique sur le mod et passe en mode sélection, ne devrait pas
+    - [ ] waveform editor value of 128 not encoded properly
 
 
 - penser à un system de notification/message global
