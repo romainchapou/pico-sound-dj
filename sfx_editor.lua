@@ -375,7 +375,7 @@ sfx_editor = class:new {
       if store_waveform then
         for j=0,1 do
           local v = waveform_values[2*i+j+1]
-          poke(sfxaddr+j, v < 0 and v + 255 or v)
+          poke(sfxaddr+j, v < 0 and v + 256 or v)
         end
       else
         notes[i+1]:store_in_mem(sfxaddr)
@@ -401,7 +401,7 @@ sfx_editor = class:new {
 
       for j=0,1 do
         local v = peek(sfxaddr+j)
-        add(waveform_values, v > 128 and v - 255 or v)
+        add(waveform_values, v > 127 and v - 256 or v)
       end
 
       sfxaddr += 2
