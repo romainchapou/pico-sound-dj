@@ -16,6 +16,8 @@
 # New
 
 - [ ] sélection par colonne intelligente en vue patterns
+- [ ] passer aux meilleurs mappings
+- [ ] mettre bouton pour changer l'edit mode ?
 - [X] mini map
 - [X] transition effect
 - [X] changement mapping pour cut / paste
@@ -24,8 +26,8 @@
     - [X] waveform editor value of 128 not encoded properly
 - [ ] save theme settings ?
 - [X] show playing channels in pattern view
-- [ ] bug fixes
-    - [ ] mod + right (arrive sur écran sfx) puis just mod -> compte comme un double clique sur le mod et passe en mode sélection, ne devrait pas
+- [X] bug fixes
+    - [X] mod + right (arrive sur écran sfx) puis just mod -> compte comme un double clique sur le mod et passe en mode sélection, ne devrait pas
 
 
 - penser à un system de notification/message global
