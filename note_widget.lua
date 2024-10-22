@@ -12,21 +12,34 @@ function make_note_widget()
   end
 
   local effect_draw_func = function(_ENV, x, y, is_selected, is_activated)
-      if is_selected then
-        rectfill(x-2, y-1, x+4, y+5, 9)
-      end
+    if is_selected then
+      rectfill(x-2, y-1, x+4, y+5, 9)
+    end
 
-      local do_print = value == 0 or not is_activated
-      print(do_print and "." or value, x, y - (do_print and 2 or 0), 0)
+    local do_print = value == 0 or not is_activated
+    print(do_print and "." or value, x, y - (do_print and 2 or 0), 0)
+  end
+
+  local wave_draw_func = function(_ENV, x, y, is_selected, is_activated)
+    if is_selected then
+      rectfill(x-2, y-1, x+4, y+5, 9)
+    end
+
+    local color = 0
+    if value >= 8 and is_activated then
+      color = is_selected and 7 or 9
+    end
+
+    print(is_activated and value % 8 or ".", x, y - (is_activated and 0 or 2), color)
   end
 
   return class:new {
     pitch    = make_input_widget(0, 0, 63, 12, pitch_draw_func),
-    waveform = make_input_widget(0, 0, 7),  -- aka instrument
+    -- for the waveform (aka instrument), a value in [0, 7] represents a usual instrument value,
+    -- while a value in [8, 15] represents a custom instrument
+    waveform = make_input_widget(0, 0, 15, nil, wave_draw_func),
     volume   = make_input_widget(0, 0, 7),
     effect   = make_input_widget(0, 0, 7, nil, effect_draw_func),
-
-    custom_inst = 0,
 
     get_sub_widgets = function(_ENV)
       return {pitch, waveform, volume, effect}
@@ -95,8 +108,12 @@ function make_note_widget()
       if sub_widget.value ~= old_value or btnp_once(5, true) then
         if not sfx_editor.n_multi_selection and volume.value ~= 0 then
           if sub_selection == 2 then
-            send_msg("instr " .. tostr(waveform.value) .. ": "
-            .. INSTRUMENT_NAMES[waveform.value+1], false)
+            if waveform.value >= 8 then
+              send_msg("custom instr " .. tostr(waveform.value), false)
+            else
+              send_msg("instr " .. tostr(waveform.value) .. ": "
+              .. INSTRUMENT_NAMES[waveform.value+1], false)
+            end
           elseif sub_selection == 4 then
             send_msg("fx " .. tostr(effect.value) .. ": "
             .. EFFECT_NAMES[effect.value+1], false)
@@ -124,7 +141,7 @@ function make_note_widget()
       v |= shl(waveform.value, 6)
       v |= shl(volume.value, 9)
       v |= shl(effect.value, 12)
-      v |= shl(bool_to_num(custom_inst), 15)
+      v |= shl(bool_to_num(waveform.value >= 8), 15)
 
       poke2(addr, v)
     end,
@@ -137,7 +154,9 @@ function make_note_widget()
       volume.value   = shr(data & 0b0000111000000000, 9)
       effect.value   = shr(data & 0b0111000000000000, 12)
 
-      custom_inst = data & 0b1000000000000000 ~= 0
+      if data & 0b1000000000000000 ~= 0 then
+        waveform.value += 8
+      end
     end,
   }
 end

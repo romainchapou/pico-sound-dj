@@ -21,8 +21,8 @@
 - [X] mini map
 - [X] transition effect
 - [X] changement mapping pour cut / paste
-- [o] custom instrument handling
-    - [ ] set custom instrument in sfx notes edit view
+- [X] custom instrument handling
+    - [X] set custom instrument in sfx notes edit view
     - [X] waveform editor value of 128 not encoded properly
 - [ ] save theme settings ?
 - [X] show playing channels in pattern view
