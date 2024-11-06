@@ -172,13 +172,13 @@ sfx_editor = class:new {
         return
       end
 
-      if btnp_seq(5, 4) then
+      if btn(4) and btnp_once(5) then
         paste_selection(_ENV)
         notes[n_current_note]:play_tmp_note()
         return
       end
     else
-      if btnp_seq(5, 5) then
+      if btn(5) and btnp_once(4) then
         cut_selected_notes(_ENV)
         return
       end
@@ -268,7 +268,7 @@ sfx_editor = class:new {
     if btnp_seq(4, 4) then
       copy_whole_sfx(_ENV)
       return
-    elseif btnp_seq(4, 5) then
+    elseif btn(5) and btnp_once(4) then
       paste_selection(_ENV)
       return
     end

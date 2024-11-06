@@ -105,6 +105,9 @@ end
 
 -- return true when the sequence "btn(v1) -> btn(v2)" is quickly inputed
 -- v1 must be 4 or 5
+--
+-- TODO @Cleanup: if this is only used for btnp_seq(4, 4), some simplifications
+-- could be done in the key_handler class
 function btnp_seq(v1, v2)
   local ret = key_handler.states[v1][v2].seq_registered
 
