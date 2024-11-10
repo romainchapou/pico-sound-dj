@@ -1,4 +1,5 @@
 pattern_editor = class:new {
+  copied_patterns_is_full = false,
   copied_patterns = {},
 
   init = function(_ENV)
@@ -75,7 +76,12 @@ pattern_editor = class:new {
     end
 
     if not multi_selection then
-      if btnp_seq(4, 4) and cur_col < 4 then
+      if btnp_seq(4, 4) then
+        if cur_col >= 4 then
+          cur_col = 4
+          sel_start_col = 0
+        end
+
         multi_selection = true
         send_msg("select mode")
         return
@@ -99,7 +105,8 @@ pattern_editor = class:new {
 
 
     if not btn(4) and not btn(5) then
-      cur_col = mid(0, cur_col + nudge(), multi_selection and 3 or 6)
+      -- from channel 0 to first btn widget
+      cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 
       cur_line += nudge(true)
       cur_line %= 64
@@ -178,15 +185,29 @@ pattern_editor = class:new {
 
   send_pat_msg = function(_ENV, act)
     send_msg(act .. #copied_patterns .. " pattern"
-             .. (#copied_patterns == 1 and "" or "s"))
+             .. s_if_plural(copied_patterns)
+             .. (not copied_patterns_is_full and " (" .. #copied_patterns[1]
+             .. " channel" .. s_if_plural(copied_patterns[1]) .. ")" or ""))
   end,
 
   copy_selected_patterns = function(_ENV)
     copied_patterns = {}
+    copied_patterns_is_full = sel_col_upper == 4
+
     store_all_patterns_in_mem(_ENV)
 
     for pat_id=sel_line_lower,sel_line_upper do
-      add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
+      if copied_patterns_is_full then
+        -- copy the whole pattern, including the settings
+        add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
+      else
+        -- copy only some channels
+        local pat = {}
+        for col=sel_col_lower,sel_col_upper do
+          add(pat, pack(patterns[pat_id+1]:get_col(col+1)))
+        end
+        add(copied_patterns, pat)
+      end
     end
     multi_selection = false
 
@@ -197,7 +218,13 @@ pattern_editor = class:new {
     copy_selected_patterns(_ENV)
 
     for pat_id=sel_line_lower,sel_line_upper do
-      patterns[pat_id+1] = make_pattern_widget(pat_id)
+      if copied_patterns_is_full then
+        patterns[pat_id+1] = make_pattern_widget(pat_id)
+      else
+        for col=sel_col_lower,sel_col_upper do
+          patterns[pat_id+1].is_channel_activated[col+1] = false
+        end
+      end
     end
 
     store_all_patterns_in_mem(_ENV)
@@ -208,10 +235,20 @@ pattern_editor = class:new {
   paste_selected_patterns = function(_ENV)
     for i=1,#copied_patterns do
       if cur_line + i-1 < 64 then
-        poke4(get_pattern_mem_addr(cur_line + i-1), copied_patterns[i])
-        patterns[cur_line + i]:load_pattern_from_mem()
+        local copied_pat = copied_patterns[i]
+
+        if copied_patterns_is_full then
+          poke4(get_pattern_mem_addr(cur_line + i-1), copied_pat)
+          patterns[cur_line + i]:load_pattern_from_mem()
+        else
+          for j=1,min(4 - cur_col, #copied_pat) do
+            patterns[cur_line+i]:set_col(cur_col + j, copied_pat[j])
+          end
+        end
       end
     end
+
+    store_all_patterns_in_mem(_ENV)
 
     send_pat_msg(_ENV, "pasted ")
   end,

@@ -62,7 +62,10 @@ function pitch_to_str(val)
   local name, oct = NOTE_NAMES[val % 12 + 1], val \ 12
 
   return #name == 1 and name .. " " .. oct or name .. oct
+end
 
+function s_if_plural(tbl)
+  return #tbl <= 1 and "" or "s"
 end
 
 function get_playing_note(channel)

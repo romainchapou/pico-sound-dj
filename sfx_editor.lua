@@ -286,8 +286,7 @@ sfx_editor = class:new {
   end,
 
   send_notes_msg = function(_ENV, act)
-    send_msg(act .. #copied_notes .. " note"
-             .. (#copied_notes == 1 and "" or "s"))
+    send_msg(act .. #copied_notes .. " note" .. s_if_plural(copied_notes))
   end,
 
   copy_selected_notes = function(_ENV)

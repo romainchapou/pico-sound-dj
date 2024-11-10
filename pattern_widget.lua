@@ -50,7 +50,7 @@ function make_pattern_widget(pattern_id)
           pattern_editor.last_edited_pattern = channels[sub_selection+1].value
         end
 
-      else
+      elseif not pattern_editor.multi_selection then
         get_settings_widgets(_ENV)[sub_selection - #channels + 1]:update()
       end
 
@@ -64,8 +64,11 @@ function make_pattern_widget(pattern_id)
       -- being selected, instead do it here so we can have one continuous
       -- rectangle
       if is_pattern_seleted and col_sel_start < 4 then
-        rectfill(x + col_sel_start*CHANNEL_X_OFFSET - 2, y-1,
-                 x + col_sel_end*CHANNEL_X_OFFSET   + 8, y+5, 9)
+        local start_x, end_x =
+          col_sel_end == 4 and 0 or col_sel_start*CHANNEL_X_OFFSET,
+          col_sel_end == 4 and 76 or col_sel_end*CHANNEL_X_OFFSET
+
+        rectfill(x + start_x - 2, y-1, x + end_x + 8, y+5, 9)
       end
 
       for i, c in ipairs(channels) do
@@ -90,6 +93,14 @@ function make_pattern_widget(pattern_id)
              + 64 * bool_to_num(not is_channel_activated[i])
              + 128*bool_to_num(states[i]))
       end
+    end,
+
+    get_col = function(_ENV, i)
+      return channels[i].value, is_channel_activated[i]
+    end,
+
+    set_col = function(_ENV, i, val_and_active)
+      channels[i].value, is_channel_activated[i] = unpack(val_and_active)
     end,
 
     load_pattern_from_mem = function(_ENV)
