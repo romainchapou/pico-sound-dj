@@ -45,21 +45,19 @@ function make_note_widget()
       return {pitch, waveform, volume, effect}
     end,
 
-    play_tmp_note = function(_ENV)
+    play_note_preview = function(_ENV)
       -- TODO also maybe store the previous note for the correct playback of
       -- the slide effect
-      -- TODO store not in sfx 63 but in the free memory and point to it for
-      -- the playback to avoid overlaps -> not sure that this is possible
 
       -- no note preview when multi selection on
       if sfx_editor.n_multi_selection then
         return
       end
 
-      local sfx_addr = 0x3200 + 68*63
-      store_in_mem(_ENV, sfx_addr) -- store to first note of sfx 63
+      local sfx_addr = 0x3200 + 68*sfx_editor.neighbour_sfx_id
+      store_in_mem(_ENV, sfx_addr) -- store to first note of neighbour sfx
       sfx_editor:store_sfx_settings(sfx_addr + 64)
-      sfx(63, 3, 0, 1)
+      sfx(sfx_editor.neighbour_sfx_id, 3, 0, 1)
     end,
 
     copy_values = function(_ENV, other_note)
@@ -119,7 +117,7 @@ function make_note_widget()
         end
 
         if stat(46) < 0 then
-          play_tmp_note(_ENV)
+          play_note_preview(_ENV)
         end
         sfx_editor.last_edited_note = _ENV
       end

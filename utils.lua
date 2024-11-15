@@ -18,7 +18,7 @@ function two_digit_number_str(num)
 end
 
 function file_readable(file)
-  return reload(0x4300, 0x4300, 1, file) == 1
+  return reload(0x5500, 0x5500, 1, file) == 1
 end
 
 function bool_to_num(bool)

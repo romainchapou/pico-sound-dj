@@ -17,8 +17,12 @@ sfx_editor = class:new {
 
     waveform_edit_mode = false
 
+    -- save the neighbour sfx data as we will be using it to play note previews
+    -- we will need to restore this data when quitting this sfx
+    neighbour_sfx_id = (sfx_id+1)%64
+    memcpy(0x4300, 0x3200+68*neighbour_sfx_id, 68)
 
-    ----- regulare note editing mode params -----
+    ----- regular note editing mode params -----
 
     -- 0 for the note panel, 1 for the settings panel
     n_panel_selection = 0
@@ -101,7 +105,10 @@ sfx_editor = class:new {
   update = function(_ENV)
     -- pane movement
     if btn(4) then
-      if handle_move_pane(-1) then return end
+      if handle_move_pane(-1) then
+        restore_neighbour_sfx(_ENV)
+        return
+      end
 
       if btnp(2) then change_sfx(_ENV, sfx_id-1) end
       if btnp(3) then change_sfx(_ENV, sfx_id+1) end
@@ -174,7 +181,7 @@ sfx_editor = class:new {
 
       if btn(4) and btnp_once(5) then
         paste_selection(_ENV)
-        notes[n_current_note]:play_tmp_note()
+        notes[n_current_note]:play_note_preview()
         return
       end
     else
@@ -346,7 +353,13 @@ sfx_editor = class:new {
 
     if new_sfx_id == sfx_id then return end
 
+    restore_neighbour_sfx(_ENV)
+
     init(_ENV, new_sfx_id)
+  end,
+
+  restore_neighbour_sfx = function(_ENV)
+    memcpy(0x3200+68*neighbour_sfx_id, 0x4300, 68)
   end,
 
   -- IO / memory synchronisation
