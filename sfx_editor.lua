@@ -48,6 +48,7 @@ sfx_editor = class:new {
 
     w_panel_selection = 1
     w_top_settings_selection = 1
+    w_bottom_settings_col = 1
     w_bottom_settings_selection = 1
 
     w_cur_col = 32
@@ -76,15 +77,16 @@ sfx_editor = class:new {
     sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 8)
     sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 8)
 
-    sfx_noise  = make_named_input_widget("noiz", 0, 0, 1)
-    sfx_buzz   = make_named_input_widget("buzz", 0, 0, 1)
-    sfx_detune = make_named_input_widget("detu", 0, 0, 2)
-    sfx_reverb = make_named_input_widget("revb", 0, 0, 2)
-    sfx_dampen = make_named_input_widget("damp", 0, 0, 2)
+    sfx_noise     = make_named_input_widget("noiz", 0, 0, 1)
+    sfx_buzz      = make_named_input_widget("buzz", 0, 0, 1)
+    sfx_detune    = make_named_input_widget("detu", 0, 0, 2)
+    sfx_reverb    = make_named_input_widget("revb", 0, 0, 2)
+    sfx_dampen    = make_named_input_widget("damp", 0, 0, 2)
+    sfx_edit_mode = make_named_input_widget("edtm", 1, 0, 1)
 
     n_sfx_settings = {
       sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise,
-      sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
+      sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen, sfx_edit_mode
     }
 
     w_sfx_settings_top = {
@@ -92,7 +94,8 @@ sfx_editor = class:new {
     }
 
     w_sfx_settings_bottom = {
-      sfx_noise, sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen
+      sfx_noise, sfx_buzz, sfx_detune,
+      sfx_reverb, sfx_dampen, sfx_edit_mode
     }
 
     if sfx_id < 8 then
@@ -240,7 +243,7 @@ sfx_editor = class:new {
     if btn(4) then return end
 
     if not btn(5) then
-      w_panel_selection = mid(0, w_panel_selection + nudge(true), 2)
+      w_panel_selection = mid(0, w_panel_selection + nudge(true), 3)
     end
 
     if w_panel_selection == 0 then
@@ -263,8 +266,10 @@ sfx_editor = class:new {
       w_cur_col = id_to_change
     else
       if not btn(5) then
-        w_bottom_settings_selection = mid(1, w_bottom_settings_selection + nudge(), 5)
+        w_bottom_settings_col = mid(1, w_bottom_settings_col + nudge(), 3)
       end
+
+      w_bottom_settings_selection = w_bottom_settings_col + (w_panel_selection == 3 and 3 or 0)
 
       w_sfx_settings_bottom[w_bottom_settings_selection]:update()
     end
@@ -367,7 +372,7 @@ sfx_editor = class:new {
   store_sfx_settings = function(_ENV, addr, store_waveform)
     -- editor mode and filter switches
     local byte = 0
-    byte += 1 -- TODO beware that we may not want to override the editor mode
+    byte += sfx_edit_mode.value
     byte += shl(sfx_noise.value, 1)
     byte += shl(sfx_buzz.value, 2)
     byte += sfx_detune.value * 8
@@ -421,6 +426,7 @@ sfx_editor = class:new {
 
     -- following byte, editor mode and filter switches
     local byte = peek(sfxaddr)
+    sfx_edit_mode.value = byte & 1
     sfx_noise.value = shr(byte, 1) & 1
     sfx_buzz.value = shr(byte, 2) & 1
     sfx_detune.value = byte\8  % 3
@@ -485,22 +491,21 @@ sfx_editor = class:new {
     end
 
     -- draw the settings
-    sfx_speed:draw(start_x + 89, start_y + 6, setting_selected(0))
+    sfx_speed:draw(start_x + 89, start_y - 2, setting_selected(0))
 
-    -- TODO : could be better to visualize in hex
-    print("-loop-", start_x + 89, start_y + 18, 6)
+    print("-loop-", start_x + 89, start_y + 10, 6)
 
-    sfx_loop_in:draw(start_x + 93, start_y + 24, setting_selected(1))
-    sfx_loop_out:draw(start_x + 89, start_y + 30, setting_selected(2))
+    sfx_loop_in:draw(start_x + 93, start_y + 16, setting_selected(1))
+    sfx_loop_out:draw(start_x + 89, start_y + 22, setting_selected(2))
 
-    for i=4,8 do
-      n_sfx_settings[i]:draw(start_x + 89, start_y + 18 + i*6, setting_selected(i-1))
+    for i=4,9 do
+      n_sfx_settings[i]:draw(start_x + 89, start_y + 10 + i*6, setting_selected(i-1))
     end
 
     if sfx_id < 8 then
-      print("edit as\n wave:", start_x + 89, start_y + 78, setting_selected(8) and 0 or 6)
+      print("edit as\n wave:", start_x + 89, start_y + 76, setting_selected(9) and 0 or 6)
 
-      waveform_edit_btn:draw(start_x + 99, start_y + 91, setting_selected(8))
+      waveform_edit_btn:draw(start_x + 99, start_y + 89, setting_selected(9))
     end
   end,
 
@@ -554,10 +559,10 @@ sfx_editor = class:new {
     draw_horiz_line(19)
     draw_horiz_line(109)
 
-    for i=1,5 do
+    for i=1,6 do
       local b = bool_to_num(i>3)
       w_sfx_settings_bottom[i]:draw(i*40 - 28 - 120*b, 113 + 7*b,
-                                    w_panel_selection == 2 and
+                                    w_panel_selection >= 2 and
                                     w_bottom_settings_selection == i)
     end
   end
