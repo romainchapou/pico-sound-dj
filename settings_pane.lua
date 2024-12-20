@@ -1,42 +1,51 @@
 settings_pane = class:new {
   init = function(_ENV)
     sub_wins = {confirm_pop_up, proj_create_win, file_chooser}
-    export_file = nil
+    export_file = nil -- TODO rename as project_file
 
-    local function load_export_file()
-      reload(0x3100, 0x3100, 0x1200, export_file)
-      pattern_editor:init()
+    local save_current_project = function()
+      pattern_editor:store_all_patterns_in_mem()
+      cstore(0x3100, 0x3100, 0x1200, export_file)
+      send_msg("saved to " .. formatted_project_file(_ENV))
     end
 
-    export_widg = make_btn_pushed_widget("save to file", function()
-      confirm_pop_up:init("this will\noverwrite all\nexisting music\ndata in the\nexport file,\ncontinue?",
-      function()
-        pattern_editor:store_all_patterns_in_mem()
-        cstore(0x3100, 0x3100, 0x1200, export_file)
-
-        load_widg.inactive = false
-      end)
-    end)
-
-    load_widg = make_btn_pushed_widget("load to scratch", function()
-      confirm_pop_up:init(
-       "current scratch\ndata will be\nlost, continue?",
-       load_export_file
-     )
-    end)
+    save_widg = make_btn_pushed_widget("save", save_current_project)
 
     widgs = {
-      -- scratch --
+      make_btn_pushed_widget("open", function()
+          file_chooser:init(function(chosen_file)
+            -- TODO first if we have modifications on the current project
+            -- ask what we want to do with them
 
-      make_btn_pushed_widget("save", function()
-        pattern_editor:store_all_patterns_in_mem()
-        cstore(0x3100, 0x3100, 0x1200)
+            export_file = chosen_file
+            save_widg.inactive = false
 
-        send_msg("saved scratch to cartridge")
+            -- load project file
+            reload(0x3100, 0x3100, 0x1200, export_file)
+            pattern_editor:init()
+        end)
+      end),
+
+      save_widg,
+
+      make_btn_pushed_widget("save as", function()
+        proj_create_win:init(function(new_name)
+          local new_file = "/" .. new_name .. ".p8"
+
+          if not file_readable(new_file) then
+            export_file = new_file
+            save_widg.inactive = false
+            save_current_project()
+          else
+            send_msg "failed: project already exists"
+          end
+        end)
       end),
 
       make_btn_pushed_widget("clear", function()
-        confirm_pop_up:init("current scratch\ndata will be\nlost, continue?", function()
+        confirm_pop_up:init("current project\ndata will be\ncleared, continue?", function()
+          -- TODO instead of this which is long and inexact,
+          -- just reload the relevant part of this cartridge
           memset(0x3100, 0b01000000, 0x0100)
           memset(0x3200, 0, 0x1100)
           -- set the default speed of each sfx to 16
@@ -46,34 +55,7 @@ settings_pane = class:new {
 
           pattern_editor:init()
 
-          send_msg("scratch data cleared")
-        end)
-      end),
-
-      -- export file --
-
-      export_widg,
-      load_widg,
-
-      make_btn_pushed_widget("open file", function()
-          file_chooser:init(function(new_file)
-            export_file = new_file
-            export_widg.inactive = false
-            load_widg.inactive = false
-
-            confirm_pop_up:init(
-              "load file into\nthe scratch?\ncurrent scratch\nwill be lost",
-              load_export_file
-            )
-        end)
-      end),
-
-      make_btn_pushed_widget("new file", function()
-        proj_create_win:init(function(new_name)
-          export_file = "/" .. new_name .. ".p8"
-          export_widg.inactive = false
-
-          load_widg.inactive = not file_readable(export_file)
+          send_msg("project data cleared")
         end)
       end),
 
@@ -88,9 +70,8 @@ settings_pane = class:new {
         THEMES)
     }
 
-    -- those two widgets are inactive while the export file is not set
-    export_widg.inactive = true
-    load_widg.inactive = true
+    -- the save widget is inactive until a project has been opened
+    save_widg.inactive = true
 
     cur_widg = 1
   end,
@@ -124,37 +105,29 @@ settings_pane = class:new {
     end
   end,
 
+  formatted_project_file = function(_ENV)
+    if export_file == nil then
+      return "<scratch>"
+    else
+      local path = split(export_file, "/")
+      return path[#path]
+    end
+  end,
+
+  -- TODO lots of empty space, could be improved
   draw = function(_ENV)
     shadow_print("settings", 1, 1)
 
-    local start_x, start_y = 3, 2
+    local start_x, start_y = 3, 2 + T
 
-    shadow_rect(start_x -1, start_y +12, start_x + 122, start_y + 35)
-    shadow_print("scratch", start_x+4, start_y+10)
+    shadow_rect(start_x -1, start_y + 12, start_x + 122, start_y + 52)
+    shadow_print("project", start_x+4, start_y+10)
 
-    for i=1,2 do
+    for i=1,4 do
       widgs[i]:draw(start_x+12, start_y + 8*i+11, i == cur_widg)
     end
 
-    shadow_rect(start_x -1, start_y +42, start_x + 122, start_y + 91)
-    shadow_print("export file", start_x+4, start_y+40)
-
-    local exp_txt
-
-    if export_file == nil then
-      exp_txt = "not yet set!"
-    else
-      local path = split(export_file, "/")
-      exp_txt = #path > 2 and "../" .. path[#path] or "/" .. path[#path]
-    end
-
-    print(exp_txt, start_x+12, start_y+49, 9)
-
-    for i=3,6 do
-      widgs[i]:draw(start_x+12, start_y + 8*i+35, i == cur_widg)
-    end
-
-    widgs[7]:draw(start_x+4, start_y + 97, cur_widg == 7)
+    widgs[5]:draw(start_x+4, start_y + 58, cur_widg == 5)
 
     for w in all(sub_wins) do
       w:draw()

@@ -95,6 +95,8 @@ function _draw()
     spr(16+i, x, 1)
   end
 
+  print(settings_pane:formatted_project_file(), 1, 122, 6)
+
   message_panel:draw()
 
   debug:draw()
