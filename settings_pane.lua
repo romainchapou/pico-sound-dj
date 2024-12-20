@@ -1,11 +1,11 @@
 settings_pane = class:new {
   init = function(_ENV)
     sub_wins = {confirm_pop_up, proj_create_win, file_chooser}
-    export_file = nil -- TODO rename as project_file
+    project_file = nil
 
     local save_current_project = function()
       pattern_editor:store_all_patterns_in_mem()
-      cstore(0x3100, 0x3100, 0x1200, export_file)
+      cstore(0x3100, 0x3100, 0x1200, project_file)
       send_msg("saved to " .. formatted_project_file(_ENV))
     end
 
@@ -17,11 +17,11 @@ settings_pane = class:new {
             -- TODO first if we have modifications on the current project
             -- ask what we want to do with them
 
-            export_file = chosen_file
+            project_file = chosen_file
             save_widg.inactive = false
 
             -- load project file
-            reload(0x3100, 0x3100, 0x1200, export_file)
+            reload(0x3100, 0x3100, 0x1200, project_file)
             pattern_editor:init()
         end)
       end),
@@ -33,7 +33,7 @@ settings_pane = class:new {
           local new_file = "/" .. new_name .. ".p8"
 
           if not file_readable(new_file) then
-            export_file = new_file
+            project_file = new_file
             save_widg.inactive = false
             save_current_project()
           else
@@ -44,15 +44,7 @@ settings_pane = class:new {
 
       make_btn_pushed_widget("clear", function()
         confirm_pop_up:init("current project\ndata will be\ncleared, continue?", function()
-          -- TODO instead of this which is long and inexact,
-          -- just reload the relevant part of this cartridge
-          memset(0x3100, 0b01000000, 0x0100)
-          memset(0x3200, 0, 0x1100)
-          -- set the default speed of each sfx to 16
-          for i=0,63 do
-            poke(0x3200 + i*68+65, 16)
-          end
-
+          reload(0x3100, 0x3100, 0x1200)
           pattern_editor:init()
 
           send_msg("project data cleared")
@@ -106,10 +98,10 @@ settings_pane = class:new {
   end,
 
   formatted_project_file = function(_ENV)
-    if export_file == nil then
+    if project_file == nil then
       return "<scratch>"
     else
-      local path = split(export_file, "/")
+      local path = split(project_file, "/")
       return path[#path]
     end
   end,
