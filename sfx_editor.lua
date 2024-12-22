@@ -180,7 +180,7 @@ sfx_editor = class:new {
     if not n_multi_selection then
       if btnp_seq(4, 4) then
         n_multi_selection = true
-        send_msg("select mode")
+        send_msg "select mode"
         return
       end
 
@@ -331,7 +331,7 @@ sfx_editor = class:new {
       poke(0x3200 + 68*sfx_id, unpack(whole_copy))
       load_sfx_from_memory(_ENV)
 
-      send_msg("pasted whole sfx")
+      send_msg "pasted whole sfx"
     else
       for i=n_current_note,min(n_current_note+#copied_notes-1,32) do
         notes[i] = copy_note(copied_notes[i-n_current_note+1])
@@ -347,7 +347,7 @@ sfx_editor = class:new {
 
     whole_copy = pack(peek(0x3200 + 68*sfx_id, 68))
 
-    send_msg("copied whole sfx")
+    send_msg "copied whole sfx"
   end,
 
   play_sfx = function(_ENV)

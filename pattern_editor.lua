@@ -85,7 +85,7 @@ pattern_editor = class:new {
         end
 
         multi_selection = true
-        send_msg("select mode")
+        send_msg "select mode"
         return
       end
 
@@ -252,7 +252,11 @@ pattern_editor = class:new {
 
     store_all_patterns_in_mem(_ENV)
 
-    send_pat_msg(_ENV, "pasted ")
+    if #copied_patterns == 0 then
+      send_msg "no copied pattern to paste"
+    else
+      send_pat_msg(_ENV, "pasted ")
+    end
   end,
 
   store_all_patterns_in_mem = function(_ENV)

@@ -57,7 +57,7 @@ settings_pane = class:new {
           has_unsaved_modifications = project_file ~= nil
           pattern_editor:init()
 
-          send_msg("project data cleared")
+          send_msg "project data cleared"
         end)
       end),
 
