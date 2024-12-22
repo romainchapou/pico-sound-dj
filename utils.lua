@@ -88,3 +88,10 @@ end
 function draw_horiz_line(y)
   line(0, y, 128, y, 6)
 end
+
+function check_if_modification()
+  -- a bit over reactive
+  if btn(5) then
+    settings_pane.has_unsaved_modifications = true
+  end
+end

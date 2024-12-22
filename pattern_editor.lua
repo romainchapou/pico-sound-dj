@@ -53,6 +53,8 @@ pattern_editor = class:new {
   end,
 
   update = function(_ENV)
+    check_if_modification()
+
     -- play/pause
     if btnp_once(6) then
       if stat(57) then

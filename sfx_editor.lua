@@ -106,6 +106,8 @@ sfx_editor = class:new {
   end,
 
   update = function(_ENV)
+    check_if_modification()
+
     -- pane movement
     if btn(4) then
       if handle_move_pane(-1) then

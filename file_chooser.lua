@@ -116,7 +116,7 @@ file_chooser = class:new {
 
     draw_win_bg(5, 8, 122, 122)
 
-    print("choose an export file", 10, 10, 6)
+    print("choose a project file", 10, 10, 6)
 
     print(cur_dir, 10, 17, 9)
 

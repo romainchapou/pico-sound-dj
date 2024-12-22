@@ -2,28 +2,37 @@ settings_pane = class:new {
   init = function(_ENV)
     sub_wins = {confirm_pop_up, proj_create_win, file_chooser}
     project_file = nil
+    has_unsaved_modifications = false
 
     local save_current_project = function()
       pattern_editor:store_all_patterns_in_mem()
       cstore(0x3100, 0x3100, 0x1200, project_file)
+      has_unsaved_modifications = false
       send_msg("saved to " .. formatted_project_file(_ENV))
+    end
+
+    local select_and_open_file = function()
+      file_chooser:init(function(chosen_file)
+        project_file = chosen_file
+        save_widg.inactive = false
+
+        -- load project file
+        reload(0x3100, 0x3100, 0x1200, project_file)
+        pattern_editor:init()
+        has_unsaved_modifications = false
+      end)
     end
 
     save_widg = make_btn_pushed_widget("save", save_current_project)
 
     widgs = {
       make_btn_pushed_widget("open", function()
-          file_chooser:init(function(chosen_file)
-            -- TODO first if we have modifications on the current project
-            -- ask what we want to do with them
-
-            project_file = chosen_file
-            save_widg.inactive = false
-
-            -- load project file
-            reload(0x3100, 0x3100, 0x1200, project_file)
-            pattern_editor:init()
-        end)
+        if has_unsaved_modifications then
+          confirm_pop_up:init("current project\nhas unsaved\nmodifications,\ndiscard them?",
+                              select_and_open_file)
+        else
+          select_and_open_file()
+        end
       end),
 
       save_widg,
@@ -45,6 +54,7 @@ settings_pane = class:new {
       make_btn_pushed_widget("clear", function()
         confirm_pop_up:init("current project\ndata will be\ncleared, continue?", function()
           reload(0x3100, 0x3100, 0x1200)
+          has_unsaved_modifications = project_file ~= nil
           pattern_editor:init()
 
           send_msg("project data cleared")
@@ -107,6 +117,7 @@ settings_pane = class:new {
   end,
 
   -- TODO lots of empty space, could be improved
+  -- -> maybe have a small "how to use" section
   draw = function(_ENV)
     shadow_print("settings", 1, 1)
 
