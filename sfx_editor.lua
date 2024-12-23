@@ -121,11 +121,10 @@ sfx_editor = class:new {
 
     -- play/pause on this sfx
     if btnp_once(6) then
-      if stat(46) ~= sfx_id then
-        play_sfx(_ENV)
+      if is_sound_playing() then
+        stop_all_sounds()
       else
-        -- already playing, stop the playback
-        sfx(sfx_id, -2)
+        play_sfx(_ENV)
       end
     end
 

@@ -57,8 +57,8 @@ pattern_editor = class:new {
 
     -- play/pause
     if btnp_once(6) then
-      if stat(57) then
-        music(-1)
+      if is_sound_playing() then
+        stop_all_sounds()
       else
         -- TODO storing should be done not just here but every time we modify
         -- any pattern (this would not keep in sync if the patterns are

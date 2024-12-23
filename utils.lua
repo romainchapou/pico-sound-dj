@@ -95,3 +95,20 @@ function check_if_modification()
     settings_pane.has_unsaved_modifications = true
   end
 end
+
+function is_sound_playing()
+  for i=46,49 do
+    if stat(i) > 0 then
+      return true
+    end
+  end
+
+  return false
+end
+
+function stop_all_sounds()
+  music(-1)
+  for i=46,49 do
+    sfx(stat(i), -2)
+  end
+end

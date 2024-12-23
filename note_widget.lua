@@ -49,8 +49,8 @@ function make_note_widget()
       -- TODO also maybe store the previous note for the correct playback of
       -- the slide effect
 
-      -- no note preview when multi selection on
-      if sfx_editor.n_multi_selection then
+      -- no note preview when multi selection or pattern or sfx playing
+      if sfx_editor.n_multi_selection or stat(57) or stat(46) >= 0 then
         return
       end
 
