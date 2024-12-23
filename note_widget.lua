@@ -46,9 +46,6 @@ function make_note_widget()
     end,
 
     play_note_preview = function(_ENV)
-      -- TODO also maybe store the previous note for the correct playback of
-      -- the slide effect
-
       -- no note preview when multi selection or pattern or sfx playing
       if sfx_editor.n_multi_selection or stat(57) or stat(46) >= 0 then
         return
@@ -123,12 +120,19 @@ function make_note_widget()
       end
     end,
 
-    draw = function(_ENV, x, y, is_note_selected, sub_selection)
+    draw = function(_ENV, x, y, is_note_selected, sub_selection, next_note_has_slide)
+      -- TODO Visuals: maybe always do this when volume is 0
+      if next_note_has_slide and volume.value == 0 then
+        pal(0, 6)
+      end
+
       for i=1,4 do
         get_sub_widgets(_ENV)[i]:draw(x + (i > 1 and 6+i*6 or 0), y,
                                       is_note_selected and sub_selection == i,
-                                      volume.value > 0)
+                                      volume.value > 0 or next_note_has_slide)
       end
+
+      pal(0, 0)
     end,
 
     store_in_mem = function(_ENV, addr)

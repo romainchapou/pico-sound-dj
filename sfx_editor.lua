@@ -157,12 +157,6 @@ sfx_editor = class:new {
 
   -- update functions
 
-  is_note_highlighted = function(_ENV, note_id)
-    return n_panel_selection == 0 and
-        note_id >= n_selection_lower and
-        note_id <= n_selection_upper
-  end,
-
   post_update = function(_ENV)
     if n_multi_selection then
       n_selection_upper = max(n_selection_start, n_current_note)
@@ -468,18 +462,30 @@ sfx_editor = class:new {
     rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
     rectfill(start_x-10+col_x_diff, start_y+54, start_x-6+col_x_diff, start_y+76, 9)
 
+    local test_next_note_has_slide = function(note_id)
+      local n = notes[note_id+1]
+      return n and n.effect.value == 1 and n.volume.value > 0
+    end
+
+    local is_note_highlighted = function(note_id)
+      return n_panel_selection == 0 and
+          note_id >= n_selection_lower and
+          note_id <= n_selection_upper
+    end
+
     -- draw the notes
     for i=1,16 do
       local x, y = start_x, start_y + i*6
 
       print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-      notes[i]:draw(x, y, is_note_highlighted(_ENV, i), n_sub_selection)
+      notes[i]:draw(x, y, is_note_highlighted(i), n_sub_selection, test_next_note_has_slide(i))
       x += col_x_diff
 
       print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
 
-      notes[i+16]:draw(x, y, is_note_highlighted(_ENV, i+16), n_sub_selection)
+      local note_id = i+16
+      notes[note_id]:draw(x, y, is_note_highlighted(note_id), n_sub_selection, test_next_note_has_slide(note_id))
     end
 
     -- draw the playhead

@@ -14,10 +14,6 @@ pattern_editor = class:new {
     -- the implem for the sfx browser tab)
     multi_selection = false
 
-    -- TODO @Improve: this selection system is not great, as it is not super
-    -- obvious that you are copying whole patterns while selecting only some
-    -- colums. For now it works ok
-    --
     -- TODO @Unsure about those variable names
     sel_start_line = 0
     sel_start_col = 0
