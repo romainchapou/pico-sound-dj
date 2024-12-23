@@ -138,7 +138,7 @@ function make_note_widget()
     store_in_mem = function(_ENV, addr)
       local v = 0
       v |= pitch.value
-      v |= shl(waveform.value, 6)
+      v |= shl(waveform.value % 8, 6)
       v |= shl(volume.value, 9)
       v |= shl(effect.value, 12)
       v |= shl(bool_to_num(waveform.value >= 8), 15)
