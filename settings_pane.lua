@@ -65,6 +65,20 @@ settings_pane = class:new {
     end
     )
 
+    local apply_theme = function(val)
+      for i=1,4 do
+        pal(THEMES[1][2][i], THEMES[val][2][i], 1)
+      end
+    end
+
+    theme_widg = make_named_input_widget("theme", 1, 1, #THEMES, nil, nil,
+      function(_ENV)
+        base_widget_udpate(_ENV)
+        apply_theme(value)
+        dset(32, value)
+      end,
+    THEMES)
+
     widgs = {
       make_btn_pushed_widget("open", action_after_check_unsaved(function()
         file_chooser:init(open_chosen_file)
@@ -97,15 +111,7 @@ settings_pane = class:new {
         end)
       end),
 
-      make_named_input_widget("theme", 1, 1, #THEMES, nil, nil,
-        function(_ENV)
-          base_widget_udpate(_ENV)
-
-          for i=1,4 do
-            pal(THEMES[1][2][i], THEMES[value][2][i], 1)
-          end
-        end,
-        THEMES),
+      theme_widg,
 
       make_btn_pushed_widget("exit", action_after_check_unsaved(stop))
     }
@@ -114,6 +120,10 @@ settings_pane = class:new {
     save_widg.inactive = true
 
     open_last_widg.inactive = load_str_from_cartdata() == ""
+
+    -- apply theme saved in cartdata
+    theme_widg.value = mid(1, dget(32), #THEMES)
+    apply_theme(theme_widg.value)
 
     cur_widg = 1
   end,
