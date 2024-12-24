@@ -16,7 +16,7 @@ function _init()
     show_debug_perfs = not show_debug_perfs
   end)
 
-  current_pane_i = 2
+  current_pane_i = 1
 
   prev_pane_i = nil
   prev_pane_dist = 0
