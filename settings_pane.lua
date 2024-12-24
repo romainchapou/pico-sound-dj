@@ -11,16 +11,29 @@ settings_pane = class:new {
       send_msg("saved to " .. formatted_project_file(_ENV))
     end
 
-    local select_and_open_file = function()
-      file_chooser:init(function(chosen_file)
-        project_file = chosen_file
-        save_widg.inactive = false
+    local post_load_file = function(chosen_file)
+      project_file = chosen_file
+      save_widg.inactive = false
 
-        -- load project file
-        reload(0x3100, 0x3100, 0x1200, project_file)
-        pattern_editor:init()
-        has_unsaved_modifications = false
-      end)
+      pattern_editor:init()
+      has_unsaved_modifications = false
+
+      store_str_to_cartdata(project_file)
+      open_last_widg.inactive = load_str_from_cartdata() == ""
+    end
+
+    local open_chosen_file = function(chosen_file)
+      local read_bytes = reload(0x3100, 0x3100, 0x1200, chosen_file)
+
+      if read_bytes == 0 then
+        send_msg "failed to read project file"
+        open_last_widg.inactive = true
+        store_str_to_cartdata ""
+        cur_widg = 1
+        return
+      end
+
+      post_load_file(chosen_file)
     end
 
     local action_after_check_unsaved = function(act_func)
@@ -36,12 +49,28 @@ settings_pane = class:new {
 
     save_widg = make_btn_pushed_widget("save", save_current_project)
 
-    widgs = {
-      make_btn_pushed_widget("open", action_after_check_unsaved(select_and_open_file)),
+    open_last_widg = make_btn_pushed_widget("open last", function()
+      local open_last = function()
+        open_chosen_file(load_str_from_cartdata())
+      end
 
-      make_btn_pushed_widget("open last", function()
-          confirm_pop_up:init("TODO!", function() end)
-      end),
+      if has_unsaved_modifications then
+        confirm_pop_up:init(
+        "current project\nhas unsaved\nmodifications,\ndiscard them\nto load\n"
+        .. basename(load_str_from_cartdata()) ..
+        "\n?", open_last)
+      else
+        open_last()
+      end
+    end
+    )
+
+    widgs = {
+      make_btn_pushed_widget("open", action_after_check_unsaved(function()
+        file_chooser:init(open_chosen_file)
+      end)),
+
+      open_last_widg,
 
       save_widg,
 
@@ -50,8 +79,7 @@ settings_pane = class:new {
           local new_file = "/" .. new_name .. ".p8"
 
           if not file_readable(new_file) then
-            project_file = new_file
-            save_widg.inactive = false
+            post_load_file(new_file)
             save_current_project()
           else
             send_msg "failed: project already exists"
@@ -84,6 +112,8 @@ settings_pane = class:new {
 
     -- the save widget is inactive until a project has been opened
     save_widg.inactive = true
+
+    open_last_widg.inactive = load_str_from_cartdata() == ""
 
     cur_widg = 1
   end,
@@ -121,8 +151,7 @@ settings_pane = class:new {
     if project_file == nil then
       return "<scratch>"
     else
-      local path = split(project_file, "/")
-      return path[#path]
+      return basename(project_file)
     end
   end,
 
@@ -153,25 +182,25 @@ settings_pane = class:new {
         sy += 6
       end
 
-      pr(" -- basics --")
+      pr " -- basics --"
       sy += 2
-      pr("play:   start")
-      pr("move:   ❎+⬅️➡️")
+      pr "play:   start"
+      pr "move:   ❎+⬅️➡️"
       sy += 4
-      pr(" -- changes --")
+      pr " -- changes --"
       sy += 2
-      pr("small:  🅾️+⬅️➡️")
-      pr("big:    🅾️+⬆️⬇️")
+      pr "small:  🅾️+⬅️➡️"
+      pr "big:    🅾️+⬆️⬇️"
       sy += 2
-      pr("create: 🅾️")
-      pr("clear:  ❎+🅾️")
+      pr "create: 🅾️"
+      pr "clear:  ❎+🅾️"
       sy += 4
-      pr("-- selection --")
+      pr "-- selection --"
       sy += 2
-      pr("start:  ❎,❎")
-      pr("copy:   ❎")
-      pr("cut:    🅾️,🅾️")
-      pr("paste:  🅾️,❎")
+      pr "start:  ❎,❎"
+      pr "copy:   ❎"
+      pr "cut:    🅾️,🅾️"
+      pr "paste:  🅾️,❎"
     end
 
     for w in all(sub_wins) do

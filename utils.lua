@@ -112,3 +112,40 @@ function stop_all_sounds()
     sfx(stat(i), -2)
   end
 end
+
+-- txt must be < 128 characters
+-- this uses the [0x5e00,0x5e7f] memory range
+function store_str_to_cartdata(txt)
+  if #txt >= 128 then
+    poke(0x5e00, 0)
+    send_msg "project name too long to store"
+    return
+  end
+
+  for i=1,#txt do
+    poke(0x5e00+i-1, ord(txt, i))
+  end
+
+  -- add null byte at the end to mark the end of the string
+  poke(0x5e00+#txt, 0)
+end
+
+function load_str_from_cartdata()
+  local str = ""
+
+  for i=0,126 do
+    local byte = peek(0x5e00 + i)
+    if byte == 0 then
+      break
+    end
+
+    str = str .. chr(byte)
+  end
+
+  return str
+end
+
+function basename(filepath)
+  local path = split(filepath, "/")
+  return path[#path]
+end

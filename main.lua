@@ -3,6 +3,8 @@ function _init()
   poke(0x5f5c, 4)
   poke(0x5f5d, 1)
 
+  cartdata("__hiyaa_psdj")
+
   palt(0, false)
   palt(14, true)
 
