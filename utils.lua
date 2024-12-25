@@ -98,7 +98,7 @@ end
 
 function is_sound_playing()
   for i=46,49 do
-    if stat(i) > 0 then
+    if stat(i) >= 0 then
       return true
     end
   end
