@@ -70,20 +70,22 @@ function make_note_widget()
       end
 
       if not sfx_editor.n_multi_selection then
-        if btn(5) and btnp_once(4) then
-          -- cut the selection by copying its value to last_edited_note
-          sfx_editor.last_edited_note = make_note_widget()
-          sfx_editor.last_edited_note:copy_values(_ENV)
+        if btn(4) then
+          if btnp_once(5) then
+            -- cut the selection by copying its value to last_edited_note
+            sfx_editor.last_edited_note = make_note_widget()
+            sfx_editor.last_edited_note:copy_values(_ENV)
 
-          volume.value = 0
+            volume.value = 0
+          end
+
+          return
         end
 
-        if btn(4) then return end
-
-        -- single X press pastes the last edited note if on
+        -- single O press pastes the last edited note if on
         -- an empty note in the pitch colum
         if volume.value == 0 and sub_selection == 1 then
-          if btnp_once(5) then
+          if btnp_once(5, true) then
             copy_values(_ENV, sfx_editor.last_edited_note)
 
             if volume.value == 0 then

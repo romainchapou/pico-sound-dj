@@ -1,7 +1,7 @@
 function make_last_edited_note()
   local note = make_note_widget()
   note.volume.value = 5
-  note.pitch.value = 24
+  note.pitch.value = 24 -- C2
 
   return note
 end
@@ -177,13 +177,13 @@ sfx_editor = class:new {
         return
       end
 
-      if btn(4) and btnp_once(5) then
+      if btnp_seq(5, 4) then
         paste_selection(_ENV)
         notes[n_current_note]:play_note_preview()
         return
       end
     else
-      if btn(5) and btnp_once(4) then
+      if btnp_seq(5, 5) then
         cut_selected_notes(_ENV)
         return
       end
@@ -275,7 +275,7 @@ sfx_editor = class:new {
     if btnp_seq(4, 4) then
       copy_whole_sfx(_ENV)
       return
-    elseif btn(5) and btnp_once(4) then
+    elseif btnp_seq(5, 4) and #whole_copy ~= 0 then
       paste_selection(_ENV)
       return
     end

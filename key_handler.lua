@@ -52,13 +52,10 @@ function make_btn_state_seq(btn_v1, btn_v2)
         elseif btn() ~= 0 then
           s = 0
         else
-          s = v2_hold_time < 10 and s+1 or 0
+          -- launch sequence registered
+          seq_registered = v2_hold_time < 10
+          s = 0
         end
-      elseif s == 4 then
-        -- launch sequence registered
-
-        seq_registered = true
-        s = 0
       end
     end
   }
@@ -66,6 +63,7 @@ end
 
 key_handler = class:new {
   last_frame_btn = {},
+  scheduled_reset = false,
 
   states = {
     [4] = {[4] = make_btn_state_seq(4, 4), [5] = make_btn_state_seq(4, 5)},
@@ -75,29 +73,30 @@ key_handler = class:new {
   update = function(_ENV)
     for i=4,5 do
       for j=4,5 do
-        states[i][j]:update()
+        local state = states[i][j]
+
+        if scheduled_reset then
+          state.s = 0
+          state.seq_registered = false
+        else
+          state:update()
+        end
       end
     end
+
+    scheduled_reset = false
 
     for v=0,6 do
       last_frame_btn[v] = btn(v)
     end
-  end,
-
-  reset_states = function(_ENV)
-    for i=4,5 do
-      for j=4,5 do
-        states[i][j].s = 0
-      end
-    end
   end
 }
 
-function btnp_once(val, dont_launch_action)
+function btnp_once(val, dont_reset_sequence)
   local ret = btn(val) and not key_handler.last_frame_btn[val]
 
-  if ret and not dont_launch_action then
-    key_handler:reset_states()
+  if ret and not dont_reset_sequence then
+    key_handler.scheduled_reset = true
   end
 
   return ret
@@ -105,14 +104,11 @@ end
 
 -- return true when the sequence "btn(v1) -> btn(v2)" is quickly inputed
 -- v1 must be 4 or 5
---
--- TODO @Cleanup: if this is only used for btnp_seq(4, 4), some simplifications
--- could be done in the key_handler class
 function btnp_seq(v1, v2)
   local ret = key_handler.states[v1][v2].seq_registered
 
   if ret then
-    key_handler:reset_states()
+    key_handler.scheduled_reset = true
   end
 
   return ret

@@ -85,12 +85,12 @@ pattern_editor = class:new {
         return
       end
 
-      if btn(4) and btnp_once(5) then
+      if btnp_seq(5, 4) then
         paste_selected_patterns(_ENV)
         return
       end
     else
-      if btn(5) and btnp_once(4) then
+      if btnp_seq(5, 5) then
         cut_selected_patterns(_ENV)
         return
       end
