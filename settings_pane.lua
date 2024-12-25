@@ -113,7 +113,7 @@ settings_pane = class:new {
 
       theme_widg,
 
-      make_btn_pushed_widget("exit", action_after_check_unsaved(stop))
+      make_btn_pushed_widget("⌂ exit", action_after_check_unsaved(stop))
     }
 
     -- the save widget is inactive until a project has been opened
@@ -174,13 +174,13 @@ settings_pane = class:new {
     shadow_print("project", start_x+4, start_y+10)
 
     for i=1,7 do
-      local last_y = i >= 6 and 30 or 0
+      local last_y = i >= 6 and 28 or 0
       local last_x = i >= 6 and -7 or 0
-      widgs[i]:draw(start_x+8 + last_x, start_y + 8*i+11 + last_y, i == cur_widg)
+      widgs[i]:draw(start_x+8 + last_x, start_y + 8*i+11 + last_y + (i == 7 and 3 or 0), i == cur_widg)
     end
 
     -- draw logo
-    sspr(40, 0, 32, 16, 16, 74)
+    sspr(40, 0, 41, 17, 16, 70)
 
     -- TODO bake this into the sprite sheet to clean up and save some tokens
     do
