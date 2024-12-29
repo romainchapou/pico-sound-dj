@@ -37,7 +37,7 @@ function make_note_widget()
     pitch    = make_input_widget(0, 0, 63, 12, pitch_draw_func),
     -- for the waveform (aka instrument), a value in [0, 7] represents a usual instrument value,
     -- while a value in [8, 15] represents a custom instrument
-    waveform = make_input_widget(0, 0, 15, nil, wave_draw_func),
+    waveform = make_input_widget(0, 0, 15, 8, wave_draw_func),
     volume   = make_input_widget(0, 0, 7),
     effect   = make_input_widget(0, 0, 7, nil, effect_draw_func),
 
@@ -104,7 +104,7 @@ function make_note_widget()
         if not sfx_editor.n_multi_selection and volume.value ~= 0 then
           if sub_selection == 2 then
             if waveform.value >= 8 then
-              send_msg("custom instr " .. tostr(waveform.value), false)
+              send_msg("custom instr " .. tostr(waveform.value % 8), false)
             else
               send_msg("instr " .. tostr(waveform.value) .. ": "
               .. INSTRUMENT_NAMES[waveform.value+1], false)
