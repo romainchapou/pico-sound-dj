@@ -114,21 +114,21 @@ file_chooser = class:new {
   draw = function(_ENV)
     if not active then return end
 
-    draw_win_bg(5, 8, 122, 122)
+    draw_win_bg(5, 10, 122, 124)
 
-    print("choose a project file", 10, 10, 6)
+    print("choose a project file", 10, 12, 6)
 
-    print(cur_dir, 10, 17, 9)
+    print(cur_dir, 10, 19, 9)
 
     -- cursor
-    rectfill(9, 18+6*(cur_line-first_visible_line),
-             118, 24+6*(cur_line-first_visible_line), 9)
+    rectfill(9, 20+6*(cur_line-first_visible_line),
+             118, 26+6*(cur_line-first_visible_line), 9)
 
     for i=1,NB_SHOWN_FILES do
       local f = dir_files[first_visible_line+i]
 
       if f then
-        print(f, 10, i*6+19, 0)
+        print(f, 10, i*6+21, 0)
       end
     end
   end

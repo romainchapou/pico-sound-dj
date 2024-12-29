@@ -81,7 +81,9 @@ function _draw()
     camera(-prev_pane_dist, 0)
   end
 
-  panes[current_pane_i]:draw()
+  local current_pane = panes[current_pane_i]
+
+  current_pane:draw()
 
   camera()
 
@@ -98,6 +100,10 @@ function _draw()
   end
 
   print(settings_pane:formatted_project_file(), 1, 122, 6)
+
+  if current_pane.post_draw ~= nil then
+    current_pane:post_draw()
+  end
 
   message_panel:draw()
 

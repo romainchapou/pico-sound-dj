@@ -212,9 +212,11 @@ settings_pane = class:new {
       pr "cut:    🅾️+start"
       pr "paste:  🅾️+start"
     end
+  end,
 
+  post_draw = function(_ENV)
     for w in all(sub_wins) do
       w:draw()
     end
-  end,
+  end
 }
