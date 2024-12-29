@@ -492,8 +492,12 @@ sfx_editor = class:new {
     end
 
     -- draw the playhead
-    if stat(46) == sfx_id and stat(50) >= 0 then
-      spr(1, start_x - 4 + stat(50)\16 * col_x_diff, start_y + 6 + stat(50)%16 * 6)
+    for i=0,3 do
+      local note_nb = stat(50+i)
+
+      if stat(46+i) == sfx_id and note_nb >= 0 then
+        spr(1, start_x - 4 + note_nb\16 * col_x_diff, start_y + 6 + note_nb%16 * 6)
+      end
     end
 
     local function setting_selected(i)
