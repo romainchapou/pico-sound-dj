@@ -19,7 +19,7 @@ sfx_editor = class:new {
 
     -- save the neighbour sfx data as we will be using it to play note previews
     -- we will need to restore this data when quitting this sfx
-    neighbour_sfx_id = (sfx_id+1)%64
+    neighbour_sfx_id = max((sfx_id+1)%64, 8)
     memcpy(0x4300, 0x3200+68*neighbour_sfx_id, 68)
 
     ----- regular note editing mode params -----
