@@ -53,15 +53,26 @@ pattern_editor = class:new {
 
     -- play/pause
     if btnp_once(6) then
+      if btn(4) then
+        if multi_selection then
+          cut_selected_patterns(_ENV)
+        else
+          paste_selected_patterns(_ENV)
+        end
+
+        return
+      end
+
       if is_sound_playing() then
         stop_all_sounds()
       else
         -- TODO storing should be done not just here but every time we modify
         -- any pattern (this would not keep in sync if the patterns are
         -- modified while playing back the track)
+        -- TODO test but this should be good now
         store_all_patterns_in_mem(_ENV)
 
-        music(btn(4) and cur_line or 0)
+        music(btn(5) and cur_line or 0)
       end
     end
 
@@ -74,7 +85,7 @@ pattern_editor = class:new {
     end
 
     if not multi_selection then
-      if btnp_seq(4, 4) then
+      if btnp_seq(5, 5) then
         if cur_col >= 4 then
           cur_col = 4
           sel_start_col = 0
@@ -84,25 +95,15 @@ pattern_editor = class:new {
         send_msg "select mode"
         return
       end
-
-      if btnp_seq(5, 4) then
-        paste_selected_patterns(_ENV)
-        return
-      end
     else
-      if btnp_seq(5, 5) then
-        cut_selected_patterns(_ENV)
-        return
-      end
-
-      if btnp_once(4) then
+      if btnp_once(5) then
         copy_selected_patterns(_ENV)
         return
       end
     end
 
 
-    if not btn(4) and not btn(5) then
+    if not btn(5) and not btn(4) then
       -- from channel 0 to first btn widget
       cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 

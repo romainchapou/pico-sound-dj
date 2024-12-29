@@ -141,7 +141,7 @@ settings_pane = class:new {
 
     if handle_move_pane(1) then return end
 
-    if not btn(4) then
+    if not btn(5) then
       if widgs[cur_widg]:update() then
         -- input handled
         return
@@ -184,7 +184,7 @@ settings_pane = class:new {
 
     -- TODO bake this into the sprite sheet to clean up and save some tokens
     do
-      local sx = 64
+      local sx = 63
       local sy = 16
 
       local pr = function(txt)
@@ -209,8 +209,8 @@ settings_pane = class:new {
       sy += 2
       pr "start:  ❎,❎"
       pr "copy:   ❎"
-      pr "cut:    🅾️,🅾️"
-      pr "paste:  🅾️,❎"
+      pr "cut:    🅾️+start"
+      pr "paste:  🅾️+start"
     end
 
     for w in all(sub_wins) do

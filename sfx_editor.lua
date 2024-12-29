@@ -109,7 +109,7 @@ sfx_editor = class:new {
     check_if_modification()
 
     -- pane movement
-    if btn(4) then
+    if btn(5) then
       if handle_move_pane(-1) then
         restore_neighbour_sfx(_ENV)
         return
@@ -120,12 +120,14 @@ sfx_editor = class:new {
     end
 
     -- play/pause on this sfx
-    if btnp_once(6) then
+    if btnp_once(6) and not btn(4) then
       if is_sound_playing() then
         stop_all_sounds()
       else
         play_sfx(_ENV)
       end
+
+      return
     end
 
     if waveform_edit_mode then
@@ -169,33 +171,33 @@ sfx_editor = class:new {
   end,
 
   update_note_panel = function(_ENV)
+    if btnp_once(6) and btn(4) then
+      if n_multi_selection then
+        cut_selected_notes(_ENV)
+      else
+        paste_selection(_ENV)
+        notes[n_current_note]:play_note_preview()
+      end
+
+      return
+    end
+
     -- sel modifier
     if not n_multi_selection then
-      if btnp_seq(4, 4) then
+      if btnp_seq(5, 5) then
         n_multi_selection = true
         send_msg "select mode"
         return
       end
-
-      if btnp_seq(5, 4) then
-        paste_selection(_ENV)
-        notes[n_current_note]:play_note_preview()
-        return
-      end
     else
-      if btnp_seq(5, 5) then
-        cut_selected_notes(_ENV)
-        return
-      end
-
-      if btnp_once(4) then
+      if btnp_once(5) then
         copy_selected_notes(_ENV)
         return
       end
     end
 
     -- moving the cursor around
-    if not btn(4) and not btn(5) then
+    if not btn(5) and not btn(4) then
       n_sub_selection += nudge()
       n_current_note += nudge(true)
 
@@ -235,14 +237,14 @@ sfx_editor = class:new {
   end,
 
   update_waveform = function(_ENV)
-    if btn(4) then return end
+    if btn(5) then return end
 
-    if not btn(5) then
+    if not btn(4) then
       w_panel_selection = mid(0, w_panel_selection + nudge(true), 3)
     end
 
     if w_panel_selection == 0 then
-      if not btn(5) then
+      if not btn(4) then
         w_top_settings_selection = mid(1, w_top_settings_selection + nudge(), 3)
       end
 
@@ -252,7 +254,7 @@ sfx_editor = class:new {
       -- actual waveform update
       local id_to_change = mid(1, w_cur_col + nudge(), 64)
 
-      if btn(5) then
+      if btn(4) then
         waveform_values[id_to_change] = mid(-128,
                                             waveform_values[w_cur_col] + nudge(true),
                                             127)
@@ -260,7 +262,7 @@ sfx_editor = class:new {
 
       w_cur_col = id_to_change
     else
-      if not btn(5) then
+      if not btn(4) then
         w_bottom_settings_col = mid(1, w_bottom_settings_col + nudge(), 3)
       end
 
@@ -271,12 +273,13 @@ sfx_editor = class:new {
   end,
 
   update_settings_panel = function(_ENV)
-    -- sel modifier
-    if btnp_seq(4, 4) then
-      copy_whole_sfx(_ENV)
-      return
-    elseif btnp_seq(5, 4) and #whole_copy ~= 0 then
+    if btnp_once(6) and btn(4) and #whole_copy ~= 0 then
       paste_selection(_ENV)
+      return
+    end
+
+    if btnp_seq(5, 5) then
+      copy_whole_sfx(_ENV)
       return
     end
 
@@ -285,7 +288,7 @@ sfx_editor = class:new {
 
     cur_setting_widget:update()
 
-    if not btn(4) and not btn(5) then
+    if not btn(5) and not btn(4) then
       if btnp(0) then n_panel_selection = 0 end
 
       n_settings_selection = mid(0, n_settings_selection + nudge(true), #n_sfx_settings-1)
@@ -344,7 +347,7 @@ sfx_editor = class:new {
   end,
 
   play_sfx = function(_ENV)
-    sfx(sfx_editor.sfx_id, 0, btn(4) and n_current_note-1 or 0)
+    sfx(sfx_editor.sfx_id, 0, btn(5) and n_current_note-1 or 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)

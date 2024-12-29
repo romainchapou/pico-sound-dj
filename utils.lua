@@ -91,7 +91,7 @@ end
 
 function check_if_modification()
   -- a bit over reactive
-  if btn(5) then
+  if btn(4) then
     settings_pane.has_unsaved_modifications = true
   end
 end
