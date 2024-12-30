@@ -154,7 +154,19 @@ sfx_editor = class:new {
     else
       draw_note_editor(_ENV)
     end
+  end,
 
+  post_draw = function(_ENV)
+    if waveform_edit_mode then
+      rectfill(0, 112, 128, 128, 7)
+
+      for i=1,6 do
+        local b = bool_to_num(i>3)
+        w_sfx_settings_bottom[i]:draw(i*40 - 28 - 120*b, 113 + 7*b,
+                                      w_panel_selection >= 2 and
+                                      w_bottom_settings_selection == i)
+      end
+    end
   end,
 
   -- update functions
@@ -587,11 +599,6 @@ sfx_editor = class:new {
     draw_horiz_line(19)
     draw_horiz_line(109)
 
-    for i=1,6 do
-      local b = bool_to_num(i>3)
-      w_sfx_settings_bottom[i]:draw(i*40 - 28 - 120*b, 113 + 7*b,
-                                    w_panel_selection >= 2 and
-                                    w_bottom_settings_selection == i)
-    end
+    -- bottom settings done in post_draw to draw over the project file name
   end
 }
