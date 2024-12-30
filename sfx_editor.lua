@@ -180,7 +180,7 @@ sfx_editor = class:new {
 
     -- sel modifier
     if not n_multi_selection then
-      if btnp_seq(5, 5) then
+      if btn_double_press(5) then
         n_multi_selection = true
         send_msg "select mode"
         return
@@ -189,7 +189,7 @@ sfx_editor = class:new {
       if btnp_once(5) then
         copy_selected_notes(_ENV)
         return
-      elseif btnp_seq(4, 4) then
+      elseif btn_double_press(4) then
         cut_selected_notes(_ENV)
         return
       end
@@ -277,7 +277,7 @@ sfx_editor = class:new {
       return
     end
 
-    if btnp_seq(5, 5) then
+    if btn_double_press(5) then
       copy_whole_sfx(_ENV)
       return
     end

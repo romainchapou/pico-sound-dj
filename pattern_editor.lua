@@ -83,7 +83,7 @@ pattern_editor = class:new {
     end
 
     if not multi_selection then
-      if btnp_seq(5, 5) then
+      if btn_double_press(5) then
         if cur_col >= 4 then
           cur_col = 4
           sel_start_col = 0
@@ -97,7 +97,7 @@ pattern_editor = class:new {
       if btnp_once(5) then
         copy_selected_patterns(_ENV)
         return
-      elseif btnp_seq(4, 4) then
+      elseif btn_double_press(4) then
         cut_selected_patterns(_ENV)
         return
       end

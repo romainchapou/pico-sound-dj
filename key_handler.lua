@@ -65,23 +65,18 @@ key_handler = class:new {
   last_frame_btn = {},
   scheduled_reset = false,
 
-  -- TODO simplify if we actually only use 5, 5 (and 4, 4)
   states = {
-    [4] = {[4] = make_btn_state_seq(4, 4), [5] = make_btn_state_seq(4, 5)},
-    [5] = {[4] = make_btn_state_seq(5, 4), [5] = make_btn_state_seq(5, 5)}
+    [4] = make_btn_state_seq(4, 4),
+    [5] = make_btn_state_seq(5, 5)
   },
 
   update = function(_ENV)
-    for i=4,5 do
-      for j=4,5 do
-        local state = states[i][j]
-
-        if scheduled_reset then
-          state.s = 0
-          state.seq_registered = false
-        else
-          state:update()
-        end
+    for _,state in pairs(states) do
+      if scheduled_reset then
+        state.s = 0
+        state.seq_registered = false
+      else
+        state:update()
       end
     end
 
@@ -103,10 +98,10 @@ function btnp_once(val, dont_reset_sequence)
   return ret
 end
 
--- return true when the sequence "btn(v1) -> btn(v2)" is quickly inputed
--- v1 must be 4 or 5
-function btnp_seq(v1, v2)
-  local ret = key_handler.states[v1][v2].seq_registered
+-- return true when a double press of v is quickly inputed
+-- v must be 4 or 5
+function btn_double_press(v)
+  local ret = key_handler.states[v].seq_registered
 
   if ret then
     key_handler.scheduled_reset = true
