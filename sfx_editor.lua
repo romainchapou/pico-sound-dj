@@ -305,6 +305,7 @@ sfx_editor = class:new {
     for i=n_selection_lower,n_selection_upper do
       add(copied_notes, copy_note(notes[i]))
     end
+    n_current_note = n_selection_lower
     n_multi_selection = false
 
     send_notes_msg(_ENV, "copied ")

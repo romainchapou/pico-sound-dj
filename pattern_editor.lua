@@ -210,6 +210,8 @@ pattern_editor = class:new {
       end
     end
     multi_selection = false
+    cur_line = sel_line_lower
+    cur_col = sel_col_lower
 
     send_pat_msg(_ENV, "copied ")
   end,
