@@ -347,6 +347,20 @@ sfx_editor = class:new {
   end,
 
   play_sfx = function(_ENV)
+    if waveform_edit_mode then
+      local waveform_preview = make_note_widget()
+      waveform_preview.pitch.value = 24
+      waveform_preview.waveform.value = 8 + sfx_id
+      waveform_preview.volume.value = 5
+
+      local saved_speed = sfx_speed.value
+      sfx_speed.value = 32
+      waveform_preview:play_note_preview()
+      sfx_speed.value = saved_speed
+
+      return
+    end
+
     sfx(sfx_editor.sfx_id, 0, btn(5) and n_current_note-1 or 0)
   end,
 
