@@ -65,7 +65,7 @@ key_handler = class:new {
   last_frame_btn = {},
   scheduled_reset = false,
 
-  -- TODO simplify if we actually only use 5, 5
+  -- TODO simplify if we actually only use 5, 5 (and 4, 4)
   states = {
     [4] = {[4] = make_btn_state_seq(4, 4), [5] = make_btn_state_seq(4, 5)},
     [5] = {[4] = make_btn_state_seq(5, 4), [5] = make_btn_state_seq(5, 5)}

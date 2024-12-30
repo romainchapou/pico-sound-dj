@@ -209,7 +209,7 @@ settings_pane = class:new {
       sy += 2
       pr "start:  ❎,❎"
       pr "copy:   ❎"
-      pr "cut:    🅾️+start"
+      pr "cut:    🅾️,🅾️"
       pr "paste:  🅾️+start"
     end
   end,

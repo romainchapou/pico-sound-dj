@@ -54,9 +54,7 @@ pattern_editor = class:new {
     -- play/pause
     if btnp_once(6) then
       if btn(4) then
-        if multi_selection then
-          cut_selected_patterns(_ENV)
-        else
+        if not multi_selection then
           paste_selected_patterns(_ENV)
         end
 
@@ -98,6 +96,9 @@ pattern_editor = class:new {
     else
       if btnp_once(5) then
         copy_selected_patterns(_ENV)
+        return
+      elseif btnp_seq(4, 4) then
+        cut_selected_patterns(_ENV)
         return
       end
     end

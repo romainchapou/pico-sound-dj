@@ -171,13 +171,9 @@ sfx_editor = class:new {
   end,
 
   update_note_panel = function(_ENV)
-    if btnp_once(6) and btn(4) then
-      if n_multi_selection then
-        cut_selected_notes(_ENV)
-      else
-        paste_selection(_ENV)
-        notes[n_current_note]:play_note_preview()
-      end
+    if btnp_once(6) and btn(4) and not n_multi_selection then
+      paste_selection(_ENV)
+      notes[n_current_note]:play_note_preview()
 
       return
     end
@@ -192,6 +188,9 @@ sfx_editor = class:new {
     else
       if btnp_once(5) then
         copy_selected_notes(_ENV)
+        return
+      elseif btnp_seq(4, 4) then
+        cut_selected_notes(_ENV)
         return
       end
     end
