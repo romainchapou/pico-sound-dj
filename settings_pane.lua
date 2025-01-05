@@ -75,7 +75,7 @@ settings_pane = class:new {
       function(_ENV)
         base_widget_udpate(_ENV)
         apply_theme(value)
-        dset(32, value)
+        dset(0, value)
       end,
     THEMES)
 
@@ -122,7 +122,7 @@ settings_pane = class:new {
     open_last_widg.inactive = load_str_from_cartdata() == ""
 
     -- apply theme saved in cartdata
-    theme_widg.value = mid(1, dget(32), #THEMES)
+    theme_widg.value = mid(1, dget(0), #THEMES) \ 1
     apply_theme(theme_widg.value)
 
     cur_widg = 1
