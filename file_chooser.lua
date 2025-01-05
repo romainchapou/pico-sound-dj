@@ -43,7 +43,7 @@ file_chooser = class:new {
     if btnp(1) or btnp_once(4) then
       local selection = dir_files[cur_line]
 
-      if selection == ".." then
+      if not selection or selection == ".." then
         move_back(_ENV)
         return
       end
@@ -131,5 +131,10 @@ file_chooser = class:new {
         print(f, 10, i*6+21, 0)
       end
     end
+
+    if cur_dir == "/" and #dir_files == 0 then
+      print("no file found\n(maybe using\nbbs version)", 37, 61, 0)
+    end
+
   end
 }

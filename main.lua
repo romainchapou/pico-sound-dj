@@ -12,12 +12,6 @@ function _init()
 
   T = 0 -- test variable
 
-  show_debug_perfs = false
-
-  menuitem(1, "debug perfs", function()
-    show_debug_perfs = not show_debug_perfs
-  end)
-
   current_pane_i = 1
 
   prev_pane_i = nil
@@ -108,10 +102,4 @@ function _draw()
   message_panel:draw()
 
   debug:draw()
-
-  if show_debug_perfs then
-    rectfill(0, 113, 28, 128, 0)
-    print(stat(7), 1, 114, 11)      -- fps
-    print(stat(1)*100, 1, 121, 11)  -- cpu
-  end
 end
