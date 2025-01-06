@@ -39,7 +39,7 @@ proj_create_win = class:new {
       timer %= 60
 
       -- remove char with btn X
-      if btnp_once(5) then
+      if btnp_once(BTN_B) then
         if new_name == "" then
           active = false
         end

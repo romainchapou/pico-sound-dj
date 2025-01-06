@@ -22,7 +22,7 @@ confirm_pop_up = class:new {
     if active then
       conf_btn_i = mid(1, conf_btn_i + nudge(), 2)
 
-      if sub_widgs[conf_btn_i]:update() or btnp_once(5) then
+      if sub_widgs[conf_btn_i]:update() or btnp_once(BTN_B) then
         active = false
       end
     end

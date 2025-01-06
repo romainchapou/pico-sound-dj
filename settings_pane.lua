@@ -79,6 +79,24 @@ settings_pane = class:new {
       end,
     THEMES)
 
+    local apply_btn_swap_setting = function(val)
+      if val == 0 then
+        GLOBAL.BTN_A = 4
+        GLOBAL.BTN_B = 5
+      else
+        GLOBAL.BTN_A = 5
+        GLOBAL.BTN_B = 4
+      end
+    end
+
+    btn_swap_widg = make_named_input_widget("btn config", 0, 0, 1, nil, nil,
+      function(_ENV)
+        base_widget_udpate(_ENV)
+        apply_btn_swap_setting(value)
+        dset(1, value)
+      end
+    )
+
     widgs = {
       make_btn_pushed_widget("open", action_after_check_unsaved(function()
         file_chooser:init(open_chosen_file)
@@ -113,6 +131,8 @@ settings_pane = class:new {
 
       theme_widg,
 
+      btn_swap_widg,
+
       make_btn_pushed_widget("⌂ exit", action_after_check_unsaved(stop))
     }
 
@@ -121,9 +141,12 @@ settings_pane = class:new {
 
     open_last_widg.inactive = load_str_from_cartdata() == ""
 
-    -- apply theme saved in cartdata
+    -- apply settings saved in cartdata
     theme_widg.value = mid(1, dget(0), #THEMES) \ 1
     apply_theme(theme_widg.value)
+
+    btn_swap_widg.value = mid(0, dget(1), 1) \ 1
+    apply_btn_swap_setting(btn_swap_widg.value)
 
     cur_widg = 1
   end,
@@ -141,7 +164,7 @@ settings_pane = class:new {
 
     if handle_move_pane(1) then return end
 
-    if not btn(5) then
+    if not btn(BTN_B) then
       if widgs[cur_widg]:update() then
         -- input handled
         return
@@ -173,10 +196,10 @@ settings_pane = class:new {
     shadow_rect(start_x -1, start_y + 12, start_x + 51, start_y + 60)
     shadow_print("project", start_x+4, start_y+10)
 
-    for i=1,7 do
-      local last_y = i >= 6 and 28 or 0
+    for i=1,8 do
+      local last_y = i >= 6 and 32 or 0
       local last_x = i >= 6 and -7 or 0
-      widgs[i]:draw(start_x+8 + last_x, start_y + 8*i+11 + last_y + (i == 7 and 3 or 0), i == cur_widg)
+      widgs[i]:draw(start_x+8 + last_x, start_y + (i >= 6 and 7 or 8)*i+11 + last_y, i == cur_widg)
     end
 
     -- draw logo

@@ -27,7 +27,7 @@ end
 -- dir : -1 for left, +1 for right
 -- returns true if input handled
 function handle_move_pane(dir)
-  if btn(5) and btnp_once(max(dir, 0)) then
+  if btn(BTN_B) and btnp_once(max(dir, 0)) then
     prev_pane_i = current_pane_i
     prev_pane_dist = 128*dir
     current_pane_i = mid(1, current_pane_i+nudge(), 3)

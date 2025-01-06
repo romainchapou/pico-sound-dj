@@ -1,5 +1,5 @@
 function base_widget_udpate(_ENV)
-  if btn(4) and not btn(5) then
+  if btn(BTN_A) and not btn(BTN_B) then
     value = mid(min_value, value + nudge() - nudge(true)*delta_up, max_value)
   end
 end
@@ -59,7 +59,7 @@ function make_button_widget(btn_spr)
     state = false,
 
     update = function(_ENV)
-      if btnp_once(4) then
+      if btnp_once(BTN_A) then
         state = not state
       end
     end,
@@ -82,7 +82,7 @@ function make_btn_pushed_widget(name, action_func)
   return class:new {
     -- supposes that this is currently selected
     update = function(_ENV)
-      if btnp_once(4) then
+      if btnp_once(BTN_A) then
         if action_func ~= nil then
           action_func()
           -- signify that the input was handled

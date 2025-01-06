@@ -29,7 +29,7 @@ file_chooser = class:new {
       first_visible_line = cur_line - 1
     end
 
-    if btnp(0) or btnp_once(5) then
+    if btnp(0) or btnp_once(BTN_B) then
       if cur_dir == "/" then
         -- cancel the file selection
         active = false
@@ -40,7 +40,7 @@ file_chooser = class:new {
     end
 
     -- move in
-    if btnp(1) or btnp_once(4) then
+    if btnp(1) or btnp_once(BTN_A) then
       local selection = dir_files[cur_line]
 
       if not selection or selection == ".." then

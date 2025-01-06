@@ -53,7 +53,7 @@ pattern_editor = class:new {
 
     -- play/pause
     if btnp_once(6) then
-      if btn(4) then
+      if btn(BTN_A) then
         if not multi_selection then
           paste_selected_patterns(_ENV)
         end
@@ -70,7 +70,7 @@ pattern_editor = class:new {
         -- TODO test but this should be good now
         store_all_patterns_in_mem(_ENV)
 
-        music(btn(5) and cur_line or 0)
+        music(btn(BTN_B) and cur_line or 0)
       end
     end
 
@@ -83,7 +83,7 @@ pattern_editor = class:new {
     end
 
     if not multi_selection then
-      if btn_double_press(5) then
+      if btn_double_press(BTN_B) then
         if cur_col >= 4 then
           cur_col = 4
           sel_start_col = 0
@@ -94,17 +94,17 @@ pattern_editor = class:new {
         return
       end
     else
-      if btnp_once(5) then
+      if btnp_once(BTN_B) then
         copy_selected_patterns(_ENV)
         return
-      elseif btn_double_press(4) then
+      elseif btn_double_press(BTN_A) then
         cut_selected_patterns(_ENV)
         return
       end
     end
 
 
-    if not btn(5) and not btn(4) then
+    if not btn(BTN_B) and not btn(BTN_A) then
       -- from channel 0 to first btn widget
       cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 

@@ -164,7 +164,7 @@ The last part corresponds to the usual SFX filters.
 
 ## Other notes and useful tools
 
-To retrieve the music you made using PSDJ in your pico8 games, you could either copy the whole SFX and music data from your edited projects using a text editor, or using a tool like [renoiser](https://www.lexaloffle.com/bbs/?tid=36922), as explained in this video : https://www.youtube.com/watch?v=STzunIMtVYA
+To retrieve the music you made using PSDJ in your pico8 games, you could either copy the whole SFX and music data from your edited projects using a text editor, or use a tool like [renoiser](https://www.lexaloffle.com/bbs/?tid=36922), as explained in this video : https://www.youtube.com/watch?v=STzunIMtVYA
 
 
 ## Plans for the future
