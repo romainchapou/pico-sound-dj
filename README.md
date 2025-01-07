@@ -62,7 +62,7 @@ IMPORTANT: don't forget to save your changes before exiting the program! If you 
 Navigate the menu using `Up/Down`.
 
 - open : browse your local pico8 files and load a project
-    - `O/Right` to enter a directory
+    - `O/Right` to enter a directory or select a p8 file
     - `X/Left` to go back a directory
 - open last : open the last edited project
 - save : save the current project. Only available if a project is loaded 

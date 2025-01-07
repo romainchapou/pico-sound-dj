@@ -92,6 +92,11 @@ settings_pane = class:new {
     btn_swap_widg = make_named_input_widget("btn config", 0, 0, 1, nil, nil,
       function(_ENV)
         base_widget_udpate(_ENV)
+
+        if value ~= dget(1) then
+          send_msg "❎ and ⬅️ swaped"
+        end
+
         apply_btn_swap_setting(value)
         dset(1, value)
       end
@@ -145,7 +150,7 @@ settings_pane = class:new {
     theme_widg.value = mid(1, dget(0), #THEMES) \ 1
     apply_theme(theme_widg.value)
 
-    btn_swap_widg.value = mid(0, dget(1), 1) \ 1
+    btn_swap_widg.value = dget(1) == 1 and 1 or 0
     apply_btn_swap_setting(btn_swap_widg.value)
 
     cur_widg = 1
