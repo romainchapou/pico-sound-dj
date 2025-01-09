@@ -1,6 +1,6 @@
 # Pico Sound Dj
 
-[#psdj-0#]
+[#psdj-1#]
 
 Pico Sound Dj, or PSDJ for short, is an alternative to the base music editor of pico8. It supports the whole pico8 music specs, uses a grid oriented layout and a simple D-pad + O/X/start control scheme inspired by [LDSJ, a game boy music sequencer](https://www.littlesounddj.com/lsd/index.php). This means that you can create music on the go using any handheld which has native support for pico8, and then use this music in your pico8 games.
 
@@ -20,7 +20,7 @@ Then you should be able to open PSDJ from splore.
 
 ## The basics -- a short tutorial
 
-Note: PSDJ has been thought to have `X` as the lowest button (Nintendo's B) and `O` the rightmost button (Nintendo's A) on your gamepad. You can swap those two buttons using the "BTN MODE" in the settings.
+Note: PSDJ has been thought to have `X` as the lowest button (Nintendo's B) and `O` the rightmost button (Nintendo's A) on your gamepad. You can swap those two buttons using the "BTN CONFIG" option in the settings. On a keyboard, `X` would be the X or V key while `O` would be the Z or C key.
 
 PSDJ has 3 different screens. When launching the program, you will land on the Settings screen. This is where you can load one of your local pico8 project and save your modifications. For now, let's edit an empty project by moving to the Patterns screen by holding `X` and pressing `Right`.
 
@@ -70,7 +70,7 @@ Navigate the menu using `Up/Down`.
     - `O` to input a letter, `X` to erase one letter
 - clear : return the current project to a blank state (will not save)
 - themes : hold `O` and press `Left/Right` to change the color theme
-- button mode : hold `O` and press `Left/Right` to swap which buttons are considered `X` and `O`
+- btn config : hold `O` and press `Left/Right` to swap which buttons are considered `X` and `O`
 - exit : exit PSDJ
 
 
@@ -171,6 +171,11 @@ To retrieve the music you made using PSDJ in your pico8 games, you could either 
 ## Plans for the future
 
 - When I get the time, and if I can squeeze the tokens enough for it, I would like to make a SFX overview screen, in which you would be able to copy or move your SFXs around, maybe multi edit some settings too. This would also be another way to enter the editing of an SFX, which could be nice if your SFX is not used in a pattern.
+
+
+## Updates
+
+- 0.2 : added a "BTN CONFIG" option to swap `X` and `O`
 
 
 ## Feedback
