@@ -91,9 +91,11 @@ settings_pane = class:new {
 
     btn_swap_widg = make_named_input_widget("btn config", 0, 0, 1, nil, nil,
       function(_ENV)
+        local prev_value = value
+
         base_widget_udpate(_ENV)
 
-        if value ~= dget(1) then
+        if value ~= prev_value then
           send_msg "❎ and ⬅️ swaped"
         end
 

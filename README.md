@@ -20,7 +20,7 @@ Then you should be able to open PSDJ from splore.
 
 ## The basics -- a short tutorial
 
-Note: PSDJ has been thought to have `X` as the lowest button (Nintendo's B) and `O` the rightmost button (Nintendo's A) on your gamepad.
+Note: PSDJ has been thought to have `X` as the lowest button (Nintendo's B) and `O` the rightmost button (Nintendo's A) on your gamepad. You can swap those two buttons using the "BTN MODE" in the settings.
 
 PSDJ has 3 different screens. When launching the program, you will land on the Settings screen. This is where you can load one of your local pico8 project and save your modifications. For now, let's edit an empty project by moving to the Patterns screen by holding `X` and pressing `Right`.
 
@@ -69,7 +69,8 @@ Navigate the menu using `Up/Down`.
 - save as : choose a name to save the current state of the project at. Note that the new project file will be saved in your pico8 root folder.
     - `O` to input a letter, `X` to erase one letter
 - clear : return the current project to a blank state (will not save)
-- themes : hold `X` and press `Left/Right` to change the color theme
+- themes : hold `O` and press `Left/Right` to change the color theme
+- button mode : hold `O` and press `Left/Right` to swap which buttons are considered `X` and `O`
 - exit : exit PSDJ
 
 
@@ -170,7 +171,6 @@ To retrieve the music you made using PSDJ in your pico8 games, you could either 
 ## Plans for the future
 
 - When I get the time, and if I can squeeze the tokens enough for it, I would like to make a SFX overview screen, in which you would be able to copy or move your SFXs around, maybe multi edit some settings too. This would also be another way to enter the editing of an SFX, which could be nice if your SFX is not used in a pattern.
-- Some quality of life changes like an option to swap `X` and `O` would be nice.
 
 
 ## Feedback
