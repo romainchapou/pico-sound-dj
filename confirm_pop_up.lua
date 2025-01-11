@@ -12,9 +12,7 @@ confirm_pop_up = class:new {
       make_btn_pushed_widget("no", function() end),
 
       -- confirm
-      make_btn_pushed_widget("yes!", function()
-        on_confirm()
-      end)
+      make_btn_pushed_widget("yes!", on_confirm)
     }
   end,
 

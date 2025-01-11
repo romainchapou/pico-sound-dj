@@ -7,7 +7,7 @@ __lua__
 #include class.lua
 #include utils.lua
 
-#include debug.lua
+-- #include debug.lua
 
 #include input_widget.lua
 #include message_panel.lua

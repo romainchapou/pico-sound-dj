@@ -16,15 +16,17 @@ message_panel = class:new {
       rectfill(0, 121+y_diff, 127, 127+y_diff, important and 9 or 7)
       print(cur_msg, 1, 122+y_diff, important and 0 or 6)
     end
-  end,
+  end
 }
 
 function send_msg(msg, important)
   if important == nil then important = true end
 
   if important or not message_panel.important then
-    message_panel.cur_msg = msg
-    message_panel.ttl = important and 260 or 180
-    message_panel.important = important
+    message_panel.cur_msg,
+    message_panel.ttl,
+    message_panel.important = msg,
+                              important and 260 or 180,
+                              important
   end
 end

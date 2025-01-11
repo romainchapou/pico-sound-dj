@@ -1,10 +1,5 @@
 function make_btn_state_seq(btn_v1, btn_v2)
   return class:new {
-    v1_hold_time = 0,
-    v2_hold_time = 0,
-    between_time = 0,
-    seq_registered = false,
-
     s = 0,
 
     update = function(_ENV)
@@ -16,10 +11,7 @@ function make_btn_state_seq(btn_v1, btn_v2)
         -- waiting for input state
 
         -- reset all
-        v1_hold_time = 0
-        v2_hold_time = 0
-        between_time = 0
-        seq_registered = false
+        v1_hold_time, v2_hold_time, between_time, seq_registered = 0, 0, 0, false
 
         if btnp(btn_v1) and not key_handler.last_frame_btn[btn_v1] then
           s += 1
@@ -27,7 +19,7 @@ function make_btn_state_seq(btn_v1, btn_v2)
       elseif s == 1 then
         -- hold of v1
 
-        if btn() == shl(1, btn_v1) then
+        if btn() == 1 << btn_v1 then
           v1_hold_time = inct(v1_hold_time)
         elseif btn() ~= 0 then
           s = 0
@@ -39,7 +31,7 @@ function make_btn_state_seq(btn_v1, btn_v2)
 
         if btn() == 0 then
           between_time = inct(between_time)
-        elseif btn() ~= shl(1, btn_v2) then
+        elseif btn() ~= 1 << btn_v2 then
           s = 0
         else
           s = between_time < 20 and s+1 or 0
@@ -47,7 +39,7 @@ function make_btn_state_seq(btn_v1, btn_v2)
       elseif s == 3 then
         -- hold of v2
 
-        if btn() == shl(1, btn_v2) then
+        if btn() == 1 << btn_v2 then
           v2_hold_time = inct(v2_hold_time)
         elseif btn() ~= 0 then
           s = 0

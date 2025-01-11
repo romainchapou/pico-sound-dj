@@ -1,7 +1,7 @@
 function make_last_edited_note()
   local note = make_note_widget()
-  note.volume.value = 5
-  note.pitch.value = 24 -- C2
+  note.volume(5)
+  note.pitch(24) -- C2
 
   return note
 end
@@ -65,7 +65,7 @@ sfx_editor = class:new {
 
       if not old_waveform_edit_mode then
         -- entering waveform edit mode, reset the bass value
-        wave_do_bass.value = 0
+        wave_do_bass(0)
       end
     end)
 
@@ -115,8 +115,8 @@ sfx_editor = class:new {
         return
       end
 
-      if btnp(2) then change_sfx(_ENV, sfx_id-1) end
-      if btnp(3) then change_sfx(_ENV, sfx_id+1) end
+      if btnp "2" then change_sfx(_ENV, sfx_id-1) end
+      if btnp "3" then change_sfx(_ENV, sfx_id+1) end
     end
 
     -- play/pause on this sfx
@@ -300,7 +300,7 @@ sfx_editor = class:new {
     cur_setting_widget:update()
 
     if not btn(BTN_B) and not btn(BTN_A) then
-      if btnp(0) then n_panel_selection = 0 end
+      if btnp "0" then n_panel_selection = 0 end
 
       n_settings_selection = mid(0, n_settings_selection + nudge(true), #n_sfx_settings-1)
     end
@@ -328,7 +328,7 @@ sfx_editor = class:new {
     -- n_multi_selection is false after the copy, but the note selection
     -- lower and upper are not yet reset
     for i=n_selection_lower,n_selection_upper do
-      notes[i].volume.value = 0
+      notes[i].volume(0)
     end
 
     send_notes_msg(_ENV, "cut ")
@@ -361,14 +361,14 @@ sfx_editor = class:new {
   play_sfx = function(_ENV)
     if waveform_edit_mode then
       local waveform_preview = make_note_widget()
-      waveform_preview.pitch.value = 24
-      waveform_preview.waveform.value = 8 + sfx_id
-      waveform_preview.volume.value = 5
+      waveform_preview.pitch(24)
+      waveform_preview.waveform(8 + sfx_id)
+      waveform_preview.volume(5)
 
       local saved_speed = sfx_speed.value
-      sfx_speed.value = 32
+      sfx_speed(32)
       waveform_preview:play_note_preview()
-      sfx_speed.value = saved_speed
+      sfx_speed(saved_speed)
 
       return
     end
@@ -395,14 +395,12 @@ sfx_editor = class:new {
 
   store_sfx_settings = function(_ENV, addr, store_waveform)
     -- editor mode and filter switches
-    local byte = 0
-    byte += sfx_edit_mode.value
-    byte += shl(sfx_noise.value, 1)
-    byte += shl(sfx_buzz.value, 2)
-    byte += sfx_detune.value * 8
-    byte += sfx_reverb.value * 24
-    byte += sfx_dampen.value * 72
-    poke(addr, byte)
+    poke(addr, sfx_edit_mode.value
+               + shl(sfx_noise.value, 1)
+               + shl(sfx_buzz.value, 2)
+               + sfx_detune.value * 8
+               + sfx_reverb.value * 24
+               + sfx_dampen.value * 72)
 
     poke(addr+1, store_waveform and (sfx_speed.value & 0b11111110)
                  + wave_do_bass.value or sfx_speed.value)
@@ -449,20 +447,20 @@ sfx_editor = class:new {
     end
 
     -- following byte, editor mode and filter switches
-    local byte = peek(sfxaddr)
-    sfx_edit_mode.value = byte & 1
-    sfx_noise.value = shr(byte, 1) & 1
-    sfx_buzz.value = shr(byte, 2) & 1
-    sfx_detune.value = byte\8  % 3
-    sfx_reverb.value = byte\24 % 3
-    sfx_dampen.value = byte\72 % 3
+    local byte = @sfxaddr
+    sfx_edit_mode(byte & 1)
+    sfx_noise(shr(byte, 1) & 1)
+    sfx_buzz(shr(byte, 2) & 1)
+    sfx_detune(byte\8  % 3)
+    sfx_reverb(byte\24 % 3)
+    sfx_dampen(byte\72 % 3)
 
-    wave_do_bass.value = peek(sfxaddr+1) & 0b00000001
+    wave_do_bass(peek(sfxaddr+1) & 0b00000001)
     waveform_edit_mode = (peek(sfxaddr+2) & 0b10000000) == 128
 
-    sfx_speed.value = peek(sfxaddr+1)
-    sfx_loop_in.value = peek(sfxaddr+2) & 0b01111111
-    sfx_loop_out.value = peek(sfxaddr+3)
+    sfx_speed(peek(sfxaddr+1))
+    sfx_loop_in(peek(sfxaddr+2) & 0b01111111)
+    sfx_loop_out(peek(sfxaddr+3))
   end,
 
   -- draw functions

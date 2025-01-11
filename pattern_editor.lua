@@ -199,7 +199,7 @@ pattern_editor = class:new {
     for pat_id=sel_line_lower,sel_line_upper do
       if copied_patterns_is_full then
         -- copy the whole pattern, including the settings
-        add(copied_patterns, peek4(get_pattern_mem_addr(pat_id)))
+        add(copied_patterns, $get_pattern_mem_addr(pat_id))
       else
         -- copy only some channels
         local pat = {}

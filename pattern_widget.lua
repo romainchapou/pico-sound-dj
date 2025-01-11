@@ -37,7 +37,7 @@ function make_pattern_widget(pattern_id)
           else
             -- activate the channel
             if not is_channel_activated[sub_selection+1] then
-              channels[sub_selection+1].value = pattern_editor.last_edited_pattern
+              channels[sub_selection+1](pattern_editor.last_edited_pattern)
             end
 
             is_channel_activated[sub_selection+1] = true
@@ -85,13 +85,11 @@ function make_pattern_widget(pattern_id)
     end,
 
     store_pattern_in_mem = function(_ENV)
-      local states = {begin_loop.state, end_loop.state, stop_at_end.state, false}
-
       for i=1,4 do
         poke(get_pattern_mem_addr(pattern_id)+i-1,
              channels[i].value
              + 64 * bool_to_num(not is_channel_activated[i])
-             + 128*bool_to_num(states[i]))
+             + 128*bool_to_num(i ~= 4 and get_settings_widgets(_ENV)[i].state)) -- will be false for i == 4
       end
     end,
 
@@ -106,15 +104,15 @@ function make_pattern_widget(pattern_id)
     load_pattern_from_mem = function(_ENV)
       local addr = get_pattern_mem_addr(pattern_id)
 
-      for i=0,3 do
-        local byte = peek(addr + i)
-        channels[i+1].value = byte & 0b00111111
-        is_channel_activated[i+1] = byte & 0b01000000 == 0
-      end
+      for i=1,4 do
+        local byte = @(addr + i - 1)
+        channels[i](byte & 0b00111111)
+        is_channel_activated[i] = byte & 0b01000000 == 0
 
-      begin_loop.state = peek(addr) & 0b10000000 > 0
-      end_loop.state = peek(addr+1) & 0b10000000 > 0
-      stop_at_end.state = peek(addr+2) & 0b10000000 > 0
+        if i <= 3 then
+          get_settings_widgets(_ENV)[i].state = byte & 0b10000000 > 0
+        end
+      end
     end
   }
 end

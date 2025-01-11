@@ -10,8 +10,6 @@ function _init()
 
   CHANNEL_X_OFFSET = 16
 
-  T = 0 -- test variable
-
   current_pane_i = 1
 
   prev_pane_i = nil
@@ -39,10 +37,6 @@ function _update60()
   -- disable the default behaviour of the start button (which is to bring up
   -- the pause menu) so we can use it for playback launch
   poke(0x5f30, 1)
-
-  -- debug
-  if btnp(0, 1) then T -= 1 end
-  if btnp(1, 1) then T += 1 end
 
   -- pane movement animation
   if prev_pane_i then
@@ -100,6 +94,4 @@ function _draw()
   end
 
   message_panel:draw()
-
-  debug:draw()
 end

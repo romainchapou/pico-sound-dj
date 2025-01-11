@@ -59,7 +59,7 @@ function make_note_widget()
 
     copy_values = function(_ENV, other_note)
       for i,e in ipairs(get_sub_widgets(_ENV)) do
-        e.value = other_note:get_sub_widgets()[i].value
+        e(other_note:get_sub_widgets()[i].value)
       end
     end,
 
@@ -76,7 +76,7 @@ function make_note_widget()
             sfx_editor.last_edited_note = make_note_widget()
             sfx_editor.last_edited_note:copy_values(_ENV)
 
-            volume.value = 0
+            volume(0)
           end
 
           return
@@ -84,13 +84,11 @@ function make_note_widget()
 
         -- single O press pastes the last edited note if on
         -- an empty note in the pitch colum
-        if volume.value == 0 and sub_selection == 1 then
-          if btnp_once(BTN_A, true) then
-            copy_values(_ENV, sfx_editor.last_edited_note)
+        if volume.value == 0 and sub_selection == 1 and btnp_once(BTN_A, true) then
+          copy_values(_ENV, sfx_editor.last_edited_note)
 
-            if volume.value == 0 then
-              volume.value = 5
-            end
+          if volume.value == 0 then
+            volume(5)
           end
         end
       end
@@ -123,7 +121,6 @@ function make_note_widget()
     end,
 
     draw = function(_ENV, x, y, is_note_selected, sub_selection, next_note_has_slide)
-      -- TODO Visuals: maybe always do this when volume is 0
       if next_note_has_slide and volume.value == 0 then
         pal(0, 6)
       end
@@ -138,23 +135,20 @@ function make_note_widget()
     end,
 
     store_in_mem = function(_ENV, addr)
-      local v = 0
-      v |= pitch.value
-      v |= shl(waveform.value % 8, 6)
-      v |= shl(volume.value, 9)
-      v |= shl(effect.value, 12)
-      v |= shl(bool_to_num(waveform.value >= 8), 15)
-
-      poke2(addr, v)
+      poke2(addr, pitch.value
+                  | waveform.value % 8 << 6
+                  | volume.value << 9
+                  | effect.value << 12
+                  | bool_to_num(waveform.value >= 8) << 15)
     end,
 
     load_from_mem = function(_ENV, addr)
-      local data = peek2(addr)
+      local data = %addr
 
-      pitch.value    =     data & 0b0000000000111111
-      waveform.value = shr(data & 0b0000000111000000, 6)
-      volume.value   = shr(data & 0b0000111000000000, 9)
-      effect.value   = shr(data & 0b0111000000000000, 12)
+      pitch(         data & 0b0000000000111111)
+      waveform(  shr(data & 0b0000000111000000, 6))
+      volume(    shr(data & 0b0000111000000000, 9))
+      effect(    shr(data & 0b0111000000000000, 12))
 
       if data & 0b1000000000000000 ~= 0 then
         waveform.value += 8

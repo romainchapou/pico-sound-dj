@@ -21,7 +21,7 @@ proj_create_win = class:new {
       add(letter_widgs, make_btn_pushed_widget(chr(v)))
     end
 
-    for c in all(split(" _-@", "")) do
+    for c in all(split " ,_,-,@") do
       add(letter_widgs, make_btn_pushed_widget(c))
     end
 
@@ -49,14 +49,14 @@ proj_create_win = class:new {
 
       if panel_i == 1 then
         -- letters panel
-        if letter_i >= 30 and btnp(3) then
+        if letter_i >= 30 and btnp "3" then
           panel_i += 1
           conf_btn_i = (letter_i - 30) \ 5
         else
-          if btnp(0) and letter_i % 10 ~= 0 then letter_i -= 1 end
-          if btnp(1) and letter_i % 10 ~= 9 then letter_i += 1 end
-          if btnp(2) and letter_i >= 10 then letter_i -= 10 end
-          if btnp(3) then letter_i += 10 end
+          if btnp "0" and letter_i % 10 ~= 0 then letter_i -= 1 end
+          if btnp "1" and letter_i % 10 ~= 9 then letter_i += 1 end
+          if btnp "2" and letter_i >= 10 then letter_i -= 10 end
+          if btnp "3" then letter_i += 10 end
 
           letter_i = mid(0, letter_i, 39)
 
@@ -69,7 +69,7 @@ proj_create_win = class:new {
           end
         end
       else
-        if btnp(2) then
+        if btnp "2" then
           panel_i -= 1
         else
           conf_btn_i = mid(0, conf_btn_i + nudge(), 1)

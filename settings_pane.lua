@@ -149,10 +149,10 @@ settings_pane = class:new {
     open_last_widg.inactive = load_str_from_cartdata() == ""
 
     -- apply settings saved in cartdata
-    theme_widg.value = mid(1, dget(0), #THEMES) \ 1
+    theme_widg(mid(1, dget(0), #THEMES) \ 1)
     apply_theme(theme_widg.value)
 
-    btn_swap_widg.value = dget(1) == 1 and 1 or 0
+    btn_swap_widg(dget(1) == 1 and 1 or 0)
     apply_btn_swap_setting(btn_swap_widg.value)
 
     cur_widg = 1
@@ -171,19 +171,17 @@ settings_pane = class:new {
 
     if handle_move_pane(1) then return end
 
-    if not btn(BTN_B) then
-      if widgs[cur_widg]:update() then
-        -- input handled
-        return
-      end
+    if widgs[cur_widg]:update() then
+      -- input handled
+      return
+    end
 
+    cur_widg = mid(1, cur_widg + nudge(true), #widgs)
+
+    -- note that this would produce an infinite loop if there was an inactive
+    -- widget as the first or last one
+    while widgs[cur_widg].inactive do
       cur_widg = mid(1, cur_widg + nudge(true), #widgs)
-
-      -- note that this would produce an infinite loop if there was an inactive
-      -- widget as the first or last one
-      while widgs[cur_widg].inactive do
-        cur_widg = mid(1, cur_widg + nudge(true), #widgs)
-      end
     end
   end,
 

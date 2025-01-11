@@ -17,16 +17,13 @@ function make_input_widget(base_val, min_val, max_val, delta, draw, update)
     print(is_activated and value or ".", x, y - (is_activated and 0 or 2), 0)
   end
 
-  delta = delta or max_val
-  update = update or base_widget_udpate
-
   return class:new {
     value = base_val,
     min_value = min_val,
     max_value = max_val,
-    delta_up = delta,
+    delta_up = delta or max_val,
 
-    update = update,
+    update = update or base_widget_udpate,
     draw = draw
   }
 end
