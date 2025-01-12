@@ -16,6 +16,7 @@ settings_pane = class:new {
       save_widg.inactive = false
 
       pattern_editor:init()
+      sfx_overview:init()
       has_unsaved_modifications = false
 
       store_str_to_cartdata(project_file)
@@ -130,6 +131,7 @@ settings_pane = class:new {
         confirm_pop_up:init("current project\ndata will be\ncleared, continue?", function()
           reload(0x3100, 0x3100, 0x1200)
           has_unsaved_modifications = project_file ~= nil
+          sfx_overview:init()
           pattern_editor:init()
 
           send_msg "project data cleared"

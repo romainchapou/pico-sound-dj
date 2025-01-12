@@ -8,15 +8,38 @@ function _init()
   palt(0, false)
   palt(14, true)
 
-  CHANNEL_X_OFFSET = 16
-
   current_pane_i = 1
 
   prev_pane_i = nil
   prev_pane_dist = 0
 
-  panes = {settings_pane, pattern_editor, sfx_editor}
+  high_level_screens = class:new {
+    sub_screens = { sfx_overview, pattern_editor },
+    high_level_screen_i = 1,
 
+    update = function(_ENV)
+      if handle_move_pane(-1) then return end
+
+      if btn(BTN_B) then
+        local prev = high_level_screen_i
+        high_level_screen_i = mid(1, high_level_screen_i + nudge(true), 2)
+
+        if high_level_screen_i == 1 and high_level_screen_i ~= prev then
+          sfx_overview:init()
+        end
+      end
+
+      sub_screens[high_level_screen_i]:update()
+    end,
+
+    draw = function(_ENV)
+      sub_screens[high_level_screen_i]:draw()
+    end
+  }
+
+  panes = {settings_pane, high_level_screens, sfx_editor}
+
+  sfx_overview:init()
   settings_pane:init()
   pattern_editor:init()
   sfx_editor:init(0)

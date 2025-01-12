@@ -14,6 +14,7 @@ sfx_editor = class:new {
 
   init = function(_ENV, sfx_id)
     _ENV.sfx_id = sfx_id
+    sfx_addr = 0x3200 + 68*sfx_id
 
     waveform_edit_mode = false
 
@@ -112,6 +113,7 @@ sfx_editor = class:new {
     if btn(BTN_B) then
       if handle_move_pane(-1) then
         restore_neighbour_sfx(_ENV)
+        sfx_overview:init()
         return
       end
 
@@ -336,16 +338,18 @@ sfx_editor = class:new {
 
   paste_selection = function(_ENV)
     if #whole_copy ~= 0 then
-      poke(0x3200 + 68*sfx_id, unpack(whole_copy))
+      poke(sfx_addr, unpack(whole_copy))
       load_sfx_from_memory(_ENV)
 
       send_msg "pasted whole sfx"
     else
-      for i=n_current_note,min(n_current_note+#copied_notes-1,32) do
+      local max_note = min(n_current_note+#copied_notes-1,32)
+
+      for i=n_current_note,max_note do
         notes[i] = copy_note(copied_notes[i-n_current_note+1])
       end
 
-      send_notes_msg(_ENV, "pasted ")
+      send_msg("pasted " .. max_note - n_current_note + 1 .. " note" .. s_if_plural(max_note))
     end
   end,
 
@@ -353,7 +357,7 @@ sfx_editor = class:new {
     whole_copy = {}
     copied_notes = {}
 
-    whole_copy = pack(peek(0x3200 + 68*sfx_id, 68))
+    whole_copy = pack(peek(sfx_addr, 68))
 
     send_msg "copied whole sfx"
   end,
@@ -408,7 +412,7 @@ sfx_editor = class:new {
 
   store_sfx_in_memory = function(_ENV, store_waveform)
     -- compute address of sfx
-    local sfxaddr = 0x3200 + 68*sfx_id
+    local sfxaddr = sfx_addr
 
     for i=0,31 do
       if store_waveform then
@@ -429,7 +433,7 @@ sfx_editor = class:new {
   end,
 
   load_sfx_from_memory = function(_ENV)
-    local sfxaddr = 0x3200 + 68*sfx_id
+    local sfxaddr = sfx_addr
 
     waveform_values = {}
     notes = {}

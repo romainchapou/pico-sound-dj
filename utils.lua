@@ -1,4 +1,7 @@
 -- some constants
+
+--[[const]] CHANNEL_X_OFFSET = 16
+
 NOTE_NAMES = split "c,c#,d,d#,e,f,f#,g,g#,a,a#,b"
 HEX_VALUES = "0123456789abcdef"
 INSTRUMENT_NAMES = split "triangle,tilted saw,saw,square,pulse,organ,noise,phaser"
@@ -64,8 +67,8 @@ function pitch_to_str(val)
   return #name == 1 and name .. " " .. oct or name .. oct
 end
 
-function s_if_plural(tbl)
-  return #tbl <= 1 and "" or "s"
+function s_if_plural(v)
+  return (type(v) == "table" and #v or v) <= 1 and "" or "s"
 end
 
 function get_playing_note(channel)
@@ -78,11 +81,7 @@ function get_playing_note(channel)
   local data = peek2(0x3200 + 68*sfx_id + 2*stat(50 + channel))
   local note, volume = data & 0b0000000000111111, shr(data & 0b0000111000000000, 9)
 
-  if volume == 0 then
-    return ""
-  end
-
-  return pitch_to_str(note)
+  return volume == 0 and "" or pitch_to_str(note)
 end
 
 function draw_horiz_line(y)

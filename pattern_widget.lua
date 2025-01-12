@@ -60,9 +60,8 @@ function make_pattern_widget(pattern_id)
     end,
 
     draw = function(_ENV, x, y, is_pattern_seleted, col_sel_start, col_sel_end)
-      -- hack: not letting each channel widget handle the visualisation of it
-      -- being selected, instead do it here so we can have one continuous
-      -- rectangle
+      -- not letting each channel widget handle the visualisation of it being
+      -- selected, instead do it here so we can have one continuous rectangle
       if is_pattern_seleted and col_sel_start < 4 then
         local start_x, end_x =
           col_sel_end == 4 and 0 or col_sel_start*CHANNEL_X_OFFSET,

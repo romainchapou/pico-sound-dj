@@ -74,9 +74,6 @@ pattern_editor = class:new {
       end
     end
 
-    -- pane movement
-    if handle_move_pane(-1) then return end
-
     if patterns[cur_line+1].is_channel_activated[cur_col+1] and handle_move_pane(1) then
       sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
       return
@@ -108,8 +105,7 @@ pattern_editor = class:new {
       -- from channel 0 to first btn widget
       cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 
-      cur_line += nudge(true)
-      cur_line %= 64
+      cur_line = mid(0, cur_line + nudge(true), 63)
 
       if first_visible_pattern + 15 < cur_line then
         first_visible_pattern = cur_line - 15
