@@ -13,6 +13,7 @@ sfx_editor = class:new {
   last_edited_note = make_last_edited_note(),
 
   init = function(_ENV, sfx_id)
+    sfx_overview.current_sfx = sfx_id
     _ENV.sfx_id = sfx_id
     sfx_addr = 0x3200 + 68*sfx_id
 
