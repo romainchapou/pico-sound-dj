@@ -2,16 +2,14 @@ pattern_editor = class:new {
   copied_patterns_is_full = false,
   copied_patterns = {},
 
+  first_visible_pattern = 0,
+
+  cur_line = 0,
+  cur_col = 0,
+
+  last_edited_pattern = 0,
+
   init = function(_ENV)
-    first_visible_pattern = 0
-
-    cur_line = 0
-    cur_col = 0
-
-    last_edited_pattern = 0
-
-    -- TODO see about refactoring this in a selector_handler class (after doing
-    -- the implem for the sfx browser tab)
     multi_selection = false
 
     -- TODO @Unsure about those variable names
@@ -74,8 +72,13 @@ pattern_editor = class:new {
       end
     end
 
+    -- panes movements
+    if handle_move_pane(-1) or handle_move_pane(-1, true) then
+      return
+    end
+
     if patterns[cur_line+1].is_channel_activated[cur_col+1] and handle_move_pane(1) then
-      sfx_editor:init(patterns[cur_line+1].channels[cur_col+1].value)
+      sfx_overview.current_sfx = patterns[cur_line+1].channels[cur_col+1].value
       return
     end
 

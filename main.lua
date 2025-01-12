@@ -8,50 +8,38 @@ function _init()
   palt(0, false)
   palt(14, true)
 
-  current_pane_i = 1
+  current_pane_x, current_pane_y = 1, 2
 
-  prev_pane_i = nil
-  prev_pane_dist = 0
+  prev_pane_x, prev_pane_y = nil, nil
 
-  high_level_screens = class:new {
-    sub_screens = { sfx_overview, pattern_editor },
-    high_level_screen_i = 1,
+  prev_pane_dist_x, prev_pane_dist_y = 0, 0
 
-    update = function(_ENV)
-      if handle_move_pane(-1) then return end
+  scheduled_for_init = false
 
-      if btn(BTN_B) then
-        local prev = high_level_screen_i
-        high_level_screen_i = mid(1, high_level_screen_i + nudge(true), 2)
-
-        if high_level_screen_i == 1 and high_level_screen_i ~= prev then
-          sfx_overview:init()
-        end
-      end
-
-      sub_screens[high_level_screen_i]:update()
-    end,
-
-    draw = function(_ENV)
-      sub_screens[high_level_screen_i]:draw()
-    end
+  panes = {
+    {settings_pane, sfx_overview,   sfx_editor},
+    {settings_pane, pattern_editor, sfx_editor}
   }
 
-  panes = {settings_pane, high_level_screens, sfx_editor}
-
-  sfx_overview:init()
   settings_pane:init()
-  pattern_editor:init()
-  sfx_editor:init(0)
 end
 
--- dir : -1 for left, +1 for right
+-- dir : -1 for left/top, +1 for right/bottom
 -- returns true if input handled
-function handle_move_pane(dir)
-  if btn(BTN_B) and btnp_once(max(dir, 0)) then
-    prev_pane_i = current_pane_i
-    prev_pane_dist = 128*dir
-    current_pane_i = mid(1, current_pane_i+nudge(), 3)
+function handle_move_pane(dir, vert)
+  if btn(BTN_B) and btnp_once(max(dir, 0) + bool_to_num(vert)*2) then
+    prev_pane_x,prev_pane_y = current_pane_x,current_pane_y
+
+    if vert then
+      prev_pane_dist_y = 128*dir
+      current_pane_y = mid(1, current_pane_y+nudge(vert), 2)
+    else
+      prev_pane_dist_x = 128*dir
+      current_pane_x = mid(1, current_pane_x+nudge(), 3)
+    end
+
+    scheduled_for_init = true
+
     return true
   end
 end
@@ -62,15 +50,17 @@ function _update60()
   poke(0x5f30, 1)
 
   -- pane movement animation
-  if prev_pane_i then
-    prev_pane_dist *= 0.4
-    if abs(prev_pane_dist) < 1 then
-      prev_pane_dist = 0
-      prev_pane_i = nil
+  if prev_pane_x or prev_pane_y then
+    prev_pane_dist_x *= 0.4
+    prev_pane_dist_y *= 0.4
+
+    if abs(prev_pane_dist_y) < 1 and abs(prev_pane_dist_x) < 1 then
+      prev_pane_dist_y, prev_pane_dist_x = 0, 0
+      prev_pane_y, prev_pane_x = nil, nil
     end
   end
 
-  local current_pane = panes[current_pane_i]
+  local current_pane = panes[current_pane_y][current_pane_x]
 
   current_pane:update()
 
@@ -80,19 +70,27 @@ function _update60()
 
   message_panel:update()
 
+  if scheduled_for_init then
+    -- not using 'current_pane' as would differ
+    panes[current_pane_y][current_pane_x]:init()
+    scheduled_for_init = false
+  end
+
   key_handler:update() -- should be done last
 end
 
 function _draw()
   cls(7)
 
-  if prev_pane_i then
-    camera(prev_pane_dist > 0 and 128 - prev_pane_dist or -128-prev_pane_dist, 0)
-    panes[prev_pane_i]:draw()
-    camera(-prev_pane_dist, 0)
+  if prev_pane_x and prev_pane_y then
+    camera(prev_pane_dist_x > 0 and 128 - prev_pane_dist_x or -128-prev_pane_dist_x,
+           prev_pane_dist_y > 0 and 128 - prev_pane_dist_y or -128-prev_pane_dist_y)
+
+    panes[prev_pane_y][prev_pane_x]:draw()
+    camera(-prev_pane_dist_x, -prev_pane_dist_y)
   end
 
-  local current_pane = panes[current_pane_i]
+  local current_pane = panes[current_pane_y][current_pane_x]
 
   current_pane:draw()
 
@@ -103,11 +101,11 @@ function _draw()
     local x = 86 + i*9+6
 
     if i < 3 then
-      line(x+8, 4, x+8, 5, is_in_range(current_pane_i, i, i+1) and 9 or 6)
+      line(x+8, 4, x+8, 5, is_in_range(current_pane_x, i, i+1) and 9 or 6)
     end
 
-    rectfill(x, 1, x+7, 8, i == current_pane_i and 9 or 6)
-    spr(16+i, x, 1)
+    rectfill(x, 1, x+7, 8, i == current_pane_x and 9 or 6)
+    spr(16+i + 16*bool_to_num(current_pane_y == 2), x, 1)
   end
 
   print(settings_pane:formatted_project_file(), 1, 122, 6)

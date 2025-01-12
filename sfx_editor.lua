@@ -12,9 +12,8 @@ sfx_editor = class:new {
   whole_copy = {},
   last_edited_note = make_last_edited_note(),
 
-  init = function(_ENV, sfx_id)
-    sfx_overview.current_sfx = sfx_id
-    _ENV.sfx_id = sfx_id
+  init = function(_ENV)
+    _ENV.sfx_id = sfx_overview.current_sfx
     sfx_addr = 0x3200 + 68*sfx_id
 
     waveform_edit_mode = false
@@ -114,7 +113,6 @@ sfx_editor = class:new {
     if btn(BTN_B) then
       if handle_move_pane(-1) then
         restore_neighbour_sfx(_ENV)
-        sfx_overview:init()
         return
       end
 
@@ -389,7 +387,8 @@ sfx_editor = class:new {
 
     restore_neighbour_sfx(_ENV)
 
-    init(_ENV, new_sfx_id)
+    sfx_overview.current_sfx = new_sfx_id
+    init(_ENV)
   end,
 
   restore_neighbour_sfx = function(_ENV)

@@ -42,7 +42,7 @@ function make_sfx_widg(sfx_id)
 end
 
 sfx_overview = class:new {
-  current_sfx = 0, -- TODO sync this with the sfx_id of sfx_editor (make it global)
+  current_sfx = 0,
   sel_start = 0,
   sel_lower = 0,
   sel_upper = 0,
@@ -59,8 +59,9 @@ sfx_overview = class:new {
   end,
 
   update = function(_ENV)
-    if handle_move_pane(1) then
-      sfx_editor:init(current_sfx)
+    -- panes movements
+    if handle_move_pane(1) or handle_move_pane(-1) or handle_move_pane(1, true) then
+      return
     end
 
     if btnp_once(6) and not btn(BTN_A) then
