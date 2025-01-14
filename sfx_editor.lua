@@ -473,81 +473,68 @@ sfx_editor = class:new {
     local start_x, start_y, col_x_diff = 10, 14, 48
 
     for i=0,1 do
-      rectfill(start_x + i*col_x_diff - 10, start_y - 3, start_x + i*col_x_diff - 6, start_y + 3, 6)
+      local left_x = start_x + i*col_x_diff
 
-      print(i,   start_x -  9 + i*col_x_diff, start_y - 2, 7)
-      print("♪", start_x +  2 + i*col_x_diff, start_y - 2, 6)
-      print("i", start_x + 18 + i*col_x_diff, start_y - 2, 6)
-      print("v", start_x + 24 + i*col_x_diff, start_y - 2, 6)
-      print("e", start_x + 30 + i*col_x_diff, start_y - 2, 6) -- TODO maybe "f"
+      spr(11+i, left_x - 10, start_y - 3)
+
+      for inst in all(split "♪:2,i:18,v:24,e:30") do
+        local str, v = unpack(split(inst, ":"))
+        print(str, left_x + tonum(v), start_y - 2, 6)
+      end
 
       fillp(0b01011010.1)
-      line(start_x + 16 + i*col_x_diff -2, start_y + 5,
-           start_x + 16 + i*col_x_diff -2, start_y + 101, 6)
+      line(left_x + 14, start_y + 5, left_x + 14, start_y + 101, 6)
       fillp()
-    end
 
-    rectfill(start_x-10, start_y+6,  start_x-6, start_y+28, 9)
-    rectfill(start_x-10, start_y+54, start_x-6, start_y+76, 9)
-
-    rectfill(start_x-10+col_x_diff, start_y+6,  start_x-6+col_x_diff, start_y+28, 9)
-    rectfill(start_x-10+col_x_diff, start_y+54, start_x-6+col_x_diff, start_y+76, 9)
-
-    local test_next_note_has_slide = function(note_id)
-      local n = notes[note_id+1]
-      return n and n.effect.value == 1 and n.volume.value > 0
-    end
-
-    local is_note_highlighted = function(note_id)
-      return n_panel_selection == 0 and
-          note_id >= n_selection_lower and
-          note_id <= n_selection_upper
+      -- draw the note number column
+      sspr(0, 8, 5, 95, left_x - 10, start_y+6)
     end
 
     -- draw the notes
-    for i=1,16 do
-      local x, y = start_x, start_y + i*6
+    for i=0,31 do
+      local note_id = i+1
+      local next_note = notes[note_id+1]
 
-      print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
+      notes[note_id]:draw(start_x + (i\16)*col_x_diff, start_y + 6 + (i%16)*6,
+                         -- test is note highlighted
+                         n_panel_selection == 0 and note_id >= n_selection_lower
+                                                and note_id <= n_selection_upper,
+                         n_sub_selection,
 
-      notes[i]:draw(x, y, is_note_highlighted(i), n_sub_selection, test_next_note_has_slide(i))
-      x += col_x_diff
-
-      print(HEX_VALUES[i], x-9, y, (i-1)\4 % 2 == 0 and 7 or 6)
-
-      local note_id = i+16
-      notes[note_id]:draw(x, y, is_note_highlighted(note_id), n_sub_selection, test_next_note_has_slide(note_id))
+                         -- test if next note has slide
+                         next_note and next_note.effect.value == 1
+                                   and next_note.volume.value > 0)
     end
 
     -- draw the playhead
-    for i=0,3 do
-      local note_nb = stat(50+i)
+    for ch_id=0,3 do
+      local note_nb = stat(50+ch_id)
 
-      if stat(46+i) == sfx_id and note_nb >= 0 then
+      if stat(46+ch_id) == sfx_id and note_nb >= 0 then
         spr(1, start_x - 4 + note_nb\16 * col_x_diff, start_y + 6 + note_nb%16 * 6)
       end
     end
 
     local function setting_selected(i)
-      return n_panel_selection == 1 and n_settings_selection == i
+      return n_panel_selection == 1 and n_settings_selection == tonum(i)
     end
 
     -- draw the settings
-    sfx_speed:draw(start_x + 89, start_y - 2, setting_selected(0))
+    sfx_speed:draw(start_x + 89, start_y - 2, setting_selected "0")
 
     print("-loop-", start_x + 89, start_y + 10, 6)
 
-    sfx_loop_in:draw(start_x + 93, start_y + 16, setting_selected(1))
-    sfx_loop_out:draw(start_x + 89, start_y + 22, setting_selected(2))
+    sfx_loop_in:draw(start_x + 93, start_y + 16, setting_selected "1")
+    sfx_loop_out:draw(start_x + 89, start_y + 22, setting_selected "2")
 
     for i=4,9 do
       n_sfx_settings[i]:draw(start_x + 89, start_y + 10 + i*6, setting_selected(i-1))
     end
 
     if sfx_id < 8 then
-      print("edit as\n wave:", start_x + 89, start_y + 76, setting_selected(9) and 0 or 6)
+      print("edit as\n wave:", start_x + 89, start_y + 76, setting_selected "9" and 0 or 6)
 
-      waveform_edit_btn:draw(start_x + 99, start_y + 89, setting_selected(9))
+      waveform_edit_btn:draw(start_x + 99, start_y + 89, setting_selected "9")
     end
   end,
 
@@ -556,9 +543,9 @@ sfx_editor = class:new {
       return w_panel_selection == 0 and w_top_settings_selection == i
     end
 
-    wave_zoom:draw(2, 11, is_top_selected(1))
-    wave_do_bass:draw(31, 11, is_top_selected(2))
-    waveform_edit_btn:draw(117, 11, is_top_selected(3))
+    for i,x_pos in ipairs(split "2,31,117") do
+      w_sfx_settings_top[i]:draw(tonum(x_pos), 11, is_top_selected(i))
+    end
 
     print("edit as notes:", 60, 11, is_top_selected(3) and 0 or 6)
 

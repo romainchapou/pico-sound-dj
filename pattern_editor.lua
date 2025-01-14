@@ -172,7 +172,7 @@ pattern_editor = class:new {
     -- play infos
 
     print("pt:", 104, 26, 6)
-    print(stat(54) >= 0 and stat(54) or "---", 116, 26, 0)
+    print(cur_playing_pattern >= 0 and cur_playing_pattern or "---", 116, 26, 0)
 
     for i=0,3 do
       print("c" .. i .. ":", 104, 32 + 6*i, 6)

@@ -131,20 +131,15 @@ settings_pane = class:new {
         end)
       end),
 
-      make_btn_pushed_widget("clear", function()
-        confirm_pop_up:init("current project\ndata will be\ncleared, continue?", function()
-          reload(0x3100, 0x3100, 0x1200)
-          has_unsaved_modifications = project_file ~= nil
-
-          send_msg "project data cleared"
-        end)
-      end),
-
       theme_widg,
 
       btn_swap_widg,
 
-      make_btn_pushed_widget("⌂ exit", action_after_check_unsaved(stop))
+      make_btn_pushed_widget("⌂ exit", action_after_check_unsaved(function()
+        cls()
+        print "bye!"
+        stop()
+      end))
     }
 
     -- the save widget is inactive until a project has been opened
@@ -190,11 +185,7 @@ settings_pane = class:new {
   end,
 
   formatted_project_file = function(_ENV)
-    if project_file == nil then
-      return "<scratch>"
-    else
-      return basename(project_file)
-    end
+    return project_file and basename(project_file) or "<scratch>"
   end,
 
   draw = function(_ENV)
@@ -202,48 +193,55 @@ settings_pane = class:new {
 
     local start_x, start_y = 4, 6
 
-    shadow_rect(start_x -1, start_y + 12, start_x + 51, start_y + 60)
+    shadow_rect(start_x -1, start_y + 12, start_x + 51, start_y + 52)
     shadow_print("project", start_x+4, start_y+10)
 
-    for i=1,8 do
-      local last_y = i >= 6 and 32 or 0
-      local last_x = i >= 6 and -7 or 0
-      widgs[i]:draw(start_x+8 + last_x, start_y + (i >= 6 and 7 or 8)*i+11 + last_y, i == cur_widg)
+    for i=1,7 do
+      local last_x, last_y, is_bottom_widg = 0, 0, i >= 5
+
+      if is_bottom_widg then
+        last_x, last_y = -7, 24
+      end
+
+      widgs[i]:draw(start_x+8 + last_x, start_y + (is_bottom_widg and 9 or 8)*i+11 + last_y, i == cur_widg)
     end
 
     -- draw logo
-    sspr(40, 0, 41, 17, 16, 70)
+    sspr(40, 0, 41, 17, 16, 62)
 
-    -- TODO bake this into the sprite sheet to clean up and save some tokens
-    do
-      local sx = 63
-      local sy = 16
+    -- draw the controls summary that has been baked in the spritesheet for token optimization
+    -- below is the commented actual drawing code
+    sspr(8, 24, 63, 93, 63, 16)
 
-      local pr = function(txt)
-        print(txt, sx, sy, 6)
-        sy += 6
-      end
-
-      pr " -- basics --"
-      sy += 2
-      pr "play:   start"
-      pr "move:   ❎+⬅️➡️"
-      sy += 4
-      pr " -- changes --"
-      sy += 2
-      pr "small:  🅾️+⬅️➡️"
-      pr "big:    🅾️+⬆️⬇️"
-      sy += 2
-      pr "create: 🅾️"
-      pr "clear:  ❎+🅾️"
-      sy += 4
-      pr "-- selection --"
-      sy += 2
-      pr "start:  ❎,❎"
-      pr "copy:   ❎"
-      pr "cut:    🅾️,🅾️"
-      pr "paste:  🅾️+start"
-    end
+    -- do
+    --   local sx = 63
+    --   local sy = 16
+    --
+    --   local pr = function(txt)
+    --     print(txt, sx, sy, 6)
+    --     sy += 6
+    --   end
+    --
+    --   pr " -- basics --"
+    --   sy += 2
+    --   pr "play:   start"
+    --   pr "move:   ❎+⬅️➡️"
+    --   sy += 4
+    --   pr " -- changes --"
+    --   sy += 2
+    --   pr "small:  🅾️+⬅️➡️"
+    --   pr "big:    🅾️+⬆️⬇️"
+    --   sy += 2
+    --   pr "create: 🅾️"
+    --   pr "clear:  ❎+🅾️"
+    --   sy += 4
+    --   pr "-- selection --"
+    --   sy += 2
+    --   pr "start:  ❎,❎"
+    --   pr "copy:   ❎"
+    --   pr "cut:    🅾️,🅾️"
+    --   pr "paste:  🅾️+start"
+    -- end
   end,
 
   post_draw = function(_ENV)
