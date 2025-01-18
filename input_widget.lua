@@ -35,7 +35,8 @@ function make_named_input_widget(name, base_val, min_val, max_val, delta,
       local str_val = tostr(value)
 
       if value_tbl then
-        str_val = value_tbl[value][1]
+        local entry = value_tbl[value]
+        str_val = type(entry) == "table" and entry[1] or entry
       end
 
       if is_selected then

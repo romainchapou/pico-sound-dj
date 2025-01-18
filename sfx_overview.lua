@@ -26,7 +26,7 @@ function make_sfx_widg(sfx_id)
     end,
 
     draw = function(_ENV, is_selected)
-      local x, y = 5 + (sfx_id % 8)*15, 16 + (sfx_id\8) * 11
+      local x, y = 5 + (sfx_id % 8)*15, 28 + (sfx_id\8) * 11
 
       -- TODO funny but not great
       if not stat(57) and stat(46) == sfx_id then
@@ -41,6 +41,8 @@ function make_sfx_widg(sfx_id)
   }
 end
 
+local SFX_PARAMS = split "speed,loop in,loop out,noiz,buzz,detune,reverb,dampen,edit mode"
+
 sfx_overview = class:new {
   current_sfx = 0,
   sel_start = 0,
@@ -49,18 +51,61 @@ sfx_overview = class:new {
   multi_selection = false,
   copied_sfx = {},
   nb_copied_sfx = 0,
+  parameter_select_widg = make_named_input_widget("param", 1, 1, #SFX_PARAMS, nil, nil, nil, SFX_PARAMS),
+  panel_selection = 2,
 
   init = function(_ENV)
     sfx_widgets = {}
+
+    value_widget = make_named_input_widget("value")
 
     for sfx_id=0,63 do
       add(sfx_widgets, make_sfx_widg(sfx_id))
     end
   end,
 
+  get_current_param_value = function(_ENV)
+    local param_name = SFX_PARAMS[parameter_select_widg.value]
+    local sfxaddr = 0x3200 + 68*current_sfx + 64
+
+    local byte = @sfxaddr
+
+    if param_name == "speed" then
+      return peek(sfxaddr+1)
+    elseif param_name == "loop in" then
+      return peek(sfxaddr+2) & 0b01111111
+    elseif param_name == "loop out" then
+      return peek(sfxaddr+3)
+    elseif param_name == "noiz" then
+      return shr(byte, 1) & 1
+    elseif param_name == "buzz" then
+      return shr(byte, 2) & 1
+    elseif param_name == "detune" then
+      return byte\8  % 3
+    elseif param_name == "reverb" then
+      return byte\24  % 3
+    elseif param_name == "dampen" then
+      return byte\72  % 3
+    elseif param_name == "edit mode" then
+      return byte & 1
+    end
+  end,
+
   update = function(_ENV)
     -- panes movements
     if handle_move_pane(1) or handle_move_pane(-1) or handle_move_pane(1, true) then
+      return
+    end
+
+    value_widget(get_current_param_value(_ENV))
+
+    if panel_selection == 1 then
+      parameter_select_widg:update()
+
+      if no_action_button() and btnp "3" then
+        panel_selection = 2
+      end
+
       return
     end
 
@@ -74,10 +119,17 @@ sfx_overview = class:new {
       return
     end
 
-    if not btn(BTN_B) and not btn(BTN_A) then
+    if no_action_button() then
+      if btnp "2" then
+        if current_sfx >= 8 then
+          current_sfx -= 8
+        elseif not multi_selection then
+          panel_selection = 1
+          return
+        end
+      end
       if btnp "0" and current_sfx % 8 ~= 0 then current_sfx -= 1 end
       if btnp "1" and current_sfx % 8 ~= 7 then current_sfx += 1 end
-      if btnp "2" and current_sfx >= 8 then current_sfx -= 8 end
       if btnp "3" and current_sfx <= 55 then current_sfx += 8 end
 
       current_sfx = mid(0, current_sfx, 63)
@@ -144,8 +196,13 @@ sfx_overview = class:new {
   draw = function(_ENV)
     shadow_print("sfx overview", 1, 1)
 
+    parameter_select_widg:draw(2, 12, panel_selection == 1)
+
+    value_widget:draw(2, 19, panel_selection == 2 and btn(BTN_A))
+    -- print("value:" .. tostring(get_current_param_value(_ENV)), 2, 19, 0)
+
     for w in all(sfx_widgets) do
-      w:draw(is_in_range(w.sfx_id, sel_lower, sel_upper))
+      w:draw(panel_selection == 2 and is_in_range(w.sfx_id, sel_lower, sel_upper))
     end
   end
 }

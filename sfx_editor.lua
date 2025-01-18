@@ -209,7 +209,7 @@ sfx_editor = class:new {
     end
 
     -- moving the cursor around
-    if not btn(BTN_B) and not btn(BTN_A) then
+    if no_action_button() then
       n_sub_selection += nudge()
       n_current_note += nudge(true)
 
@@ -300,7 +300,7 @@ sfx_editor = class:new {
 
     cur_setting_widget:update()
 
-    if not btn(BTN_B) and not btn(BTN_A) then
+    if no_action_button() then
       if btnp "0" then n_panel_selection = 0 end
 
       n_settings_selection = mid(0, n_settings_selection + nudge(true), #n_sfx_settings-1)

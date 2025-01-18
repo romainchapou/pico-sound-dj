@@ -148,3 +148,7 @@ function basename(filepath)
   local path = split(filepath, "/")
   return path[#path]
 end
+
+function no_action_button()
+  return not btn(BTN_B) and not btn(BTN_A) 
+end

@@ -104,7 +104,7 @@ pattern_editor = class:new {
     end
 
 
-    if not btn(BTN_B) and not btn(BTN_A) then
+    if no_action_button() then
       -- from channel 0 to first btn widget
       cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 
