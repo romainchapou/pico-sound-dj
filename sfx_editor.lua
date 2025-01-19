@@ -7,16 +7,20 @@ function make_last_edited_note()
 end
 
 sfx_editor = class:new {
-  sfx_id = 0,
   copied_notes = {},
   whole_copy = {},
   last_edited_note = make_last_edited_note(),
 
   init = function(_ENV)
-    _ENV.sfx_id = sfx_overview.current_sfx
+    sfx_id = sfx_overview.current_sfx
     sfx_addr = 0x3200 + 68*sfx_id
 
-    waveform_edit_mode = false
+    this_sfx_settings = sfx_settings[sfx_id+1]
+
+    settings_widgets = {}
+    for w in all(this_sfx_settings.widgets) do
+      add(settings_widgets, w)
+    end
 
     -- save the neighbour sfx data as we will be using it to play note previews
     -- we will need to restore this data when quitting this sfx
@@ -58,49 +62,26 @@ sfx_editor = class:new {
     ----- settings widgets, mostly shared between the two modes -----
 
     waveform_edit_btn = make_btn_pushed_widget("∧", function()
-      local old_waveform_edit_mode = sfx_editor.waveform_edit_mode
+      local old_waveform_edit_mode = this_sfx_settings.waveform_edit_mode
 
-      sfx_editor.waveform_edit_mode = not old_waveform_edit_mode
+      this_sfx_settings.waveform_edit_mode = not old_waveform_edit_mode
       sfx_editor:store_sfx_in_memory(old_waveform_edit_mode)
       sfx_editor:load_sfx_from_memory()
 
       if not old_waveform_edit_mode then
         -- entering waveform edit mode, reset the bass value
-        wave_do_bass(0)
+        this_sfx_settings.wave_do_bass(0)
       end
     end)
 
-    wave_do_bass = make_named_input_widget("bass", 0, 0, 1)
     wave_zoom    = make_named_input_widget("zoom", 1, 1, 3)
 
-    sfx_speed = make_named_input_widget("spd", 16, 1, 255, 4)
-
-    sfx_loop_in   = make_named_input_widget("in",  0, 0, 63, 8)
-    sfx_loop_out  = make_named_input_widget("out", 0, 0, 63, 8)
-
-    sfx_noise     = make_named_input_widget("noiz", 0, 0, 1)
-    sfx_buzz      = make_named_input_widget("buzz", 0, 0, 1)
-    sfx_detune    = make_named_input_widget("detu", 0, 0, 2)
-    sfx_reverb    = make_named_input_widget("revb", 0, 0, 2)
-    sfx_dampen    = make_named_input_widget("damp", 0, 0, 2)
-    sfx_edit_mode = make_named_input_widget("edtm", 1, 0, 1)
-
-    n_sfx_settings = {
-      sfx_speed, sfx_loop_in, sfx_loop_out, sfx_noise,
-      sfx_buzz, sfx_detune, sfx_reverb, sfx_dampen, sfx_edit_mode
-    }
-
     w_sfx_settings_top = {
-      wave_zoom, wave_do_bass, waveform_edit_btn
-    }
-
-    w_sfx_settings_bottom = {
-      sfx_noise, sfx_buzz, sfx_detune,
-      sfx_reverb, sfx_dampen, sfx_edit_mode
+      wave_zoom, this_sfx_settings.wave_do_bass, waveform_edit_btn
     }
 
     if sfx_id < 8 then
-      add(n_sfx_settings, waveform_edit_btn)
+      add(settings_widgets, waveform_edit_btn)
     end
 
     load_sfx_from_memory(_ENV)
@@ -131,7 +112,7 @@ sfx_editor = class:new {
       return
     end
 
-    if waveform_edit_mode then
+    if this_sfx_settings.waveform_edit_mode then
       update_waveform(_ENV)
     else
       if n_panel_selection == 0 then
@@ -143,14 +124,14 @@ sfx_editor = class:new {
 
     -- sync the RAM representation with ours every frame.
     -- not the most efficient but simpler than the alternative
-    store_sfx_in_memory(_ENV, waveform_edit_mode)
+    store_sfx_in_memory(_ENV, this_sfx_settings.waveform_edit_mode)
   end,
 
   draw = function(_ENV)
-    local extra_txt = waveform_edit_mode and " -- waveform" or ""
+    local extra_txt = this_sfx_settings.waveform_edit_mode and " -- waveform" or ""
     shadow_print("sfx " .. two_digit_number_str(sfx_id) .. extra_txt, 1, 1)
 
-    if waveform_edit_mode then
+    if this_sfx_settings.waveform_edit_mode then
       draw_waveform_editor(_ENV)
     else
       draw_note_editor(_ENV)
@@ -158,14 +139,15 @@ sfx_editor = class:new {
   end,
 
   post_draw = function(_ENV)
-    if waveform_edit_mode then
+    if this_sfx_settings.waveform_edit_mode then
       rectfill(0, 112, 128, 128, 7)
 
       for i=1,6 do
         local b = bool_to_num(i>3)
-        w_sfx_settings_bottom[i]:draw(i*40 - 28 - 120*b, 113 + 7*b,
-                                      w_panel_selection >= 2 and
-                                      w_bottom_settings_selection == i)
+        -- bottom settings for wave edition (noise to edit mode)
+        settings_widgets[i+3]:draw(i*40 - 28 - 120*b, 113 + 7*b,
+                                   w_panel_selection >= 2 and
+                                   w_bottom_settings_selection == i)
       end
     end
   end,
@@ -280,7 +262,8 @@ sfx_editor = class:new {
 
       w_bottom_settings_selection = w_bottom_settings_col + (w_panel_selection == 3 and 3 or 0)
 
-      w_sfx_settings_bottom[w_bottom_settings_selection]:update()
+      -- bottom settings for wave edition (noise to edit mode)
+      settings_widgets[w_bottom_settings_selection+3]:update()
     end
   end,
 
@@ -295,15 +278,12 @@ sfx_editor = class:new {
       return
     end
 
-    local cur_setting_widget = n_sfx_settings[n_settings_selection+1]
-    local old_setting_value = cur_setting_widget.value
-
-    cur_setting_widget:update()
+    settings_widgets[n_settings_selection+1]:update()
 
     if no_action_button() then
       if btnp "0" then n_panel_selection = 0 end
 
-      n_settings_selection = mid(0, n_settings_selection + nudge(true), #n_sfx_settings-1)
+      n_settings_selection = mid(0, n_settings_selection + nudge(true), #settings_widgets-1)
     end
   end,
 
@@ -362,16 +342,16 @@ sfx_editor = class:new {
   end,
 
   play_sfx = function(_ENV)
-    if waveform_edit_mode then
+    if this_sfx_settings.waveform_edit_mode then
       local waveform_preview = make_note_widget()
       waveform_preview.pitch(24)
       waveform_preview.waveform(8 + sfx_id)
       waveform_preview.volume(5)
 
-      local saved_speed = sfx_speed.value
-      sfx_speed(32)
+      local saved_speed = this_sfx_settings.speed.value
+      this_sfx_settings.speed(32)
       waveform_preview:play_note_preview()
-      sfx_speed(saved_speed)
+      this_sfx_settings.speed(saved_speed)
 
       return
     end
@@ -393,22 +373,10 @@ sfx_editor = class:new {
 
   restore_neighbour_sfx = function(_ENV)
     memcpy(0x3200+68*neighbour_sfx_id, 0x4300, 68)
+    sfx_settings[neighbour_sfx_id+1]:load_from_mem()
   end,
 
   -- IO / memory synchronisation
-
-  store_sfx_settings = function(_ENV, addr, store_waveform)
-    -- editor mode and filter switches
-    poke(addr, sfx_edit_mode.value
-               + shl(sfx_noise.value, 1)
-               + shl(sfx_buzz.value, 2)
-               + sfx_detune.value * 8
-               + sfx_reverb.value * 24
-               + sfx_dampen.value * 72)
-
-    poke(addr+1, store_waveform and (sfx_speed.value & 0b11111110)
-                 + wave_do_bass.value or sfx_speed.value)
-  end,
 
   store_sfx_in_memory = function(_ENV, store_waveform)
     -- compute address of sfx
@@ -426,10 +394,7 @@ sfx_editor = class:new {
       sfxaddr += 2
     end
 
-    store_sfx_settings(_ENV, sfxaddr, store_waveform)
-
-    poke(sfxaddr+2, sfx_loop_in.value + bool_to_num(waveform_edit_mode)*128)
-    poke(sfxaddr+3, sfx_loop_out.value)
+    sfx_settings[sfx_id+1]:store_in_mem(store_waveform, sfxaddr)
   end,
 
   load_sfx_from_memory = function(_ENV)
@@ -450,21 +415,7 @@ sfx_editor = class:new {
       sfxaddr += 2
     end
 
-    -- following byte, editor mode and filter switches
-    local byte = @sfxaddr
-    sfx_edit_mode(byte & 1)
-    sfx_noise(shr(byte, 1) & 1)
-    sfx_buzz(shr(byte, 2) & 1)
-    sfx_detune(byte\8  % 3)
-    sfx_reverb(byte\24 % 3)
-    sfx_dampen(byte\72 % 3)
-
-    wave_do_bass(peek(sfxaddr+1) & 0b00000001)
-    waveform_edit_mode = (peek(sfxaddr+2) & 0b10000000) == 128
-
-    sfx_speed(peek(sfxaddr+1))
-    sfx_loop_in(peek(sfxaddr+2) & 0b01111111)
-    sfx_loop_out(peek(sfxaddr+3))
+    sfx_settings[sfx_id+1]:load_from_mem()
   end,
 
   -- draw functions
@@ -520,15 +471,15 @@ sfx_editor = class:new {
     end
 
     -- draw the settings
-    sfx_speed:draw(start_x + 89, start_y - 2, setting_selected "0")
+    this_sfx_settings.speed:draw(start_x + 89, start_y - 2, setting_selected "0")
 
     print("-loop-", start_x + 89, start_y + 10, 6)
 
-    sfx_loop_in:draw(start_x + 93, start_y + 16, setting_selected "1")
-    sfx_loop_out:draw(start_x + 89, start_y + 22, setting_selected "2")
+    this_sfx_settings.loop_in:draw(start_x + 93, start_y + 16, setting_selected "1")
+    this_sfx_settings.loop_out:draw(start_x + 89, start_y + 22, setting_selected "2")
 
     for i=4,9 do
-      n_sfx_settings[i]:draw(start_x + 89, start_y + 10 + i*6, setting_selected(i-1))
+      settings_widgets[i]:draw(start_x + 89, start_y + 10 + i*6, setting_selected(i-1))
     end
 
     if sfx_id < 8 then

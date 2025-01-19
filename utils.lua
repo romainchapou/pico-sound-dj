@@ -152,3 +152,7 @@ end
 function no_action_button()
   return not btn(BTN_B) and not btn(BTN_A) 
 end
+
+function print_centered(txt, x, y, col)
+  print(txt, x - (4*#tostring(txt) - 1)/2+1, y, col)
+end

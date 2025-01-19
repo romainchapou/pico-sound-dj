@@ -1,4 +1,6 @@
 function make_sfx_widg(sfx_id)
+  sfx_settings[sfx_id+1]:load_from_mem()
+
   local sfx_addr, empty = 0x3200+68*sfx_id, true
 
   for n=0,31 do
@@ -12,20 +14,23 @@ function make_sfx_widg(sfx_id)
     sfx_id = sfx_id,
     is_empty = empty,
 
-    update = function(_ENV)
-      if btn(BTN_B) and btnp_once(BTN_A) then
-        -- TODO remove this in favor of the multi selection cut
-        reload(sfx_addr, sfx_addr, 68)
-        is_empty = true
+    update = function(_ENV, parameter_id)
+      sfx_settings[sfx_id+1].widgets[parameter_id]:update()
+
+      if not sfx_overview.multi_selection and btn(BTN_B) and btnp_once(BTN_A) then
+        sfx_overview:cut_selected_sfx()
       end
+
+      sfx_settings[sfx_id+1]:store_in_mem(false)
     end,
 
     clear = function(_ENV)
       reload(sfx_addr, sfx_addr, 68)
       is_empty = true
+      sfx_settings[sfx_id+1]:load_from_mem()
     end,
 
-    draw = function(_ENV, is_selected)
+    draw = function(_ENV, is_selected, show_setting_value, parameter_id)
       local x, y = 5 + (sfx_id % 8)*15, 28 + (sfx_id\8) * 11
 
       -- TODO funny but not great
@@ -35,8 +40,29 @@ function make_sfx_widg(sfx_id)
 
       local ret_func = is_empty and rect or rectfill
 
-      ret_func(x, y, x+12, y+8, is_selected and 9 or 6)
-      print(two_digit_number_str(sfx_id), x+3, y+2, is_empty and (is_selected and 9 or 6) or 0)
+      local txt_color = 0
+      if is_empty then
+        if is_selected then
+          txt_color = show_setting_value and 7 or 9
+        elseif show_setting_value then
+          txt_color = 7
+        else
+          txt_color = 6
+        end
+      end
+
+      local bg_color = is_selected and sfx_overview.panel_selection == 2 and 9 or 6
+
+      ret_func(x, y, x+12, y+8, bg_color)
+
+      if show_setting_value then
+        rectfill(x-1, y+1, x+13, y+7, bg_color)
+      end
+
+      local v_to_print = show_setting_value and sfx_settings[sfx_id+1].widgets[parameter_id].value
+                         or two_digit_number_str(sfx_id)
+
+      print_centered(v_to_print, x+6, y+2, txt_color)
     end
   }
 end
@@ -57,47 +83,18 @@ sfx_overview = class:new {
   init = function(_ENV)
     sfx_widgets = {}
 
-    value_widget = make_named_input_widget("value")
-
     for sfx_id=0,63 do
       add(sfx_widgets, make_sfx_widg(sfx_id))
     end
   end,
 
-  get_current_param_value = function(_ENV)
-    local param_name = SFX_PARAMS[parameter_select_widg.value]
-    local sfxaddr = 0x3200 + 68*current_sfx + 64
-
-    local byte = @sfxaddr
-
-    if param_name == "speed" then
-      return peek(sfxaddr+1)
-    elseif param_name == "loop in" then
-      return peek(sfxaddr+2) & 0b01111111
-    elseif param_name == "loop out" then
-      return peek(sfxaddr+3)
-    elseif param_name == "noiz" then
-      return shr(byte, 1) & 1
-    elseif param_name == "buzz" then
-      return shr(byte, 2) & 1
-    elseif param_name == "detune" then
-      return byte\8  % 3
-    elseif param_name == "reverb" then
-      return byte\24  % 3
-    elseif param_name == "dampen" then
-      return byte\72  % 3
-    elseif param_name == "edit mode" then
-      return byte & 1
-    end
-  end,
-
   update = function(_ENV)
+    check_if_modification()
+
     -- panes movements
     if handle_move_pane(1) or handle_move_pane(-1) or handle_move_pane(1, true) then
       return
     end
-
-    value_widget(get_current_param_value(_ENV))
 
     if panel_selection == 1 then
       parameter_select_widg:update()
@@ -146,11 +143,7 @@ sfx_overview = class:new {
 
       if btn_double_press(BTN_A) then
         -- cut the selection
-        copy_selected_sfx(_ENV)
-        for s_id=sel_lower,sel_upper do
-          sfx_widgets[s_id+1]:clear()
-        end
-        send_msg("cut " .. sel_upper - sel_lower + 1 .. " sfx")
+        cut_selected_sfx(_ENV)
         return
       end
     else
@@ -181,8 +174,25 @@ sfx_overview = class:new {
     end
 
     for s_id=sel_lower,sel_upper do
-      sfx_widgets[s_id+1]:update()
+      sfx_widgets[s_id+1]:update(parameter_select_widg.value)
     end
+
+    if btn(BTN_A) and btnp() & 0b1111 ~= 0 then
+      send_msg("changed " .. SFX_PARAMS[parameter_select_widg.value] ..
+               " for sfx " .. format_select_range(_ENV), false)
+    end
+  end,
+
+  format_select_range = function(_ENV)
+    return sel_lower == sel_upper and sel_lower or (tostring(sel_lower) .. "-" .. tostring(sel_upper))
+  end,
+
+  cut_selected_sfx = function(_ENV)
+    copy_selected_sfx(_ENV)
+    for s_id=sel_lower,sel_upper do
+      sfx_widgets[s_id+1]:clear()
+    end
+    send_msg("cut " .. sel_upper - sel_lower + 1 .. " sfx (" .. format_select_range(_ENV) .. ")")
   end,
 
   copy_selected_sfx = function(_ENV)
@@ -190,19 +200,20 @@ sfx_overview = class:new {
     copied_sfx = pack(peek(0x3200 + 68*sel_lower, 68*nb_copied_sfx))
     current_sfx = sel_lower
     multi_selection = false
-    send_msg("copied " .. nb_copied_sfx .. " sfx")
+    send_msg("copied " .. nb_copied_sfx .. " sfx (" .. format_select_range(_ENV) .. ")")
   end,
 
   draw = function(_ENV)
     shadow_print("sfx overview", 1, 1)
 
-    parameter_select_widg:draw(2, 12, panel_selection == 1)
-
-    value_widget:draw(2, 19, panel_selection == 2 and btn(BTN_A))
-    -- print("value:" .. tostring(get_current_param_value(_ENV)), 2, 19, 0)
+    parameter_select_widg:draw(2, 12, panel_selection == 1 or btn(BTN_A))
 
     for w in all(sfx_widgets) do
-      w:draw(panel_selection == 2 and is_in_range(w.sfx_id, sel_lower, sel_upper))
+      local is_in_selection = panel_selection == 2 and is_in_range(w.sfx_id, sel_lower, sel_upper)
+
+      w:draw(is_in_selection,
+             btn(BTN_A) and (is_in_selection or panel_selection == 1),
+             parameter_select_widg.value)
     end
   end
 }

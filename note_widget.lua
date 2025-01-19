@@ -51,9 +51,12 @@ function make_note_widget()
         return
       end
 
-      local sfx_addr = 0x3200 + 68*sfx_editor.neighbour_sfx_id
-      store_in_mem(_ENV, sfx_addr) -- store to first note of neighbour sfx
-      sfx_editor:store_sfx_settings(sfx_addr + 64)
+      local neighbour_addr = 0x3200 + 68*sfx_editor.neighbour_sfx_id
+      store_in_mem(_ENV, neighbour_addr) -- store to first note of neighbour sfx
+
+      -- storing sfx settings of the currently edited sfx to its neighbour
+      -- using store_waveform = false as it should always be the case when playing a note preview
+      sfx_settings[sfx_editor.sfx_id+1]:store_in_mem(false, neighbour_addr + 64)
       sfx(sfx_editor.neighbour_sfx_id, 3, 0, 1)
     end,
 
@@ -113,9 +116,7 @@ function make_note_widget()
           end
         end
 
-        if stat(46) < 0 then
-          play_note_preview(_ENV)
-        end
+        play_note_preview(_ENV)
         sfx_editor.last_edited_note = _ENV
       end
     end,

@@ -16,6 +16,10 @@ function _init()
 
   scheduled_for_init = false
 
+  for s in all(sfx_settings) do
+    s:init()
+  end
+
   panes = {
     {settings_pane, sfx_overview,   sfx_editor},
     {settings_pane, pattern_editor, sfx_editor}

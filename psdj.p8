@@ -19,6 +19,7 @@ __lua__
 
 #include settings_pane.lua
 #include pattern_editor.lua
+#include sfx_settings.lua
 #include sfx_overview.lua
 #include sfx_editor.lua
 
