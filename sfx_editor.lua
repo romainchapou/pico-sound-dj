@@ -140,12 +140,12 @@ sfx_editor = class:new {
 
   post_draw = function(_ENV)
     if this_sfx_settings.waveform_edit_mode then
-      rectfill(0, 112, 128, 128, 7)
+      rectfill(0, 110, 128, 128, 7)
 
       for i=1,6 do
         local b = bool_to_num(i>3)
         -- bottom settings for wave edition (noise to edit mode)
-        settings_widgets[i+3]:draw(i*40 - 28 - 120*b, 113 + 7*b,
+        settings_widgets[i+3]:draw(i*33 - 28 - 99*b, 113 + 7*b,
                                    w_panel_selection >= 2 and
                                    w_bottom_settings_selection == i)
       end
@@ -473,36 +473,38 @@ sfx_editor = class:new {
     -- draw the settings
     this_sfx_settings.speed:draw(start_x + 89, start_y - 2, setting_selected "0")
 
-    print("-loop-", start_x + 89, start_y + 10, 6)
+    print("-loop-", start_x + 89, start_y + 9, 6)
 
-    this_sfx_settings.loop_in:draw(start_x + 93, start_y + 16, setting_selected "1")
-    this_sfx_settings.loop_out:draw(start_x + 89, start_y + 22, setting_selected "2")
+    this_sfx_settings.loop_in:draw(start_x + 93, start_y + 15, setting_selected "1")
+    this_sfx_settings.loop_out:draw(start_x + 89, start_y + 21, setting_selected "2")
 
     for i=4,9 do
-      settings_widgets[i]:draw(start_x + 89, start_y + 10 + i*6, setting_selected(i-1))
+      settings_widgets[i]:draw(start_x + 89, start_y + 8 + i*6, setting_selected(i-1))
     end
 
     if sfx_id < 8 then
-      print("edit as\n wave:", start_x + 89, start_y + 76, setting_selected "9" and 0 or 6)
+      print("edit as\n wave:", start_x + 89, start_y + 73, setting_selected "9" and 0 or 6)
 
-      waveform_edit_btn:draw(start_x + 99, start_y + 89, setting_selected "9")
+      waveform_edit_btn:draw(start_x + 99, start_y + 86, setting_selected "9")
     end
   end,
 
   draw_waveform_editor = function(_ENV)
+    local start_y = -2
+
     function is_top_selected(i)
       return w_panel_selection == 0 and w_top_settings_selection == i
     end
 
     for i,x_pos in ipairs(split "2,31,117") do
-      w_sfx_settings_top[i]:draw(tonum(x_pos), 11, is_top_selected(i))
+      w_sfx_settings_top[i]:draw(tonum(x_pos), start_y + 11, is_top_selected(i))
     end
 
-    print("edit as notes:", 60, 11, is_top_selected(3) and 0 or 6)
+    print("edit as notes:", 60, start_y + 11, is_top_selected(3) and 0 or 6)
 
     local editor_cursor_color = w_panel_selection == 1 and 9 or 6
 
-    clip(0, 21, 128, 87)
+    clip(0, start_y + 21, 128, start_y + 87)
 
     for i=1,64 do
       local xpos = 2*(i-1)
@@ -510,20 +512,20 @@ sfx_editor = class:new {
            i == w_cur_col and editor_cursor_color or 6)
 
       if abs(waveform_values[i]) > 43*wave_zoom.value then
-        pset(xpos, 64+sgn(waveform_values[i])*43, 0)
+        pset(xpos, start_y + 64+sgn(waveform_values[i])*43, 0)
       end
     end
 
     local v = waveform_values[w_cur_col]
 
     local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), 64+v/wave_zoom.value
-    rect(cur_x_pos-1, cur_y_pos-1, cur_x_pos+1, cur_y_pos+1, editor_cursor_color)
-    pset(cur_x_pos, cur_y_pos, 7)
+    rect(cur_x_pos-1, start_y + cur_y_pos-1, cur_x_pos+1, start_y + cur_y_pos+1, editor_cursor_color)
+    pset(cur_x_pos, start_y + cur_y_pos, 7)
 
     local print_str = tostr(v)
 
     if abs(v) > 43*wave_zoom.value and w_panel_selection == 1 then
-      local px, py = cur_x_pos - #print_str*2+1, v <= 0 and 67 or 58
+      local px, py = cur_x_pos - #print_str*2+1, v <= 0 and 67 + start_y or 58 + start_y
       px = mid(0, px, 129 - #print_str*4)
       rectfill(px-1, py-1, px + #print_str*4 - 1, py+5, 7)
       print(v, px, py, editor_cursor_color)
@@ -532,12 +534,12 @@ sfx_editor = class:new {
     clip()
 
     fillp(0b0101101001011010.1)
-    draw_horiz_line(18)
-    draw_horiz_line(110)
+    draw_horiz_line(start_y + 18)
+    draw_horiz_line(start_y + 110)
     fillp()
 
-    draw_horiz_line(19)
-    draw_horiz_line(109)
+    draw_horiz_line(start_y + 19)
+    draw_horiz_line(start_y + 109)
 
     -- bottom settings done in post_draw to draw over the project file name
   end

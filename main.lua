@@ -89,6 +89,12 @@ function camera_dist(d)
   return d == 0 and 0 or (d > 0 and 128 - d or -128-d)
 end
 
+function draw_minimap_square(x, y, selected, sprite)
+  rectfill(x-1, y-1, x+16, y+8, 7) -- going more to the right in case of a long filname
+  rectfill(x, y, x+7, y+7, selected and 9 or 6)
+  spr(sprite, x, y)
+end
+
 function _draw()
   cls(7)
 
@@ -105,23 +111,18 @@ function _draw()
 
   camera()
 
-  -- mini map draw
-  for i=1,3 do
-    local x = 86 + i*9+6
-
-    if i < 3 then
-      line(x+8, 4, x+8, 5, is_in_range(current_pane_x, i, i+1) and 9 or 6)
-    end
-
-    rectfill(x, 1, x+7, 8, i == current_pane_x and 9 or 6)
-    spr(16+i + 16*bool_to_num(current_pane_y == 2), x, 1)
-  end
-
   print(settings_pane:formatted_project_file(), 1, 122, 6)
 
   if current_pane.post_draw ~= nil then
     current_pane:post_draw()
   end
+
+  -- draw mini map
+  local map_y_diff = 9*bool_to_num(current_pane_y == 2)
+  draw_minimap_square(86+1*9+6, 109+1 + map_y_diff,  current_pane_x == 1, 16+1) -- settings
+  draw_minimap_square(86+2*9+6, 109+1,  current_pane_x == 2 and current_pane_y == 1, 16+2) -- sfx overview
+  draw_minimap_square(86+2*9+6, 109+10, current_pane_x == 2 and current_pane_y == 2, 2*16+2) -- patterns
+  draw_minimap_square(86+3*9+6, 109+1 + map_y_diff,  current_pane_x == 3, 16+3) -- sfx
 
   message_panel:draw()
 end

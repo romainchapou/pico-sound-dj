@@ -191,7 +191,7 @@ settings_pane = class:new {
   draw = function(_ENV)
     shadow_print("settings", 1, 1)
 
-    local start_x, start_y = 4, 6
+    local start_x, start_y = 4, 3
 
     shadow_rect(start_x -1, start_y + 12, start_x + 51, start_y + 52)
     shadow_print("project", start_x+4, start_y+10)
@@ -207,11 +207,11 @@ settings_pane = class:new {
     end
 
     -- draw logo
-    sspr(40, 0, 41, 17, 16, 62)
+    sspr(40, 0, 41, 17, 16, start_y + 56)
 
     -- draw the controls summary that has been baked in the spritesheet for token optimization
     -- below is the commented actual drawing code
-    sspr(8, 24, 63, 93, 63, 16)
+    sspr(8, 24, 63, 93, 63, start_y + 10)
 
     -- do
     --   local sx = 63

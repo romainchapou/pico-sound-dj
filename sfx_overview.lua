@@ -31,7 +31,7 @@ function make_sfx_widg(sfx_id)
     end,
 
     draw = function(_ENV, is_selected, show_setting_value, parameter_id)
-      local x, y = 5 + (sfx_id % 8)*15, 28 + (sfx_id\8) * 11
+      local x, y = 5 + (sfx_id % 8)*15, 21 + (sfx_id\8) * 11
 
       -- TODO funny but not great
       if not stat(57) and stat(46) == sfx_id then
