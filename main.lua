@@ -36,9 +36,11 @@ function handle_move_pane(dir, vert)
 
     if vert then
       prev_pane_dist_y = 128*dir
+      prev_pane_dist_x = 0
       current_pane_y = mid(1, current_pane_y+nudge(vert), 2)
     else
       prev_pane_dist_x = 128*dir
+      prev_pane_dist_y = 0
       current_pane_x = mid(1, current_pane_x+nudge(), 3)
     end
 
@@ -83,12 +85,15 @@ function _update60()
   key_handler:update() -- should be done last
 end
 
+function camera_dist(d)
+  return d == 0 and 0 or (d > 0 and 128 - d or -128-d)
+end
+
 function _draw()
   cls(7)
 
   if prev_pane_x and prev_pane_y then
-    camera(prev_pane_dist_x > 0 and 128 - prev_pane_dist_x or -128-prev_pane_dist_x,
-           prev_pane_dist_y > 0 and 128 - prev_pane_dist_y or -128-prev_pane_dist_y)
+    camera(camera_dist(prev_pane_dist_x), camera_dist(prev_pane_dist_y))
 
     panes[prev_pane_y][prev_pane_x]:draw()
     camera(-prev_pane_dist_x, -prev_pane_dist_y)
