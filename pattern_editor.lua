@@ -49,7 +49,6 @@ pattern_editor = class:new {
   update = function(_ENV)
     check_if_modification()
 
-    -- play/pause
     if btnp_once(6) then
       if btn(BTN_A) then
         if not multi_selection then
@@ -59,16 +58,11 @@ pattern_editor = class:new {
         return
       end
 
+      -- play/pause
       if is_sound_playing() then
         stop_all_sounds()
       else
-        -- TODO storing should be done not just here but every time we modify
-        -- any pattern (this would not keep in sync if the patterns are
-        -- modified while playing back the track)
-        -- TODO test but this should be good now
-        store_all_patterns_in_mem(_ENV)
-
-        music(btn(BTN_B) and cur_line or 0)
+        music(cur_line)
       end
     end
 

@@ -89,8 +89,6 @@ sfx_overview = class:new {
   end,
 
   update = function(_ENV)
-    check_if_modification()
-
     -- panes movements
     if handle_move_pane(1) or handle_move_pane(-1) or handle_move_pane(1, true) then
       return
@@ -105,6 +103,9 @@ sfx_overview = class:new {
 
       return
     end
+
+    -- only check if in lower panel (sfx widgets may be modified)
+    check_if_modification()
 
     if btnp_once(6) and not btn(BTN_A) then
       if is_sound_playing() then
