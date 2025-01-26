@@ -156,22 +156,33 @@ sfx_overview = class:new {
         send_msg "select mode"
         return
       end
+    end
 
-      if btn(BTN_A) and btnp_once(6) then
-        -- paste the selection
-        local i, max_sfx = 1, min(current_sfx+ nb_copied_sfx - 1, 63)
-        for s_id=current_sfx,max_sfx do
-          for j=0,67 do
-            poke(0x3200 + 68*s_id + j, copied_sfx[i])
-            i += 1
-          end
-        end
+    -- paste is available in multi selection
+    if btn(BTN_A) and btnp_once(6) then
+      -- paste the selection
+      local i = 1
+      local sfx_start, sfx_end = current_sfx, min(current_sfx+ nb_copied_sfx - 1, 63)
 
-        send_msg("pasted " .. max_sfx - current_sfx + 1 .. " sfx")
-
-        init(_ENV)
-        return
+      if multi_selection then
+        sfx_start, sfx_end = sel_lower, #copied_sfx == 0 and sel_lower-1 or sel_upper
       end
+
+      for s_id=sfx_start,sfx_end do
+        for j=0,67 do
+          -- rolling paste behaviour
+          poke(0x3200 + 68*s_id + j, copied_sfx[i])
+          i = (i == #copied_sfx) and 1 or i+1
+        end
+      end
+
+      send_msg("pasted " .. sfx_end - sfx_start + 1 .. " sfx")
+
+      current_sfx = sel_lower
+      multi_selection = false
+
+      init(_ENV)
+      return
     end
 
     for s_id=sel_lower,sel_upper do

@@ -166,9 +166,12 @@ sfx_editor = class:new {
   end,
 
   update_note_panel = function(_ENV)
-    if btnp_once(6) and btn(BTN_A) and not n_multi_selection then
+    if btnp_once(6) and btn(BTN_A) then
       paste_selection(_ENV)
-      notes[n_current_note]:play_note_preview()
+
+      if not n_multi_selection then
+        notes[n_current_note]:play_note_preview()
+      end
 
       return
     end
@@ -322,14 +325,27 @@ sfx_editor = class:new {
 
       send_msg "pasted whole sfx"
     else
-      local max_note = min(n_current_note+#copied_notes-1,32)
+      local note_start = n_current_note
+      local note_end = min(n_current_note+#copied_notes-1,32)
 
-      for i=n_current_note,max_note do
-        notes[i] = copy_note(copied_notes[i-n_current_note+1])
+      if n_multi_selection then
+        -- using a small hack with the copied_notes size to avoid pasting when no copied notes
+        note_start,note_end = n_selection_lower,#copied_notes == 0 and n_selection_lower-1 or n_selection_upper
       end
 
-      send_msg("pasted " .. max_note - n_current_note + 1 .. " note" .. s_if_plural(max_note))
+      for i=note_start,note_end do
+        -- In the case of multi selection, we do a "rolling paste", meaning
+        -- that we'll cycle through the copied notes as much as needed. This is
+        -- quite useful to quickly repeat the same note or selection of note on
+        -- the whole sfx or a given section.
+        notes[i] = copy_note(copied_notes[(i-note_start)% #copied_notes + 1])
+      end
+
+      send_msg("pasted " .. note_end - note_start + 1 .. " note" .. s_if_plural(note_end - note_start + 1))
     end
+
+    n_current_note = n_selection_lower
+    n_multi_selection = false
   end,
 
   copy_whole_sfx = function(_ENV)
