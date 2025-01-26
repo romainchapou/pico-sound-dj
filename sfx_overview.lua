@@ -33,11 +33,6 @@ function make_sfx_widg(sfx_id)
     draw = function(_ENV, is_selected, show_setting_value, parameter_id)
       local x, y = 5 + (sfx_id % 8)*15, 21 + (sfx_id\8) * 11
 
-      -- TODO funny but not great
-      if not stat(57) and stat(46) == sfx_id then
-        y += sin(time()) + 0.5
-      end
-
       local ret_func = is_empty and rect or rectfill
 
       local txt_color = 0
@@ -57,6 +52,13 @@ function make_sfx_widg(sfx_id)
 
       if show_setting_value then
         rectfill(x-1, y+1, x+13, y+7, bg_color)
+      end
+
+      for c=0,3 do
+        if stat(46+c) == sfx_id then
+          local play_x = x+(13/32)*stat(50+c)
+          line(play_x, y, play_x, y+8, 7)
+        end
       end
 
       local v_to_print = show_setting_value and sfx_settings[sfx_id+1].widgets[parameter_id].value
@@ -126,8 +128,15 @@ sfx_overview = class:new {
           return
         end
       end
-      if btnp "0" and current_sfx % 8 ~= 0 then current_sfx -= 1 end
-      if btnp "1" and current_sfx % 8 ~= 7 then current_sfx += 1 end
+
+      if btnp_once(0) or btnp_once(1) then
+        current_sfx += nudge()
+      elseif btnp "0" and current_sfx % 8 ~= 0 then
+        current_sfx -= 1
+      elseif btnp "1" and current_sfx % 8 ~= 7 then
+        current_sfx += 1
+      end
+
       if btnp "3" and current_sfx <= 55 then current_sfx += 8 end
 
       current_sfx = mid(0, current_sfx, 63)

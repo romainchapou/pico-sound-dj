@@ -156,3 +156,15 @@ end
 function print_centered(txt, x, y, col)
   print(txt, x - (4*#tostring(txt) - 1)/2+1, y, col)
 end
+
+function current_played_speed()
+  local m
+
+  for s=46,49 do
+    if stat(s) >= 0 then
+      m = max(sfx_settings[stat(s)+1].speed.value, m)
+    end
+  end
+
+  return m or "---"
+end

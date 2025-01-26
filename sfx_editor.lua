@@ -215,7 +215,7 @@ sfx_editor = class:new {
       n_sub_selection = mid(1, n_sub_selection, 4)
     end
 
-    n_current_note = (n_current_note-1)%32+1
+    n_current_note = (btnp_once(2) or btnp_once(3)) and (n_current_note-1)%32+1 or mid(1, n_current_note, 32)
 
     post_update(_ENV)
 
@@ -534,9 +534,10 @@ sfx_editor = class:new {
 
     local v = waveform_values[w_cur_col]
 
-    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), 64+v/wave_zoom.value
-    rect(cur_x_pos-1, start_y + cur_y_pos-1, cur_x_pos+1, start_y + cur_y_pos+1, editor_cursor_color)
-    pset(cur_x_pos, start_y + cur_y_pos, 7)
+    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), -start_y + 64+v/wave_zoom.value
+    pal(6, editor_cursor_color)
+    spr(13, cur_x_pos-1, start_y + cur_y_pos-1)
+    pal(6, 6)
 
     local print_str = tostr(v)
 

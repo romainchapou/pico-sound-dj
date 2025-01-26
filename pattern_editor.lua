@@ -26,6 +26,10 @@ pattern_editor = class:new {
     for i=1,64 do
       add(patterns, make_pattern_widget(i-1))
       patterns[i]:load_pattern_from_mem()
+
+      -- Hack using that the total number of sfx is the same as the total number of patterns
+      -- Note that this is really useful only for the speed display
+      sfx_settings[i]:load_from_mem()
     end
   end,
 
@@ -102,7 +106,7 @@ pattern_editor = class:new {
       -- from channel 0 to first btn widget
       cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
 
-      cur_line = mid(0, cur_line + nudge(true), 63)
+      cur_line = (btnp_once(2) or btnp_once(3)) and (cur_line + nudge(true)) % 64 or mid(0, cur_line + nudge(true), 63)
 
       if first_visible_pattern + 15 < cur_line then
         first_visible_pattern = cur_line - 15
@@ -165,12 +169,16 @@ pattern_editor = class:new {
 
     -- play infos
 
-    print("pt:", 104, 26, 6)
-    print(cur_playing_pattern >= 0 and cur_playing_pattern or "---", 116, 26, 0)
+    local pr = function(txt_left, txt_right, y_diff)
+      print(txt_left, 104, 44+y_diff, 6)
+      print(txt_right, 116, 44+y_diff, 0)
+    end
+
+    pr("pt:", cur_playing_pattern >= 0 and cur_playing_pattern or "---", -18)
+    pr("sp:", current_played_speed(), -12)
 
     for i=0,3 do
-      print("c" .. i .. ":", 104, 32 + 6*i, 6)
-      print(get_playing_note(i), 116, 32 + 6*i, 0)
+      pr("c" .. i .. ":", get_playing_note(i), 6*i)
     end
   end,
 
