@@ -75,8 +75,13 @@ pattern_editor = class:new {
       return
     end
 
-    if patterns[cur_line+1].is_channel_activated[cur_col+1] and handle_move_pane(1) then
-      sfx_overview.current_sfx = patterns[cur_line+1].channels[cur_col+1].value
+    if btn_b and btnp_once(1) then
+      if patterns[cur_line+1].is_channel_activated[cur_col+1] and handle_move_pane(1) then
+        sfx_overview.current_sfx = patterns[cur_line+1].channels[cur_col+1].value
+      else
+        send_msg("first add an sfx with 🅾️!", false)
+      end
+
       return
     end
 

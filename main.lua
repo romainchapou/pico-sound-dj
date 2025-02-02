@@ -99,7 +99,7 @@ function camera_dist(d)
 end
 
 function draw_minimap_square(x, y, selected, sprite)
-  rectfill(x-1, y-1, x+16, y+8, 7) -- going more to the right in case of a long filname
+  rectfill(x-1, y-1, x+8, y+8, 7)
   rectfill(x, y, x+7, y+7, selected and 9 or 6)
   spr(sprite, x, y)
 end

@@ -1,5 +1,5 @@
 function make_sfx_widg(sfx_id)
-  sfx_settings[sfx_id+1]:load_from_mem()
+  sfx_settings[sfx_id+1]:load_from_mem() -- TODO could save sfx_settings[sfx_id+1] as this_sfx_settings
 
   local sfx_addr, empty = 0x3200+68*sfx_id, true
 
@@ -21,7 +21,7 @@ function make_sfx_widg(sfx_id)
         sfx_overview:cut_selected_sfx()
       end
 
-      sfx_settings[sfx_id+1]:store_in_mem(false)
+      sfx_settings[sfx_id+1]:store_in_mem()
     end,
 
     clear = function(_ENV)

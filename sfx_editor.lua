@@ -62,16 +62,17 @@ sfx_editor = class:new {
     ----- settings widgets, mostly shared between the two modes -----
 
     waveform_edit_btn = make_btn_pushed_widget("∧", function()
-      local old_waveform_edit_mode = this_sfx_settings.waveform_edit_mode
+      -- dump the current representation of the sfx (notes or waveform) in the memory
+      sfx_editor:store_sfx_in_memory()
 
-      this_sfx_settings.waveform_edit_mode = not old_waveform_edit_mode
-      sfx_editor:store_sfx_in_memory(old_waveform_edit_mode)
-      sfx_editor:load_sfx_from_memory()
-
-      if not old_waveform_edit_mode then
+      this_sfx_settings.waveform_edit_mode = not this_sfx_settings.waveform_edit_mode
+      if this_sfx_settings.waveform_edit_mode then
         -- entering waveform edit mode, reset the bass value
         this_sfx_settings.wave_do_bass(0)
       end
+      this_sfx_settings:store_in_mem()
+
+      sfx_editor:load_sfx_from_memory()
     end)
 
     wave_zoom    = make_named_input_widget("zoom", 1, 1, 3)
@@ -124,7 +125,7 @@ sfx_editor = class:new {
 
     -- sync the RAM representation with ours every frame.
     -- not the most efficient but simpler than the alternative
-    store_sfx_in_memory(_ENV, this_sfx_settings.waveform_edit_mode)
+    store_sfx_in_memory(_ENV)
   end,
 
   draw = function(_ENV)
@@ -145,7 +146,7 @@ sfx_editor = class:new {
       for i=1,6 do
         local b = bool_to_num(i>3)
         -- bottom settings for wave edition (noise to edit mode)
-        settings_widgets[i+3]:draw(i*33 - 28 - 99*b, 113 + 7*b,
+        settings_widgets[i+3]:draw(i*32 - 27 - 96*b, 113 + 7*b,
                                    w_panel_selection >= 2 and
                                    w_bottom_settings_selection == i)
       end
@@ -360,7 +361,7 @@ sfx_editor = class:new {
   play_sfx = function(_ENV)
     if this_sfx_settings.waveform_edit_mode then
       local waveform_preview = make_note_widget()
-      waveform_preview.pitch(24)
+      waveform_preview.pitch(24) -- C2
       waveform_preview.waveform(8 + sfx_id)
       waveform_preview.volume(5)
 
@@ -394,12 +395,12 @@ sfx_editor = class:new {
 
   -- IO / memory synchronisation
 
-  store_sfx_in_memory = function(_ENV, store_waveform)
+  store_sfx_in_memory = function(_ENV)
     -- compute address of sfx
     local sfxaddr = sfx_addr
 
     for i=0,31 do
-      if store_waveform then
+      if this_sfx_settings.waveform_edit_mode then
         for j=0,1 do
           local v = waveform_values[2*i+j+1]
           poke(sfxaddr+j, v < 0 and v + 256 or v)
@@ -410,7 +411,7 @@ sfx_editor = class:new {
       sfxaddr += 2
     end
 
-    sfx_settings[sfx_id+1]:store_in_mem(store_waveform, sfxaddr)
+    this_sfx_settings:store_in_mem()
   end,
 
   load_sfx_from_memory = function(_ENV)
@@ -431,7 +432,7 @@ sfx_editor = class:new {
       sfxaddr += 2
     end
 
-    sfx_settings[sfx_id+1]:load_from_mem()
+    this_sfx_settings:load_from_mem()
   end,
 
   -- draw functions

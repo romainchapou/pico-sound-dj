@@ -39,6 +39,12 @@ settings_pane = class:new {
       end
 
       post_load_file(chosen_file)
+
+      stop_all_sounds()
+      pattern_editor.cur_line = 0
+      pattern_editor.first_visible_pattern = 0
+      pattern_editor.cur_col = 0
+      sfx_overview.current_sfx = 0
     end
 
     local action_after_check_unsaved = function(act_func)
@@ -185,7 +191,9 @@ settings_pane = class:new {
   end,
 
   formatted_project_file = function(_ENV)
-    return project_file and basename(project_file) or "<scratch>"
+    -- croping the file name to be max 27 letters long to avoid it looking
+    -- weird if it goes under the minimap for long filenames
+    return project_file and sub(basename(project_file), 1, 27) or "<scratch>"
   end,
 
   draw = function(_ENV)

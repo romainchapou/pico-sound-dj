@@ -45,6 +45,10 @@ for sfx_id=0,63 do
     end,
 
     store_in_mem = function(_ENV, store_waveform, opt_addr)
+      if store_waveform == nil then
+        store_waveform = waveform_edit_mode
+      end
+
       local addr = opt_addr or 0x3200 + 68*sfx_id + 64
 
       -- editor mode and filter switches
@@ -58,7 +62,7 @@ for sfx_id=0,63 do
       poke(addr+1, store_waveform and (speed.value & 0b11111110)
                    + wave_do_bass.value or speed.value)
 
-      poke(addr+2, loop_in.value + bool_to_num(waveform_edit_mode)*128)
+      poke(addr+2, loop_in.value + bool_to_num(store_waveform)*128)
       poke(addr+3, loop_out.value)
     end
   })

@@ -21,7 +21,8 @@ file_chooser = class:new {
   update = function(_ENV)
     if not active then return end
 
-    cur_line = mid1(cur_line + nudge_v, #dir_files)
+    cur_line += nudge_v
+    cur_line = (btnp_once(2) or btnp_once(3)) and (cur_line-1)% #dir_files+1 or mid1(cur_line, #dir_files)
 
     if first_visible_line + NB_SHOWN_FILES < cur_line then
       first_visible_line = cur_line - NB_SHOWN_FILES
