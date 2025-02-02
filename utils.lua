@@ -3,7 +3,6 @@
 --[[const]] CHANNEL_X_OFFSET = 16
 
 NOTE_NAMES = split "c,c#,d,d#,e,f,f#,g,g#,a,a#,b"
-HEX_VALUES = "0123456789abcdef"
 INSTRUMENT_NAMES = split "triangle,tilted saw,saw,square,pulse,organ,noise,phaser"
 EFFECT_NAMES = split "no effect,slide,vibrato,drop,fade in,fade out,arp fast,arp slow"
 
@@ -49,18 +48,6 @@ function draw_win_bg(x1, y1, x2, y2)
   rect(x1, y1, x2, y2, 6)
 end
 
-function nudge(vert)
-  if vert then
-    if btnp "2" then return -1 end
-    if btnp "3" then return  1 end
-  else
-    if btnp "0" then return -1 end
-    if btnp "1" then return  1 end
-  end
-
-  return 0
-end
-
 function pitch_to_str(val)
   local name, oct = NOTE_NAMES[val % 12 + 1], val \ 12
 
@@ -90,7 +77,7 @@ end
 
 function check_if_modification()
   -- a bit over reactive
-  if btn(BTN_A) then
+  if btn_a then
     settings_pane.has_unsaved_modifications = true
   end
 end
@@ -149,10 +136,6 @@ function basename(filepath)
   return path[#path]
 end
 
-function no_action_button()
-  return not btn(BTN_B) and not btn(BTN_A) 
-end
-
 function print_centered(txt, x, y, col)
   print(txt, x - (4*#tostring(txt) - 1)/2+1, y, col)
 end
@@ -167,4 +150,8 @@ function current_played_speed()
   end
 
   return m or "---"
+end
+
+function mid1(a, b)
+  return mid(1, a, b)
 end

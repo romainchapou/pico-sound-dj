@@ -39,7 +39,7 @@ proj_create_win = class:new {
       timer %= 60
 
       -- remove char with btn X
-      if btnp_once(BTN_B) then
+      if btnp_once "BTN_B" then
         if new_name == "" then
           active = false
         end
@@ -58,7 +58,7 @@ proj_create_win = class:new {
           if btnp "2" and letter_i >= 10 then letter_i -= 10 end
           if btnp "3" then letter_i += 10 end
 
-          letter_i = mid(0, letter_i, 39)
+          letter_i = mid(letter_i, 39)
 
           local letter = letter_widgs[letter_i+1]:update()
 
@@ -72,7 +72,7 @@ proj_create_win = class:new {
         if btnp "2" then
           panel_i -= 1
         else
-          conf_btn_i = mid(0, conf_btn_i + nudge(), 1)
+          conf_btn_i = mid(conf_btn_i + nudge_h, 1)
 
           if validate_widgs[conf_btn_i+1]:update() then
             active = false
@@ -80,7 +80,7 @@ proj_create_win = class:new {
         end
       end
 
-      panel_i = mid(1, panel_i, 2)
+      panel_i = mid1(panel_i, 2)
     end
   end,
 

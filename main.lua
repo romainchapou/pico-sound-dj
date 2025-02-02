@@ -10,7 +10,7 @@ function _init()
 
   current_pane_x, current_pane_y = 1, 2
 
-  prev_pane_x, prev_pane_y = nil, nil
+  -- prev_pane_x, prev_pane_y = nil, nil
 
   prev_pane_dist_x, prev_pane_dist_y = 0, 0
 
@@ -31,17 +31,17 @@ end
 -- dir : -1 for left/top, +1 for right/bottom
 -- returns true if input handled
 function handle_move_pane(dir, vert)
-  if btn(BTN_B) and btnp_once(max(dir, 0) + bool_to_num(vert)*2) then
+  if btn_b and btnp_once(max(dir) + bool_to_num(vert)*2) then
     prev_pane_x,prev_pane_y = current_pane_x,current_pane_y
 
     if vert then
       prev_pane_dist_y = 128*dir
       prev_pane_dist_x = 0
-      current_pane_y = mid(1, current_pane_y+nudge(vert), 2)
+      current_pane_y = mid1(current_pane_y+nudge_v, 2)
     else
       prev_pane_dist_x = 128*dir
       prev_pane_dist_y = 0
-      current_pane_x = mid(1, current_pane_x+nudge(), 3)
+      current_pane_x = mid1(current_pane_x+nudge_h, 3)
     end
 
     scheduled_for_init = true
@@ -54,6 +54,15 @@ function _update60()
   -- disable the default behaviour of the start button (which is to bring up
   -- the pause menu) so we can use it for playback launch
   poke(0x5f30, 1)
+
+  -- some dirty token optimization
+  btn_a = btn(BTN_A)
+  btn_b = btn(BTN_B)
+  n_btn_a = not btn_a
+  no_action_button = btn() & 0b110000 == 0
+
+  nudge_h = btnp "0" and -1 or (btnp "1" and 1 or 0)
+  nudge_v = btnp "2" and -1 or (btnp "3" and 1 or 0)
 
   -- pane movement animation
   if prev_pane_x or prev_pane_y then

@@ -91,7 +91,7 @@ sfx_editor = class:new {
     check_if_modification()
 
     -- pane movement
-    if btn(BTN_B) then
+    if btn_b then
       if handle_move_pane(-1) then
         restore_neighbour_sfx(_ENV)
         return
@@ -102,7 +102,7 @@ sfx_editor = class:new {
     end
 
     -- play/pause on this sfx
-    if btnp_once(6) and not btn(BTN_A) then
+    if btnp_once(6) and n_btn_a then
       if is_sound_playing() then
         stop_all_sounds()
       else
@@ -166,7 +166,7 @@ sfx_editor = class:new {
   end,
 
   update_note_panel = function(_ENV)
-    if btnp_once(6) and btn(BTN_A) then
+    if btnp_once(6) and btn_a then
       paste_selection(_ENV)
 
       if not n_multi_selection then
@@ -194,9 +194,9 @@ sfx_editor = class:new {
     end
 
     -- moving the cursor around
-    if no_action_button() then
-      n_sub_selection += nudge()
-      n_current_note += nudge(true)
+    if no_action_button then
+      n_sub_selection += nudge_h
+      n_current_note += nudge_v
 
       -- TODO see if we can handle the n_multi_selection case better
       if not n_multi_selection then
@@ -212,10 +212,10 @@ sfx_editor = class:new {
         end
       end
 
-      n_sub_selection = mid(1, n_sub_selection, 4)
+      n_sub_selection = mid1(n_sub_selection, 4)
     end
 
-    n_current_note = (btnp_once(2) or btnp_once(3)) and (n_current_note-1)%32+1 or mid(1, n_current_note, 32)
+    n_current_note = (btnp_once(2) or btnp_once(3)) and (n_current_note-1)%32+1 or mid1(n_current_note, 32)
 
     post_update(_ENV)
 
@@ -234,33 +234,33 @@ sfx_editor = class:new {
   end,
 
   update_waveform = function(_ENV)
-    if btn(BTN_B) then return end
+    if btn_b then return end
 
-    if not btn(BTN_A) then
-      w_panel_selection = mid(0, w_panel_selection + nudge(true), 3)
+    if n_btn_a then
+      w_panel_selection = mid(w_panel_selection + nudge_v, 3)
     end
 
     if w_panel_selection == 0 then
-      if not btn(BTN_A) then
-        w_top_settings_selection = mid(1, w_top_settings_selection + nudge(), 3)
+      if n_btn_a then
+        w_top_settings_selection = mid1(w_top_settings_selection + nudge_h, 3)
       end
 
       w_sfx_settings_top[w_top_settings_selection]:update()
 
     elseif w_panel_selection == 1 then
       -- actual waveform update
-      local id_to_change = mid(1, w_cur_col + nudge(), 64)
+      local id_to_change = mid1(w_cur_col + nudge_h, 64)
 
-      if btn(BTN_A) then
+      if btn_a then
         waveform_values[id_to_change] = mid(-128,
-                                            waveform_values[w_cur_col] + nudge(true),
+                                            waveform_values[w_cur_col] + nudge_v,
                                             127)
       end
 
       w_cur_col = id_to_change
     else
-      if not btn(BTN_A) then
-        w_bottom_settings_col = mid(1, w_bottom_settings_col + nudge(), 3)
+      if n_btn_a then
+        w_bottom_settings_col = mid1(w_bottom_settings_col + nudge_h, 3)
       end
 
       w_bottom_settings_selection = w_bottom_settings_col + (w_panel_selection == 3 and 3 or 0)
@@ -271,7 +271,7 @@ sfx_editor = class:new {
   end,
 
   update_settings_panel = function(_ENV)
-    if btnp_once(6) and btn(BTN_A) and #whole_copy ~= 0 then
+    if btnp_once(6) and btn_a and #whole_copy ~= 0 then
       paste_selection(_ENV)
       return
     end
@@ -283,10 +283,10 @@ sfx_editor = class:new {
 
     settings_widgets[n_settings_selection+1]:update()
 
-    if no_action_button() then
+    if no_action_button then
       if btnp "0" then n_panel_selection = 0 end
 
-      n_settings_selection = mid(0, n_settings_selection + nudge(true), #settings_widgets-1)
+      n_settings_selection = mid(n_settings_selection + nudge_v, #settings_widgets-1)
     end
   end,
 
@@ -372,12 +372,12 @@ sfx_editor = class:new {
       return
     end
 
-    sfx(sfx_editor.sfx_id, 0, btn(BTN_B) and n_current_note-1 or 0)
+    sfx(sfx_editor.sfx_id, 0, btn_b and n_current_note-1 or 0)
   end,
 
   change_sfx = function(_ENV, new_sfx_id)
     n_multi_selection = false
-    new_sfx_id = mid(0, new_sfx_id, 63)
+    new_sfx_id = mid(new_sfx_id, 63)
 
     if new_sfx_id == sfx_id then return end
 
@@ -543,7 +543,7 @@ sfx_editor = class:new {
 
     if abs(v) > 43*wave_zoom.value and w_panel_selection == 1 then
       local px, py = cur_x_pos - #print_str*2+1, v <= 0 and 67 + start_y or 58 + start_y
-      px = mid(0, px, 129 - #print_str*4)
+      px = mid(px, 129 - #print_str*4)
       rectfill(px-1, py-1, px + #print_str*4 - 1, py+5, 7)
       print(v, px, py, editor_cursor_color)
     end

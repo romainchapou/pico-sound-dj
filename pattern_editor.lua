@@ -54,7 +54,7 @@ pattern_editor = class:new {
     check_if_modification()
 
     if btnp_once(6) then
-      if btn(BTN_A) then
+      if btn_a then
         if not multi_selection then
           paste_selected_patterns(_ENV)
         end
@@ -92,7 +92,7 @@ pattern_editor = class:new {
         return
       end
     else
-      if btnp_once(BTN_B) then
+      if btnp_once "BTN_B" then
         copy_selected_patterns(_ENV)
         return
       elseif btn_double_press(BTN_A) then
@@ -102,11 +102,11 @@ pattern_editor = class:new {
     end
 
 
-    if no_action_button() then
+    if no_action_button then
       -- from channel 0 to first btn widget
-      cur_col = mid(0, cur_col + nudge(), multi_selection and 4 or 6)
+      cur_col = mid(cur_col + nudge_h, multi_selection and 4 or 6)
 
-      cur_line = (btnp_once(2) or btnp_once(3)) and (cur_line + nudge(true)) % 64 or mid(0, cur_line + nudge(true), 63)
+      cur_line = (btnp_once(2) or btnp_once(3)) and (cur_line + nudge_v) % 64 or mid(cur_line + nudge_v, 63)
 
       if first_visible_pattern + 15 < cur_line then
         first_visible_pattern = cur_line - 15

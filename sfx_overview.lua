@@ -17,7 +17,7 @@ function make_sfx_widg(sfx_id)
     update = function(_ENV, parameter_id)
       sfx_settings[sfx_id+1].widgets[parameter_id]:update()
 
-      if not sfx_overview.multi_selection and btn(BTN_B) and btnp_once(BTN_A) then
+      if not sfx_overview.multi_selection and btn_b and btnp_once "BTN_A" then
         sfx_overview:cut_selected_sfx()
       end
 
@@ -99,7 +99,7 @@ sfx_overview = class:new {
     if panel_selection == 1 then
       parameter_select_widg:update()
 
-      if no_action_button() and btnp "3" then
+      if no_action_button and btnp "3" then
         panel_selection = 2
       end
 
@@ -109,7 +109,7 @@ sfx_overview = class:new {
     -- only check if in lower panel (sfx widgets may be modified)
     check_if_modification()
 
-    if btnp_once(6) and not btn(BTN_A) then
+    if btnp_once(6) and n_btn_a then
       if is_sound_playing() then
         stop_all_sounds()
       else
@@ -119,7 +119,7 @@ sfx_overview = class:new {
       return
     end
 
-    if no_action_button() then
+    if no_action_button then
       if btnp "2" then
         if current_sfx >= 8 then
           current_sfx -= 8
@@ -130,7 +130,7 @@ sfx_overview = class:new {
       end
 
       if btnp_once(0) or btnp_once(1) then
-        current_sfx += nudge()
+        current_sfx += nudge_h
       elseif btnp "0" and current_sfx % 8 ~= 0 then
         current_sfx -= 1
       elseif btnp "1" and current_sfx % 8 ~= 7 then
@@ -139,14 +139,14 @@ sfx_overview = class:new {
 
       if btnp "3" and current_sfx <= 55 then current_sfx += 8 end
 
-      current_sfx = mid(0, current_sfx, 63)
+      current_sfx = mid(current_sfx, 63)
     end
 
     if multi_selection then
       sel_upper = max(sel_start, current_sfx)
       sel_lower = min(sel_start, current_sfx)
 
-      if btnp_once(BTN_B) then
+      if btnp_once "BTN_B" then
         copy_selected_sfx(_ENV)
         return
       end
@@ -168,7 +168,7 @@ sfx_overview = class:new {
     end
 
     -- paste is available in multi selection
-    if btn(BTN_A) and btnp_once(6) then
+    if btn_a and btnp_once(6) then
       -- paste the selection
       local i = 1
       local sfx_start, sfx_end = current_sfx, min(current_sfx+ nb_copied_sfx - 1, 63)
@@ -198,7 +198,7 @@ sfx_overview = class:new {
       sfx_widgets[s_id+1]:update(parameter_select_widg.value)
     end
 
-    if btn(BTN_A) and btnp() & 0b1111 ~= 0 then
+    if btn_a and btnp() & 0b1111 ~= 0 then
       send_msg("changed " .. SFX_PARAMS[parameter_select_widg.value] ..
                " for sfx " .. format_select_range(_ENV), false)
     end
@@ -227,13 +227,13 @@ sfx_overview = class:new {
   draw = function(_ENV)
     shadow_print("sfx overview", 1, 1)
 
-    parameter_select_widg:draw(2, 12, panel_selection == 1 or btn(BTN_A))
+    parameter_select_widg:draw(2, 12, panel_selection == 1 or btn_a)
 
     for w in all(sfx_widgets) do
       local is_in_selection = panel_selection == 2 and is_in_range(w.sfx_id, sel_lower, sel_upper)
 
       w:draw(is_in_selection,
-             btn(BTN_A) and (is_in_selection or panel_selection == 1),
+             btn_a and (is_in_selection or panel_selection == 1),
              parameter_select_widg.value)
     end
   end

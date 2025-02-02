@@ -73,8 +73,8 @@ function make_note_widget()
       end
 
       if not sfx_editor.n_multi_selection then
-        if btn(BTN_B) then
-          if btnp_once(BTN_A) then
+        if btn_b then
+          if btnp_once "BTN_A" then
             -- cut the selection by copying its value to last_edited_note
             sfx_editor.last_edited_note = make_note_widget()
             sfx_editor.last_edited_note:copy_values(_ENV)

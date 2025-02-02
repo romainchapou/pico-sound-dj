@@ -18,9 +18,9 @@ confirm_pop_up = class:new {
 
   update = function(_ENV)
     if active then
-      conf_btn_i = mid(1, conf_btn_i + nudge(), 2)
+      conf_btn_i = mid1(conf_btn_i + nudge_h, 2)
 
-      if sub_widgs[conf_btn_i]:update() or btnp_once(BTN_B) then
+      if sub_widgs[conf_btn_i]:update() or btnp_once "BTN_B" then
         active = false
       end
     end

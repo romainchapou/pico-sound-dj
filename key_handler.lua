@@ -81,6 +81,7 @@ key_handler = class:new {
 }
 
 function btnp_once(val, dont_reset_sequence)
+  val = val == "BTN_A" and BTN_A or (val == "BTN_B" and BTN_B) or val
   local ret = btn(val) and not key_handler.last_frame_btn[val]
 
   if ret and not dont_reset_sequence then

@@ -4,13 +4,13 @@ message_panel = class:new {
   important = false,
 
   update = function(_ENV)
-    ttl = max(0, ttl-1)
+    ttl = max(ttl-1)
 
     if ttl == 0 then important = false end
   end,
 
   draw = function(_ENV)
-    local y_diff = max(0, 10 - ttl)
+    local y_diff = max(10 - ttl)
 
     if ttl > 0 then
       rectfill(0, 121+y_diff, important and 127 or 4*#cur_msg, 127+y_diff, important and 9 or 7)
