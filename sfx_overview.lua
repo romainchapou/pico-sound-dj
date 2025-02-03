@@ -1,5 +1,7 @@
 function make_sfx_widg(sfx_id)
-  sfx_settings[sfx_id+1]:load_from_mem() -- TODO could save sfx_settings[sfx_id+1] as this_sfx_settings
+  local this_sfx_settings = sfx_settings[sfx_id+1]
+
+  this_sfx_settings:load_from_mem()
 
   local sfx_addr, empty = 0x3200+68*sfx_id, true
 
@@ -15,19 +17,19 @@ function make_sfx_widg(sfx_id)
     is_empty = empty,
 
     update = function(_ENV, parameter_id)
-      sfx_settings[sfx_id+1].widgets[parameter_id]:update()
+      this_sfx_settings.widgets[parameter_id]:update()
 
       if not sfx_overview.multi_selection and btn_b and btnp_once "BTN_A" then
         sfx_overview:cut_selected_sfx()
       end
 
-      sfx_settings[sfx_id+1]:store_in_mem()
+      this_sfx_settings:store_in_mem()
     end,
 
     clear = function(_ENV)
       reload(sfx_addr, sfx_addr, 68)
       is_empty = true
-      sfx_settings[sfx_id+1]:load_from_mem()
+      this_sfx_settings:load_from_mem()
     end,
 
     draw = function(_ENV, is_selected, show_setting_value, parameter_id)
@@ -61,7 +63,7 @@ function make_sfx_widg(sfx_id)
         end
       end
 
-      local v_to_print = show_setting_value and sfx_settings[sfx_id+1].widgets[parameter_id].value
+      local v_to_print = show_setting_value and this_sfx_settings.widgets[parameter_id].value
                          or two_digit_number_str(sfx_id)
 
       print_centered(v_to_print, x+6, y+2, txt_color)

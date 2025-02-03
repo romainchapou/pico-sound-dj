@@ -12,7 +12,6 @@ pattern_editor = class:new {
   init = function(_ENV)
     multi_selection = false
 
-    -- TODO @Unsure about those variable names
     sel_start_line = 0
     sel_start_col = 0
 
@@ -124,7 +123,7 @@ pattern_editor = class:new {
 
     for pat_line=sel_line_lower,sel_line_upper do
       for pat_col=sel_col_lower,sel_col_upper do
-        patterns[pat_line+1]:update(pat_col)
+        patterns[pat_line+1]:update(pat_col+1)
       end
     end
   end,

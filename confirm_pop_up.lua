@@ -1,5 +1,3 @@
--- could @Refactor a lot with proj_create_win
-
 confirm_pop_up = class:new {
   init = function(_ENV, text, on_confirm)
     txt = text
