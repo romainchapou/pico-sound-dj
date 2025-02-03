@@ -10,6 +10,7 @@ sfx_editor = class:new {
   copied_notes = {},
   whole_copy = {},
   last_edited_note = make_last_edited_note(),
+  n_current_note = 1,
 
   init = function(_ENV)
     sfx_id = sfx_overview.current_sfx
@@ -36,7 +37,6 @@ sfx_editor = class:new {
 
     n_multi_selection = false
 
-    n_current_note = 1
     n_selection_start = 1
 
     n_selection_upper = 1
@@ -365,10 +365,16 @@ sfx_editor = class:new {
       waveform_preview.waveform(8 + sfx_id)
       waveform_preview.volume(5)
 
-      local saved_speed = this_sfx_settings.speed.value
+      -- temporarily reset all sfx settings so that
+      -- they do not impact the preview playback
+      for w in all(this_sfx_settings.widgets) do
+        w(0)
+      end
       this_sfx_settings.speed(32)
+
       waveform_preview:play_note_preview()
-      this_sfx_settings.speed(saved_speed)
+
+      this_sfx_settings:load_from_mem()
 
       return
     end
@@ -471,7 +477,10 @@ sfx_editor = class:new {
 
                          -- test if next note has slide
                          next_note and next_note.effect.value == 1
-                                   and next_note.volume.value > 0)
+                                   and next_note.volume.value > 0,
+
+                         -- test if previous note has volume
+                        notes[i] and notes[i].volume.value > 0)
     end
 
     -- draw the playhead
@@ -507,7 +516,7 @@ sfx_editor = class:new {
   end,
 
   draw_waveform_editor = function(_ENV)
-    local start_y = -2
+    local start_y, middle_y = -2, 62
 
     function is_top_selected(i)
       return w_panel_selection == 0 and w_top_settings_selection == i
@@ -521,11 +530,11 @@ sfx_editor = class:new {
 
     local editor_cursor_color = w_panel_selection == 1 and 9 or 6
 
-    clip(0, start_y + 21, 128, start_y + 87)
+    clip(0, start_y + 21, 128, start_y + 89)
 
     for i=1,64 do
       local xpos = 2*(i-1)
-      line(xpos, 64, xpos, 64+waveform_values[i] / wave_zoom.value,
+      line(xpos, middle_y, xpos, middle_y+waveform_values[i] / wave_zoom.value,
            i == w_cur_col and editor_cursor_color or 6)
 
       if abs(waveform_values[i]) > 43*wave_zoom.value then
@@ -535,7 +544,7 @@ sfx_editor = class:new {
 
     local v = waveform_values[w_cur_col]
 
-    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), -start_y + 64+v/wave_zoom.value
+    local cur_x_pos, cur_y_pos = 2*(w_cur_col-1), -start_y + middle_y+v/wave_zoom.value
     pal(6, editor_cursor_color)
     spr(13, cur_x_pos-1, start_y + cur_y_pos-1)
     pal(6, 6)

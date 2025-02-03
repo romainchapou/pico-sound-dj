@@ -121,15 +121,19 @@ function make_note_widget()
       end
     end,
 
-    draw = function(_ENV, x, y, is_note_selected, sub_selection, next_note_has_slide)
-      if next_note_has_slide and volume.value == 0 then
+    draw = function(_ENV, x, y, is_note_selected, sub_selection,
+                    next_note_has_slide, prev_note_has_volume)
+
+      local is_ghost_note = next_note_has_slide or (effect.value == 1 and prev_note_has_volume)
+
+      if is_ghost_note and volume.value == 0 then
         pal(0, 6)
       end
 
       for i=1,4 do
         get_sub_widgets(_ENV)[i]:draw(x + (i > 1 and 6+i*6 or 0), y,
                                       is_note_selected and sub_selection == i,
-                                      volume.value > 0 or next_note_has_slide)
+                                      volume.value > 0 or is_ghost_note)
       end
 
       pal(0, 0)

@@ -13,7 +13,11 @@ message_panel = class:new {
     local y_diff = max(10 - ttl)
 
     if ttl > 0 then
-      rectfill(0, 121+y_diff, important and 127 or 4*#cur_msg, 127+y_diff, important and 9 or 7)
+      rectfill(0,
+               121+y_diff,
+               important and 127 or max(current_pane_y == 2 and 100 or 109, 4*#cur_msg),
+               127+y_diff,
+               important and 9 or 7)
       print(cur_msg, 1, 122+y_diff, important and 0 or 6)
     end
   end
