@@ -51,6 +51,16 @@ function make_note_widget()
         return
       end
 
+      -- @Improve: this whole mechanism using the neighbour sfx to store
+      -- temporary data for preview playback is a bit dangerous, as saving the
+      -- project while the sfx_editor is open would lead to a corruption. We
+      -- could simplify things and just use the parameters of the sfx command
+      -- to only play the note we are interested in in the sfx, but this
+      -- wouldn't work for the special case of previewing a waveform. In that
+      -- case, I don't have an idea of how to do a preview without this hack.
+      --
+      -- As this behaviour is well tested and that there is no code path to
+      -- save outside of the settings_pane, I'm leaving this as is for now.
       local neighbour_addr = 0x3200 + 68*sfx_editor.neighbour_sfx_id
       store_in_mem(_ENV, neighbour_addr) -- store to first note of neighbour sfx
 

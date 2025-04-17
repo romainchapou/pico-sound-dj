@@ -93,8 +93,8 @@ sfx_overview = class:new {
   end,
 
   update = function(_ENV)
-    -- panes movements
-    if handle_move_pane(1) or handle_move_pane(-1) or handle_move_pane(1, true) then
+    -- panes left and down movements
+    if handle_move_pane(-1) or handle_move_pane(1, true) then
       return
     end
 
@@ -105,6 +105,12 @@ sfx_overview = class:new {
         panel_selection = 2
       end
 
+      return
+    end
+
+    -- pane right (enter sfx) movement, should only work if a sfx is selected,
+    -- meaning we are on panel_selection 1
+    if handle_move_pane(1) then
       return
     end
 
