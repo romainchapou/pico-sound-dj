@@ -10,7 +10,7 @@ function make_pattern_widget(pattern_id)
   local pattern_channels = {}
 
   for i=1,4 do
-    add(pattern_channels, make_input_widget(0, 0, 63, 16, channel_draw))
+    add(pattern_channels, make_input_widget(0, 0, 63, 8, channel_draw))
   end
 
   return class:new {
