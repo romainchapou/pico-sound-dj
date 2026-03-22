@@ -107,7 +107,7 @@ settings_pane = class:new {
         base_widget_udpate(_ENV)
 
         if value ~= prev_value then
-          send_msg "❎ and ⬅️ swaped"
+          send_msg "❎ and ⬅️ swapped"
         end
 
         apply_btn_swap_setting(value)

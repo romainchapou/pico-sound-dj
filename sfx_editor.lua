@@ -11,6 +11,9 @@ sfx_editor = class:new {
   whole_copy = {},
   last_edited_note = make_last_edited_note(),
   n_current_note = 1,
+  w_cur_col = 32,
+
+  wave_zoom = make_named_input_widget("zoom", 1, 1, 3),
 
   init = function(_ENV)
     sfx_id = sfx_overview.current_sfx
@@ -56,8 +59,6 @@ sfx_editor = class:new {
     w_bottom_settings_col = 1
     w_bottom_settings_selection = 1
 
-    w_cur_col = 32
-
 
     ----- settings widgets, mostly shared between the two modes -----
 
@@ -74,8 +75,6 @@ sfx_editor = class:new {
 
       sfx_editor:load_sfx_from_memory()
     end)
-
-    wave_zoom    = make_named_input_widget("zoom", 1, 1, 3)
 
     w_sfx_settings_top = {
       wave_zoom, this_sfx_settings.wave_do_bass, waveform_edit_btn
@@ -250,7 +249,7 @@ sfx_editor = class:new {
 
     elseif w_panel_selection == 1 then
       -- actual waveform update
-      local id_to_change = mid1(w_cur_col + nudge_h, 64)
+      local id_to_change = (w_cur_col + nudge_h - 1) % 64 + 1
 
       if btn_a then
         waveform_values[id_to_change] = mid(-128,
