@@ -116,11 +116,11 @@ Hold `X` and press `Up` to enter the SFX Overview screen.
 
 ### SFX Overview screen
 
-The SFX Overview screens shows the 64 SFX of your project. Using it, you can easely see which SFXs are defined and which are free, launch the edition of any of those SFX, copy and move around SFXs, and quickly edit your SFX settings with multi editing.
+The SFX Overview screens shows the 64 SFX of your project. Using it, you can easily see which SFXs are defined and which are free, launch the edition of any of those SFX, copy and move around SFXs, and quickly edit your SFX settings with multi editing.
 
 [img]/media/14850/psdj_min p8_14.png[/img]
 
-If your cursor is on the top row containing the parameter, you can hold `O` to see the value of the current parameter displyad for each of your project's SFX. By holding `O` and pressing `Left/Right`, you can change the current parameter.
+If your cursor is on the top row containing the parameter, you can hold `O` to see the value of the current parameter displayed for each of your project's SFX. By holding `O` and pressing `Left/Right`, you can change the current parameter.
 
 [img]/media/14850/psdj_min p8_17.png[/img]
 
@@ -218,6 +218,7 @@ To retrieve the music you made using PSDJ in your pico8 games, you have multiple
 
 ## Credits
 
+- @thesailor for the cover art
 - [Little Sound DJ](https://www.littlesounddj.com/lsd/index.php) by Johan Kotlinski, which was a big design inspiration for the whole structure and button mappings of PSDJ
 - [shrinko8](https://github.com/thisismypassport/shrinko8) by @thisismypassword, without which I wouldn't have been able to put as many features in PSDJ
 - [This post on waveform instrument encoding](https://www.lexaloffle.com/bbs/?tid=45247) by @ridgek and the [pico8 wiki page on the memory layout for the music/sfx](https://pico-8.fandom.com/wiki/Memory#Music)
@@ -234,11 +235,14 @@ To retrieve the music you made using PSDJ in your pico8 games, you have multiple
     - the current playback speed is now shown in the Patterns screen
     - the minimap has been moved to the bottom right corner
     - a lot of small QOL improvements
+- 1.1 :
+    - cart label update, thanks @thesailor
+    - small tweaks
 
 
 ## Feedback
 
-If you have used PSDJ and found a bug or would like to submit a feature request, don't hesitate to do it here (or on the github page once I'll set it to public access)!
+If you have used PSDJ and found a bug or would like to submit a feature request, don't hesitate to do it here or on the github page.
 
 I also have only tested PSDJ on my miyoo mini plus (and my computer), so please tell how it works for you if you have a different setup!
 
