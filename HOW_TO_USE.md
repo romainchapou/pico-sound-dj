@@ -1,6 +1,6 @@
 # Pico Sound Dj
 
-[#psdj-2#]
+[#psdj-3#]
 
 Pico Sound Dj, or PSDJ for short, is an alternative to the base music editor of pico8. It supports the whole pico8 music specs, uses a grid oriented layout and a simple D-pad + O/X/start control scheme inspired by [LDSJ, a game boy music sequencer](https://www.littlesounddj.com/lsd/index.php). With it you can create music on the go using any handheld which has native support for pico8, and then use this music in your pico8 games!
 
@@ -215,6 +215,8 @@ To retrieve the music you made using PSDJ in your pico8 games, you have multiple
 - you can use PSDJ itself to copy all the patterns you want in the Patterns screen and all the related SFX in the SFX Overview screen, open another project, paste them there (you'll need to paste both the patterns in the Patterns screen and the SFX in the SFX Overview screen), and finally save
 - you can also copy the whole SFX and music data from your edited projects using a text editor, or use a tool like [renoiser](https://www.lexaloffle.com/bbs/?tid=36922), as explained in this video : https://www.youtube.com/watch?v=STzunIMtVYA
 
+You can find the code in an easier to read format (split in multiple files and including comments) on github : https://github.com/romainchapou/pico-sound-dj
+
 
 ## Credits
 
@@ -238,6 +240,7 @@ To retrieve the music you made using PSDJ in your pico8 games, you have multiple
 - 1.1 :
     - cart label update, thanks @thesailor
     - small tweaks
+    - add [github link](https://github.com/romainchapou/pico-sound-dj)
 
 
 ## Feedback
